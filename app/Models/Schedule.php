@@ -17,6 +17,8 @@ class Schedule extends Model
         'arrival_time', 'price_per_seat', 'status'
     ];
 
+    protected $with = ['route', 'bus'];
+
     public function route()
     {
         return $this->belongsTo(Route::class);

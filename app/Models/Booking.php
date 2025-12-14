@@ -17,6 +17,8 @@ class Booking extends Model
         'total_amount', 'status'
     ];
 
+    protected $with = ['tickets', 'schedule'];
+
     public function account()
     {
         return $this->belongsTo(Account::class);

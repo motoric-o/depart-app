@@ -93,10 +93,14 @@ class BookingController extends Controller
     // GET /api/my-bookings
     public function index(Request $request)
     {
-        $bookings = Booking::with(['tickets', 'schedule.route'])
-            ->where('account_id', $request->user()->id)
-            ->orderBy('booking_date', 'desc')
-            ->get();
+        $bookings = Booking::with([
+            'tickets',
+            'schedule.route',
+            'schedule.bus'
+        ])
+        ->where('account_id', $request->user()->id)
+        ->orderBy('booking_date', 'desc')
+        ->get();
 
         return response()->json($bookings);
     }

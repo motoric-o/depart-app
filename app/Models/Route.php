@@ -14,6 +14,8 @@ class Route extends Model
 
     protected $fillable = ['source', 'destination_code', 'distance', 'estimated_duration'];
 
+    protected $with = ['destination'];
+
     public function destination()
     {
         return $this->belongsTo(Destination::class, 'destination_code', 'code');
