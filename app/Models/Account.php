@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
-class Account extends Model
+class Account extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, HasApiTokens;
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -17,13 +18,13 @@ class Account extends Model
         'email', 'phone', 'birthdate', 'password_hash'
     ];
 
+    public function getAuthPassword()
+    {
+        return $this->password_hash;
+    }
+
     public function accountType()
     {
         return $this->belongsTo(AccountType::class);
-    }
-
-    public function bookings()
-    {
-        return $this->hasMany(Booking::class);
     }
 }
