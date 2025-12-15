@@ -4,46 +4,58 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\Destination;
+use App\Models\Schedule;
+use App\Models\Ticket;
 
 class ScheduleController extends Controller
 {
-    // GET /api/destinations
-    public function getDestinations()
-    {
-        return response()->json(Destination::select('code', 'city_name')->get());
-    }
-
-    // GET /api/trips/search?from=JKT&to=BDG&date=2025-12-13
     public function search(Request $request)
     {
-        // Validation
+        // 1. Validate the User's Search
         $request->validate([
-            'from' => 'nullable|string',
-            'to' => 'nullable|string',
-            'date' => 'nullable|date',
+            'from' => 'required|string', // e.g., 'Jakarta'
+            'to'   => 'required|string', // e.g., 'Bandung'
+            'date' => 'required|date',   // e.g., '2025-12-25'
         ]);
 
-        // Query the VIEW directly for speed
-        $query = DB::table('view_available_trips');
+        $travelDate = $request->date;
 
-        if ($request->from) {
-            $query->where('source', 'LIKE', "%{$request->from}%");
-        }
-        if ($request->to) {
-            $query->where('destination_code', $request->to);
-        }
-        if ($request->date) {
-            // Compare just the date part of the timestamp
-            $query->whereDate('departure_time', $request->date);
-        }
+        // 2. Find Schedules that match the Route
+        // We look for schedules where the Route matches the source/destination cities
+        $schedules = Schedule::whereHas('route', function($q) use ($request) {
+            $q->where('source', $request->from)
+              ->whereHas('destination', function($subQ) use ($request) {
+                  $subQ->where('city_name', $request->to);
+              });
+        })
+        ->with(['bus', 'route', 'route.destination']) // Eager load details
+        ->get();
 
-        $trips = $query->orderBy('departure_time', 'asc')->get();
+        // 3. The "Occupied" Logic (This is where we put it!)
+        // We loop through each schedule to calculate how many seats are left *for that specific date*.
+        // Inside ScheduleController::search method
 
-        return response()->json([
-            'count' => $trips->count(),
-            'data' => $trips
-        ]);
+        $results = $schedules->map(function ($schedule) use ($travelDate) {
+            // We just call the method we made in the Model
+            $schedule->available_seats = $schedule->getAvailableSeats($travelDate);
+            return $schedule;
+        });
+
+        return response()->json($results);
+    }
+
+    // BONUS: Get specific taken seat numbers (e.g., ['1A', '2B'])
+    // You will call this when the user clicks "Select Seats"
+    public function getTakenSeats(Request $request, $schedule_id)
+    {
+        $request->validate(['date' => 'required|date']);
+
+        $takenSeats = Ticket::whereHas('booking', function ($query) use ($schedule_id, $request) {
+            $query->where('schedule_id', $schedule_id)
+                  ->where('travel_date', $request->date)
+                  ->where('status', '!=', 'cancelled');
+        })->pluck('seat_number'); // Just get the list of seat numbers
+
+        return response()->json(['taken_seats' => $takenSeats]);
     }
 }

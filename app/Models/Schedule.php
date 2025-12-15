@@ -19,6 +19,19 @@ class Schedule extends Model
 
     protected $with = ['route', 'bus'];
 
+    public function getAvailableSeats($travelDate)
+    {
+        // 1. Count occupied seats for this specific date
+        $occupied = Ticket::whereHas('booking', function($query) use ($travelDate) {
+            $query->where('schedule_id', $this->id)
+                  ->where('travel_date', $travelDate)
+                  ->where('status', '!=', 'cancelled');
+        })->count();
+
+        // 2. Return the math
+        return $this->bus->capacity - $occupied;
+    }
+    
     public function route()
     {
         return $this->belongsTo(Route::class);

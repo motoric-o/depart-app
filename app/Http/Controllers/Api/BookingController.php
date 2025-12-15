@@ -9,6 +9,7 @@ use App\Models\Schedule;
 use App\Models\Booking;
 use App\Models\Ticket;
 use App\Models\Transaction;
+use Carbon\Carbon;
 
 class BookingController extends Controller
 {
@@ -103,5 +104,56 @@ class BookingController extends Controller
         ->get();
 
         return response()->json($bookings);
+    }
+
+    public function cancel(Request $request, $id)
+    {
+        // 1. Find the booking belonging to the logged-in user
+        $booking = Booking::where('id', $id)
+                        ->where('account_id', $request->user()->id)
+                        ->with(['schedule', 'payment']) // Load relations we need to check
+                        ->first();
+
+        if (!$booking) {
+            return response()->json(['message' => 'Booking not found.'], 404);
+        }
+
+        // 2. Check if it's already cancelled or completed
+        if ($booking->status === 'cancelled') {
+            return response()->json(['message' => 'Booking is already cancelled.'], 400);
+        }
+        if ($booking->status === 'completed') {
+            return response()->json(['message' => 'Cannot cancel a completed trip.'], 400);
+        }
+
+        // 3. Time Limit Check (Optional but Recommended)
+        // Combine the date and time to create a Carbon object
+        // Assuming booking has 'travel_date' and schedule has 'departure_time'
+        $departureTimestamp = Carbon::parse($booking->travel_date . ' ' . $booking->schedule->departure_time);
+        
+        // If departure is less than 24 hours from now
+        if ($departureTimestamp->lessThan(now()->addHours(24))) {
+            return response()->json(['message' => 'Cancellation is only allowed 24 hours before departure.'], 400);
+        }
+
+        // 4. The Atomic Transaction
+        DB::transaction(function () use ($booking) {
+            
+            // A. Update Booking Status
+            $booking->update(['status' => 'cancelled']);
+
+            // B. Update/Delete Tickets (Free up the seats)
+            // We usually don't DELETE rows (hard delete) for history purposes.
+            // Instead, we mark them as cancelled so the seat logic ignores them.
+            $booking->tickets()->update(['status' => 'cancelled']);
+
+            // C. Handle Payment/Refund Logic
+            if ($booking->payment && $booking->payment->status === 'paid') {
+                $booking->payment->update(['status' => 'refund_pending']);
+                // logic to trigger Stripe/Gateway refund would go here
+            }
+        });
+
+        return response()->json(['message' => 'Booking cancelled successfully. Refund processing started.']);
     }
 }

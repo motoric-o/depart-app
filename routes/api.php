@@ -4,14 +4,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\DestinationController;
 
 // 1. Public Routes (No Login Required)
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Search trips using your Database View
-Route::get('/trips/search', [ScheduleController::class, 'search']);
-Route::get('/destinations', [ScheduleController::class, 'getDestinations']);
+// ScheduleController Routes
+Route::get('/schedules/search', [ScheduleController::class, 'search']);
+Route::get('/schedules/{id}/seats', [ScheduleController::class, 'getTakenSeats']);
+
+// DestinationController Routes
+Route::get('/destinations', [DestinationController::class, 'index']);
 
 // 2. Protected Routes (Login Required)
 // Note: Ensure you have Laravel Sanctum installed/configured for this middleware
