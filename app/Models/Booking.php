@@ -9,6 +9,8 @@ class Booking extends Model
 {
     use HasFactory;
 
+
+    public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -40,6 +42,6 @@ class Booking extends Model
 
     public function payment()
     {
-        return $this->hasOne(Transaction::class)->latestOfMany();
+        return $this->hasOne(Transaction::class)->latestOfMany('created_at');
     }
 }

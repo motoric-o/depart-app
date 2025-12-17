@@ -9,6 +9,7 @@ class Transaction extends Model
 {
     use HasFactory;
 
+    public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [

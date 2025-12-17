@@ -11,6 +11,7 @@ class Account extends Authenticatable
 {
     use HasFactory, HasApiTokens, Notifiable;
 
+    public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [

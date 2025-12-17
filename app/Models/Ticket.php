@@ -9,6 +9,7 @@ class Ticket extends Model
 {
     use HasFactory;
     protected $keyType = 'string';
+    public $incrementing = false;
 
     protected $fillable = ['booking_id', 'passenger_name', 'seat_number', 'status'];
 

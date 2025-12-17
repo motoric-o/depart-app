@@ -9,6 +9,7 @@ class Route extends Model
 {
     use HasFactory;
 
+    public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = ['source', 'destination_code', 'distance', 'estimated_duration'];
