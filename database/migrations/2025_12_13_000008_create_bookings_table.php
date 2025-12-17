@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('schedule_id');
             $table->foreign('schedule_id')->references('id')->on('schedules');
             $table->dateTime('booking_date');
+            $table->date('travel_date'); // Date when the trip will take place
             $table->decimal('total_amount', 10, 2);
             $table->string('status')->default('Pending');
             $table->timestamps();

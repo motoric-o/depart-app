@@ -24,8 +24,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // User Profile
     Route::get('/user', [AuthController::class, 'me']);
     
+    
     // Booking Flow
     Route::post('/bookings', [BookingController::class, 'store']); // The "Book Now" button
     Route::get('/my-bookings', [BookingController::class, 'index']); // Booking History
     Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancel']); // Cancel & Refund
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
 });

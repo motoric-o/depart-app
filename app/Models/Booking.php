@@ -13,7 +13,7 @@ class Booking extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'account_id', 'schedule_id', 'booking_date', 
+        'account_id', 'schedule_id', 'booking_date', 'travel_date',
         'total_amount', 'status'
     ];
 

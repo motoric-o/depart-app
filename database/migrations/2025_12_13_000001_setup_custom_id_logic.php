@@ -28,8 +28,9 @@ return new class extends Migration
                 INSERT INTO sequence_counters (key, last_value, created_at, updated_at)
                 VALUES (p_key, 1, NOW(), NOW())
                 ON CONFLICT (key) DO UPDATE 
-                SET last_value = sequence_counters.last_value + 1, updated_at = NOW()
-                RETURNING last_value INTO v_val;
+                SET last_value = sequence_counters.last_value + 1, updated_at = NOW();
+                
+                SELECT last_value INTO v_val FROM sequence_counters WHERE key = p_key;
                 RETURN v_val;
             END;
             $$ LANGUAGE plpgsql;
