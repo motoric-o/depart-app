@@ -122,7 +122,9 @@ class BookingController extends Controller
         // 3. Time Limit Check (Optional but Recommended)
         // Combine the date and time to create a Carbon object
         // Assuming booking has 'travel_date' and schedule has 'departure_time'
-        $departureTimestamp = Carbon::parse($booking->travel_date . ' ' . $booking->schedule->departure_time);
+        // Combine the date and time to create a Carbon object
+        // We use travel_date from booking and time from schedule
+        $departureTimestamp = Carbon::parse($booking->travel_date . ' ' . Carbon::parse($booking->schedule->departure_time)->format('H:i:s'));
         
         // If departure is less than 24 hours from now
         if ($departureTimestamp->lessThan(now()->addHours(24))) {

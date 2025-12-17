@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\DestinationController;
+use App\Http\Controllers\Api\NotificationController;
 
 // 1. Public Routes (No Login Required)
 Route::post('/register', [AuthController::class, 'register']);

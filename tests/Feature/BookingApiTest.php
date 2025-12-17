@@ -27,9 +27,11 @@ class BookingApiTest extends TestCase
         $user = Account::factory()->create();
         
         // We create these manually or use factories if you have them
-        $destination = Destination::create(['code' => 'BDG', 'city_name' => 'Bandung']);
+        $destination = Destination::firstOrCreate(['code' => 'BDG'], ['city_name' => 'Bandung']);
+        
+
         $route = Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
-        $bus = Bus::factory()->create(); // Use factory instead of manual create
+        $bus = Bus::factory()->create(); 
         
         $schedule = Schedule::create([
             'route_id' => $route->id,

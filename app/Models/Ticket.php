@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Ticket extends Model
 {
     use HasFactory;
-
-    public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = ['booking_id', 'passenger_name', 'seat_number', 'status'];
