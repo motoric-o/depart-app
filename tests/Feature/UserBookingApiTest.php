@@ -19,22 +19,30 @@ class UserBookingApiTest extends TestCase
     public function test_user_can_view_my_bookings()
     {
         // 1. Arrange
-        $user = Account::factory()->create();
-        $otherUser = Account::factory()->create();
+        Account::factory()->create(['email' => 'u1@test.com']);
+        $user = Account::where('email', 'u1@test.com')->first();
+        
+        Account::factory()->create(['email' => 'u2@test.com']);
+        $otherUser = Account::where('email', 'u2@test.com')->first();
 
         Destination::create(['code' => 'BDG', 'city_name' => 'Bandung']);
-        $route = Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
-        $bus = Bus::factory()->create();
-        $schedule = Schedule::create([
+        Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
+        $route = Route::where('source', 'Jakarta')->where('destination_code', 'BDG')->first();
+        
+        Bus::factory()->create(['bus_number' => 'B-TEST-001']);
+        $bus = Bus::where('bus_number', 'B-TEST-001')->first();
+        
+        Schedule::create([
             'route_id' => $route->id,
             'bus_id' => $bus->id,
             'departure_time' => now()->setTime(10, 0),
             'arrival_time' => now()->setTime(14, 0),
             'price_per_seat' => 100000
         ]);
+        $schedule = Schedule::latest()->first();
 
         // Booking 1: Belonging to the user
-        $myBooking = Booking::create([
+        Booking::create([
             'account_id' => $user->id,
             'schedule_id' => $schedule->id,
             'booking_date' => now(),
@@ -42,6 +50,7 @@ class UserBookingApiTest extends TestCase
             'status' => 'confirmed',
             'total_amount' => 100000
         ]);
+        $myBooking = Booking::latest()->first();
 
         // Booking 2: Belonging to someone else
         Booking::create([
@@ -65,27 +74,29 @@ class UserBookingApiTest extends TestCase
     public function test_user_can_cancel_booking()
     {
         // 1. Arrange
-        $user = Account::factory()->create();
+        Account::factory()->create(['email' => 'cancel@test.com']);
+        $user = Account::where('email', 'cancel@test.com')->first();
 
         Destination::create(['code' => 'BDG', 'city_name' => 'Bandung']);
-        $route = Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
-        $bus = Bus::factory()->create();
-        $schedule = Schedule::create([
+        Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
+        $route = Route::where('source', 'Jakarta')->where('destination_code', 'BDG')->first();
+        
+        Bus::factory()->create(['bus_number' => 'B-TEST-002']);
+        $bus = Bus::where('bus_number', 'B-TEST-002')->first();
+        
+        Schedule::create([
             'route_id' => $route->id,
             'bus_id' => $bus->id,
             'departure_time' => now()->setTime(10, 0),
             'arrival_time' => now()->setTime(14, 0),
             'price_per_seat' => 100000
         ]);
+        $schedule = Schedule::latest()->first();
 
-        // Booking must be more than 24h away to cancel (logic in controller: departureTimestamp < NOW + 24h -> Fail)
-        // Controller Logic: if ($departureTimestamp->lessThan(now()->addHours(24))) { Error }
-        // So we need departure to be > 24h from now.
-        // Travel Date: 2 days from now.
-        
+        // Booking must be more than 24h away to cancel
         $travelDate = now()->addDays(2)->toDateString();
-
-        $booking = Booking::create([
+        
+        Booking::create([
             'account_id' => $user->id,
             'schedule_id' => $schedule->id,
             'booking_date' => now(),
@@ -93,6 +104,7 @@ class UserBookingApiTest extends TestCase
             'status' => 'confirmed',
             'total_amount' => 100000
         ]);
+        $booking = Booking::latest()->first();
 
         Ticket::create(['booking_id' => $booking->id, 'passenger_name' => 'P1', 'seat_number' => '1A', 'status' => 'confirmed']);
 
@@ -116,24 +128,30 @@ class UserBookingApiTest extends TestCase
 
     public function test_cannot_cancel_booking_less_than_24h_before()
     {
-        $user = Account::factory()->create();
+        Account::factory()->create(['email' => 'late@test.com']);
+        $user = Account::where('email', 'late@test.com')->first();
 
         Destination::create(['code' => 'BDG', 'city_name' => 'Bandung']);
-        $route = Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
-        $bus = Bus::factory()->create();
-        $schedule = Schedule::create([
+        Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
+        $route = Route::where('source', 'Jakarta')->where('destination_code', 'BDG')->first();
+        
+        Bus::factory()->create(['bus_number' => 'B-TEST-003']);
+        $bus = Bus::where('bus_number', 'B-TEST-003')->first();
+        
+        Schedule::create([
             'route_id' => $route->id,
             'bus_id' => $bus->id,
             'departure_time' => now()->setTime(10, 0),
             'arrival_time' => now()->setTime(14, 0),
             'price_per_seat' => 100000
         ]);
+        $schedule = Schedule::latest()->first();
 
         // Travel Date: Tomorrow (Less than 24h if ran late in the day vs 10am... tricky)
         // If now is 23:00 (11PM), tomorrow 10:00 is < 12 hours away.
         // If we set travel_date to NOW's date, it's definitely < 24h.
         
-        $booking = Booking::create([
+        Booking::create([
             'account_id' => $user->id,
             'schedule_id' => $schedule->id,
             'booking_date' => now(),
@@ -141,6 +159,7 @@ class UserBookingApiTest extends TestCase
             'status' => 'confirmed',
             'total_amount' => 100000
         ]);
+        $booking = Booking::latest()->first();
 
         $response = $this->actingAs($user)->postJson("/api/bookings/{$booking->id}/cancel");
 

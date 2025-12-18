@@ -24,22 +24,26 @@ class BookingApiTest extends TestCase
         // We need a user, a bus, and a schedule to book
         Notification::fake(); // Tells Laravel: "Don't actually send emails/DB notifications, just record them"
 
-        $user = Account::factory()->create();
+        $user = Account::factory()->create(['email' => 'booker@test.com']);
+        $user = Account::where('email', 'booker@test.com')->first();
         
         // We create these manually or use factories if you have them
         $destination = Destination::firstOrCreate(['code' => 'BDG'], ['city_name' => 'Bandung']);
-        
 
-        $route = Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
-        $bus = Bus::factory()->create(); 
+        Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
+        $route = Route::where('source', 'Jakarta')->where('destination_code', 'BDG')->first();
         
-        $schedule = Schedule::create([
+        Bus::factory()->create(['bus_number' => 'B-BOOK-001', 'capacity' => 40]);
+        $bus = Bus::where('bus_number', 'B-BOOK-001')->first();
+        
+        Schedule::create([
             'route_id' => $route->id,
             'bus_id' => $bus->id,
             'departure_time' => now()->setTime(8, 0, 0),
             'arrival_time' => now()->setTime(12, 0, 0),
             'price_per_seat' => 100000
         ]);
+        $schedule = Schedule::latest()->first();
 
         // 2. ACTION: Make the API Request
         // actingAs($user) logs the user in for this request

@@ -20,12 +20,15 @@ class ScheduleApiTest extends TestCase
     {
         // 1. Arrange
         Destination::create(['code' => 'BDG', 'city_name' => 'Bandung']);
-        $route = Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
-        $bus = Bus::factory()->create(['capacity' => 40]);
+        Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
+        $route = Route::where('source', 'Jakarta')->where('destination_code', 'BDG')->first();
+        
+        Bus::factory()->create(['capacity' => 40, 'bus_number' => 'B-SCH-001']);
+        $bus = Bus::where('bus_number', 'B-SCH-001')->first();
         
         $today = now()->toDateString();
         
-        $schedule = Schedule::create([
+        Schedule::create([
             'route_id' => $route->id,
             'bus_id' => $bus->id,
             'departure_time' => now()->setTime(8, 0),
@@ -48,8 +51,11 @@ class ScheduleApiTest extends TestCase
     public function test_search_returns_empty_if_route_does_not_match()
     {
         Destination::create(['code' => 'BDG', 'city_name' => 'Bandung']);
-        $route = Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
-        $bus = Bus::factory()->create();
+        Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
+        $route = Route::where('source', 'Jakarta')->where('destination_code', 'BDG')->first();
+        
+        Bus::factory()->create(['bus_number' => 'B-SCH-002']);
+        $bus = Bus::where('bus_number', 'B-SCH-002')->first();
         
         Schedule::create([
             'route_id' => $route->id,
@@ -69,21 +75,28 @@ class ScheduleApiTest extends TestCase
     {
         // 1. Arrange
         Destination::create(['code' => 'BDG', 'city_name' => 'Bandung']);
-        $route = Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
-        $bus = Bus::factory()->create();
-        $schedule = Schedule::create([
+        Route::create(['source' => 'Jakarta', 'destination_code' => 'BDG']);
+        $route = Route::where('source', 'Jakarta')->where('destination_code', 'BDG')->first();
+        
+        Bus::factory()->create(['bus_number' => 'B-SCH-003']);
+        $bus = Bus::where('bus_number', 'B-SCH-003')->first();
+        
+        Schedule::create([
             'route_id' => $route->id,
             'bus_id' => $bus->id,
             'departure_time' => now()->setTime(10, 0),
             'arrival_time' => now()->setTime(14, 0),
             'price_per_seat' => 100000
         ]);
+        $schedule = Schedule::latest()->first();
 
-        $user = Account::factory()->create();
+        Account::factory()->create(['email' => 'seats@test.com']);
+        $user = Account::where('email', 'seats@test.com')->first();
+        
         $travelDate = now()->addDays(2)->toDateString();
 
         // Create a booking with tickets
-        $booking = Booking::create([
+        Booking::create([
             'account_id' => $user->id,
             'schedule_id' => $schedule->id,
             'booking_date' => now(),
@@ -91,6 +104,7 @@ class ScheduleApiTest extends TestCase
             'status' => 'confirmed',
             'total_amount' => 200000
         ]);
+        $booking = Booking::latest()->first();
 
         Ticket::create(['booking_id' => $booking->id, 'passenger_name' => 'P1', 'seat_number' => '1A', 'status' => 'confirmed']);
         Ticket::create(['booking_id' => $booking->id, 'passenger_name' => 'P2', 'seat_number' => '1B', 'status' => 'confirmed']);

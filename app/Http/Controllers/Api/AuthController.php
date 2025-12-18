@@ -41,7 +41,8 @@ class AuthController extends Controller
         ]);
 
         // 3. Refresh to get the DB-generated ID
-        $account->refresh();
+        // $account->refresh(); // Fails if ID is null
+        $account = Account::where('email', $request->email)->first();
 
         // 4. Create Token
         $token = $account->createToken('auth_token')->plainTextToken;
