@@ -9,7 +9,7 @@ class AccountTypeSeeder extends Seeder
 {
     public function run()
     {
-        $types = ['Admin', 'Customer', 'Driver', 'Staff'];
+        $types = ['Admin', 'Customer', 'Owner', 'Driver'];
         
         foreach ($types as $type) {
             AccountType::firstOrCreate(['name' => $type]);
