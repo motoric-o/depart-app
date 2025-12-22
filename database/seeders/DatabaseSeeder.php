@@ -59,12 +59,21 @@ class DatabaseSeeder extends Seeder
         $custType = AccountType::where('name', 'Customer')->first();
 
         // Create Admin
-        Account::factory()->create([
-            'account_type_id' => $adminType->id,
-            'email' => 'admin@busapp.com',
-            'first_name' => 'Super',
-            'last_name' => 'Admin'
-        ]);
+        if (!Account::where('email', 'admin@busapp.com')->exists()) {
+            Account::factory()->create([
+                'account_type_id' => $adminType->id,
+                'email' => 'admin@busapp.com',
+                'first_name' => 'Super',
+                'last_name' => 'Admin'
+            ]);
+        }
+
+        // Create Manual Account (Rico)
+        if (!Account::where('email', 'rico.dharmawan@example.com')->exists()) {
+            Account::factory()->rico()->create();
+            Account::factory()->jojo()->create();
+            Account::factory()->jason()->create();
+        }
 
         // Create Customers
         Account::factory(5)->create([
@@ -99,6 +108,7 @@ class DatabaseSeeder extends Seeder
                 'account_id' => $customer->id,
                 'schedule_id' => $schedule->id,
                 'booking_date' => now(),
+                'travel_date' => $schedule->departure_time,
                 'total_amount' => $schedule->price_per_seat,
                 'status' => 'Confirmed'
             ]);
