@@ -18,8 +18,12 @@
                         <p class="text-sm text-gray-600">Add or remove buses from fleet.</p>
                     </a>
                     <a href="{{ route('admin.routes') }}" class="block p-4 border rounded shadow-sm bg-blue-50 hover:bg-blue-100 transition duration-150">
-                        <h4 class="font-semibold text-blue-700">Routes & Schedules</h4>
+                        <h4 class="font-semibold text-blue-700">Manage Routes</h4>
                         <p class="text-sm text-gray-600">Configure travel routes.</p>
+                    </a>
+                    <a href="{{ route('admin.schedules') }}" class="block p-4 border rounded shadow-sm bg-blue-50 hover:bg-blue-100 transition duration-150">
+                        <h4 class="font-semibold text-blue-700">Manage Schedules</h4>
+                        <p class="text-sm text-gray-600">Schedule buses and prices.</p>
                     </a>
                 </div>
             </div>

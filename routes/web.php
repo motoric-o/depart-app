@@ -53,7 +53,28 @@ Route::middleware('auth')->group(function () {
         Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('users.update');
         Route::delete('/users/{id}', [AdminController::class, 'deleteUser'])->name('users.delete');
 
+        // Buses CRUD
         Route::get('/buses', [AdminController::class, 'buses'])->name('buses');
+        Route::get('/buses/create', [AdminController::class, 'createBus'])->name('buses.create');
+        Route::post('/buses', [AdminController::class, 'storeBus'])->name('buses.store');
+        Route::get('/buses/{id}/edit', [AdminController::class, 'editBus'])->name('buses.edit');
+        Route::put('/buses/{id}', [AdminController::class, 'updateBus'])->name('buses.update');
+        Route::delete('/buses/{id}', [AdminController::class, 'deleteBus'])->name('buses.delete');
+
+        // Routes CRUD
         Route::get('/routes', [AdminController::class, 'routes'])->name('routes');
+        Route::get('/routes/create', [AdminController::class, 'createRoute'])->name('routes.create');
+        Route::post('/routes', [AdminController::class, 'storeRoute'])->name('routes.store');
+        Route::get('/routes/{id}/edit', [AdminController::class, 'editRoute'])->name('routes.edit');
+        Route::put('/routes/{id}', [AdminController::class, 'updateRoute'])->name('routes.update');
+        Route::delete('/routes/{id}', [AdminController::class, 'deleteRoute'])->name('routes.delete');
+
+        // Schedules CRUD (Maybe linked from Route, but global list is also fine)
+        Route::get('/schedules', [AdminController::class, 'schedules'])->name('schedules');
+        Route::get('/schedules/create', [AdminController::class, 'createSchedule'])->name('schedules.create');
+        Route::post('/schedules', [AdminController::class, 'storeSchedule'])->name('schedules.store');
+        Route::get('/schedules/{id}/edit', [AdminController::class, 'editSchedule'])->name('schedules.edit');
+        Route::put('/schedules/{id}', [AdminController::class, 'updateSchedule'])->name('schedules.update');
+        Route::delete('/schedules/{id}', [AdminController::class, 'deleteSchedule'])->name('schedules.delete');
     });
 });
