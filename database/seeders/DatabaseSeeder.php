@@ -69,11 +69,9 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create Manual Account (Rico)
-        if (!Account::where('email', 'rico.dharmawan@example.com')->exists()) {
-            Account::factory()->rico()->create();
-            Account::factory()->jojo()->create();
-            Account::factory()->jason()->create();
-        }
+        Account::factory()->rico()->create();
+        Account::factory()->jojo()->create();
+        Account::factory()->jason()->create();
 
         // Create Customers
         Account::factory(5)->create([

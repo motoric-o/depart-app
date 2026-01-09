@@ -43,7 +43,7 @@ class AccountFactory extends Factory
             'phone' => '081234567890',
             'birthdate' => '2006-08-19',
             'password_hash' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'account_type_id' => '1'
+            'account_type_id' => '3'
         ]);
     }
 
