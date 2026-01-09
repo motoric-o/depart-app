@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\AdminController;
+use App\Http\Controllers\Web\OwnerController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
@@ -36,11 +37,33 @@ Route::middleware('auth')->group(function () {
             case 'Admin':
                 return redirect()->route('admin.dashboard');
             case 'Owner':
-                return view('owner.dashboard');
+                return redirect()->route('owner.dashboard');
             default:
                 return view('welcome');
         }
     })->name('dashboard');
+
+    // Admin Routes
+    Route::prefix('admin')->name('admin.')->group(function () {
+        // ...
+    });
+
+    // Owner Routes
+    Route::prefix('owner')->name('owner.')->group(function () {
+        Route::get('/dashboard', [OwnerController::class, 'dashboard'])->name('dashboard');
+        
+        // Users CRUD (Admins & Customers)
+        Route::get('/users', [OwnerController::class, 'users'])->name('users');
+        Route::get('/users/create', [OwnerController::class, 'createUser'])->name('users.create');
+        Route::post('/users', [OwnerController::class, 'storeUser'])->name('users.store');
+        Route::get('/users/{id}/edit', [OwnerController::class, 'editUser'])->name('users.edit');
+        Route::put('/users/{id}', [OwnerController::class, 'updateUser'])->name('users.update');
+        Route::delete('/users/{id}', [OwnerController::class, 'deleteUser'])->name('users.delete');
+
+        // Revenue Reports
+        Route::get('/reports', [OwnerController::class, 'reports'])->name('reports');
+        Route::get('/reports/export', [OwnerController::class, 'exportCsv'])->name('reports.export');
+    });
 
     // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {

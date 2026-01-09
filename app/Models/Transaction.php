@@ -18,6 +18,11 @@ class Transaction extends Model
         'total_amount', 'type', 'status'
     ];
 
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
+
     public function booking()
     {
         return $this->belongsTo(Booking::class);

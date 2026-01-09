@@ -21,9 +21,26 @@ class AdminController extends Controller
 
     // --- USERS MANAGEMENT ---
 
-    public function users()
+    public function users(\Illuminate\Http\Request $request)
     {
-        $users = Account::with('accountType')->paginate(10);
+        $query = Account::with('accountType');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('role')) {
+            $query->whereHas('accountType', function($q) use ($request) {
+                $q->where('name', $request->role);
+            });
+        }
+
+        $users = $query->paginate(10)->withQueryString();
         return view('admin.users.index', compact('users'));
     }
 
