@@ -159,4 +159,113 @@
         </div>
     </div>
 </div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h2 class="text-3xl font-extrabold text-gray-900 mb-12 text-center">Apa Kata Penumpang</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
+        <!-- Testimonial 1 -->
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:-translate-y-1 transition duration-300">
+            <div class="flex items-center mb-4">
+                <img class="h-11 w-11 rounded-full object-cover" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Budi Santoso">
+                <div class="ml-4">
+                    <h4 class="text-lg font-bold text-gray-900">Budi Santoso</h4>
+                    <div class="flex text-yellow-400">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <p class="text-gray-600 italic">"Sangat praktis pesan tiket di sini. Tidak perlu antri di terminal, harga juga transparan tanpa biaya tersembunyi. Sangat direkomendasikan!"</p>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:-translate-y-1 transition duration-300">
+            <div class="flex items-center mb-4">
+                <img class="h-11 w-11 rounded-full object-cover" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Siti Rahayu">
+                <div class="ml-4">
+                    <h4 class="text-lg font-bold text-gray-900">Siti Rahayu</h4>
+                    <div class="flex text-yellow-400">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <p class="text-gray-600 italic">"Reschedule jadwal sangat mudah. CS-nya juga ramah dan fast respon. Pengalaman perjalanan jadi lebih tenang."</p>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:-translate-y-1 transition duration-300">
+            <div class="flex items-center mb-4">
+                <img class="h-11 w-11 rounded-full object-cover" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Rizky Pratama">
+                <div class="ml-4">
+                    <h4 class="text-lg font-bold text-gray-900">Rizky Pratama</h4>
+                    <div class="flex text-yellow-400">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <p class="text-gray-600 italic">"Banyak pilihan PO bus dan rute. Harganya bersaing banget dibanding aplikasi lain. Top markotop!"</p>
+        </div>
+    </div>
+</div>
+
+<!-- Trusted Partners Section -->
+<div class="bg-gray-50 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-extrabold text-gray-900 mb-8 text-center">Mitra Resmi Kami</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center opacity-70 grayscale hover:grayscale-0 transition duration-500">
+             <div class="flex justify-center items-center h-16 bg-white rounded-lg shadow-sm hover:shadow-md transition"><span class="text-lg font-bold text-gray-400">Pahala Kencana</span></div>
+             <div class="flex justify-center items-center h-16 bg-white rounded-lg shadow-sm hover:shadow-md transition"><span class="text-lg font-bold text-gray-400">Lorena</span></div>
+             <div class="flex justify-center items-center h-16 bg-white rounded-lg shadow-sm hover:shadow-md transition"><span class="text-lg font-bold text-gray-400">Rosalia Indah</span></div>
+             <div class="flex justify-center items-center h-16 bg-white rounded-lg shadow-sm hover:shadow-md transition"><span class="text-lg font-bold text-gray-400">Sinar Jaya</span></div>
+             <div class="flex justify-center items-center h-16 bg-white rounded-lg shadow-sm hover:shadow-md transition"><span class="text-lg font-bold text-gray-400">Damri</span></div>
+             <div class="flex justify-center items-center h-16 bg-white rounded-lg shadow-sm hover:shadow-md transition"><span class="text-lg font-bold text-gray-400">Gunung Harta</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- FAQ Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h2 class="text-3xl font-extrabold text-gray-900 mb-12 text-center">Pertanyaan Umum</h2>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 divide-y divide-gray-200">
+        <div class="p-6">
+            <h3 class="text-lg font-medium text-gray-900">Bagaimana cara memesan tiket?</h3>
+            <p class="mt-2 text-gray-600">Pilih rute keberangkatan, tujuan, dan tanggal perjalanan. Kemudian pilih kursi yang tersedia dan lakukan pembayaran.</p>
+        </div>
+        <div class="p-6">
+            <h3 class="text-lg font-medium text-gray-900">Apakah bisa refund tiket?</h3>
+            <p class="mt-2 text-gray-600">Ya, Anda dapat mengajukan refund maksimal 24 jam sebelum keberangkatan dengan potongan biaya administrasi sebesar 25%.</p>
+        </div>
+        <div class="p-6">
+            <h3 class="text-lg font-medium text-gray-900">Metode pembayaran apa saja yang tersedia?</h3>
+            <p class="mt-2 text-gray-600">Kami menerima pembayaran via Transfer Bank, E-Wallet (OVO, Dana, GoPay), dan Minimarket (Indomaret/Alfamart).</p>
+        </div>
+        <div class="p-6">
+            <h3 class="text-lg font-medium text-gray-900">Apakah harus cetak tiket?</h3>
+            <p class="mt-2 text-gray-600">Tidak perlu. Anda cukup menunjukkan E-Ticket yang dikirimkan ke email atau aplikasi saat boarding.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Newsletter Section -->
+<div class="bg-blue-600 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+        <h2 class="text-3xl font-extrabold mb-4">Dapatkan Diskon Spesial!</h2>
+        <p class="text-lg mb-8 text-blue-100">Berlangganan newsletter kami untuk info promo dan rute terbaru.</p>
+        <div class="max-w-md mx-auto flex flex-col sm:flex-row gap-2">
+            <input type="email" placeholder="Masukkan email Anda" class="w-full flex-1 px-4 py-3 rounded-md text-gray-900 bg-white border-2 border-transparent outline-none placeholder-gray-500 transition-all">
+            <button class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-md transition duration-200 shadow-md">Langganan</button>
+        </div>
+    </div>
+</div>
 @endsection
