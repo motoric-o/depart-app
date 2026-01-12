@@ -7,7 +7,7 @@ use App\Http\Controllers\Web\OwnerController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
 });
 
 Route::post('/chat', [App\Http\Controllers\ChatController::class, 'handle'])->name('chat');
@@ -41,7 +41,7 @@ Route::middleware('auth')->group(function () {
             case 'Owner':
                 return redirect()->route('owner.dashboard');
             default:
-                return view('welcome');
+                return view('home');
         }
     })->name('dashboard');
 
