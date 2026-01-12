@@ -26,6 +26,7 @@
                         <p class="text-sm text-gray-600">Schedule buses and prices.</p>
                     </a>
                 </div>
+                </div>
             </div>
         </div>
     </div>

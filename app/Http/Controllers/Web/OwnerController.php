@@ -12,7 +12,16 @@ class OwnerController extends Controller
 {
     public function dashboard()
     {
-        return view('owner.dashboard');
+        // Use Stored Procedure for Dashboard Stats to reduce aggregation load
+        $statsResult = \Illuminate\Support\Facades\DB::select("SELECT * FROM sp_get_owner_dashboard_stats()");
+        $dashboardStats = $statsResult[0];
+
+        // Use the new View Model to get optimized stats
+        $routeStats = \App\Models\RouteStat::orderByDesc('total_bookings')
+            ->take(5)
+            ->get();
+
+        return view('owner.dashboard', compact('routeStats', 'dashboardStats'));
     }
 
     public function users(Request $request)
@@ -152,13 +161,16 @@ class OwnerController extends Controller
         $dailyRevenue = \App\Models\Transaction::where('status', 'Success')->whereDate('transaction_date', today())->sum('total_amount');
         $monthlyRevenue = \App\Models\Transaction::where('status', 'Success')->whereMonth('transaction_date', now()->month)->whereYear('transaction_date', now()->year)->sum('total_amount');
         
+        // Get Daily Breakdown for current month via SP
+        $dailyBreakdown = \Illuminate\Support\Facades\DB::select("SELECT * FROM sp_get_monthly_revenue(?, ?)", [now()->year, now()->month]);
+        
         $recentTransactions = \App\Models\Transaction::with(['account', 'booking'])
             ->where('status', 'Success')
             ->orderBy('transaction_date', 'desc')
             ->take(10)
             ->get();
 
-        return view('owner.reports.index', compact('totalRevenue', 'dailyRevenue', 'monthlyRevenue', 'recentTransactions'));
+        return view('owner.reports.index', compact('totalRevenue', 'dailyRevenue', 'monthlyRevenue', 'recentTransactions', 'dailyBreakdown'));
     }
 
     public function exportCsv()

@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AccountTypeSeeder::class,
             DestinationSeeder::class,
+            RouteSeeder::class,
         ]);
 
         // 2. Create Fleet
@@ -30,29 +31,8 @@ class DatabaseSeeder extends Seeder
         // Fetch them back from DB so we have the IDs (BUS001, etc.)
         $buses = Bus::all(); 
 
-        // 3. Create Routes
-        $jakarta = Destination::where('code', 'JKT')->first();
-        $bandung = Destination::where('code', 'BDG')->first();
-
-        // Create Route 1
-        Route::create([
-            'source' => 'Jakarta Terminal 1',
-            'destination_code' => $bandung->code,
-            'distance' => 150,
-            'estimated_duration' => 180
-        ]);
-        // FETCH IT BACK TO GET THE ID (RTE-001)
-        $routeJKT_BDG = Route::where('source', 'Jakarta Terminal 1')->first();
-
-        // Create Route 2
-        Route::create([
-            'source' => 'Bandung Terminal A',
-            'destination_code' => $jakarta->code,
-            'distance' => 150,
-            'estimated_duration' => 180
-        ]);
-        // FETCH IT BACK
-        $routeBDG_JKT = Route::where('source', 'Bandung Terminal A')->first();
+        // 3. Fetch Routes (Seeded via RouteSeeder)
+        $routes = Route::all();
 
         // 4. Create Users
         $adminType = AccountType::where('name', 'Admin')->first();
@@ -81,13 +61,13 @@ class DatabaseSeeder extends Seeder
         $customers = Account::where('account_type_id', $custType->id)->get();
 
         // 5. Create Schedules (Trips)
-        foreach(range(1, 20) as $i) {
-            // Pick a valid route ID from our fetched objects
-            $selectedRoute = ($i % 2 == 0) ? $routeJKT_BDG : $routeBDG_JKT;
+        foreach(range(1, 50) as $i) {
+            // Pick a random route from seeded routes
+            $selectedRoute = $routes->random();
 
             Schedule::factory()->create([
-                'route_id' => $selectedRoute->id, // Now valid (e.g., RTE-001)
-                'bus_id' => $buses->random()->id, // Now valid (e.g., BUS005)
+                'route_id' => $selectedRoute->id,
+                'bus_id' => $buses->random()->id,
             ]);
         }
         

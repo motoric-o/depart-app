@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('routes', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->string('source');
+            $table->string('source_code')->nullable();
+            $table->foreign('source_code')->references('code')->on('destinations')->onUpdate('cascade');
             $table->string('destination_code');
             $table->foreign('destination_code')->references('code')->on('destinations')->onUpdate('cascade');
             $table->integer('distance')->nullable();

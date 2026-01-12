@@ -12,7 +12,7 @@ class Route extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ['source', 'destination_code', 'distance', 'estimated_duration'];
+    protected $fillable = ['source', 'source_code', 'destination_code', 'distance', 'estimated_duration'];
 
     protected $with = ['destination'];
 
