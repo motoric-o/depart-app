@@ -7,8 +7,7 @@ use App\Http\Controllers\Web\OwnerController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    $destinations = App\Models\Destination::orderBy('city_name')->get();
-    return view('welcome', compact('destinations'));
+    return view('welcome');
 });
 
 Route::get('/schedules', [App\Http\Controllers\Web\SearchController::class, 'index'])->name('schedules.index');
@@ -44,7 +43,7 @@ Route::middleware('auth')->group(function () {
             case 'Owner':
                 return redirect()->route('owner.dashboard');
             default:
-                return view('welcome');
+                return view('home');
         }
     })->name('dashboard');
 
