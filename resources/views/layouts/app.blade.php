@@ -151,7 +151,7 @@
                 <form id="chatbot-form" class="flex items-center" style="display: flex; align-items: center;">
                     <input type="text" id="chatbot-input" class="border-gray-300 focus:border-blue-500 focus:ring-blue-500" style="flex: 1; border: 1px solid #D1D5DB; border-radius: 9999px; padding: 8px 16px; font-size: 14px; outline: none;" placeholder="Type a message..." required autocomplete="off">
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white" style="margin-left: 8px; background-color: #2563EB; color: white; border-radius: 9999px; padding: 8px; border: none; cursor: pointer; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); display: flex; align-items: center; justify-content: center;">
-                        <svg class="w-5 h-5 rotate-90" style="width: 20px; height: 20px; transform: rotate(90deg);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        <svg class="w-5 h-5" style="width: 20px; height: 20px; transform: rotate(90deg);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                     </button>
                 </form>
             </div>

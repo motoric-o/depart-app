@@ -7,8 +7,11 @@ use App\Http\Controllers\Web\OwnerController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    return view('welcome');
+    $destinations = App\Models\Destination::orderBy('city_name')->get();
+    return view('welcome', compact('destinations'));
 });
+
+Route::get('/schedules', [App\Http\Controllers\Web\SearchController::class, 'index'])->name('schedules.index');
 
 Route::post('/chat', [App\Http\Controllers\ChatController::class, 'handle'])->name('chat');
 

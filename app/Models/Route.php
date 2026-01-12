@@ -21,6 +21,11 @@ class Route extends Model
         return $this->belongsTo(Destination::class, 'destination_code', 'code');
     }
 
+    public function sourceDestination()
+    {
+        return $this->belongsTo(Destination::class, 'source', 'code');
+    }
+
     public function schedules()
     {
         return $this->hasMany(Schedule::class);
