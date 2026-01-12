@@ -12,7 +12,7 @@
                     <h2 class="text-2xl font-bold">Manage Users (Admin & Customer)</h2>
                     <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 w-full md:w-auto">
                         <form method="GET" action="{{ route('owner.users') }}" class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search users..." class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search users..." class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3">
                             <select name="role" onchange="this.form.submit()" class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                 <option value="">All Roles</option>
                                 <option value="Customer" {{ request('role') == 'Customer' ? 'selected' : '' }}>Customer</option>
@@ -20,10 +20,11 @@
                             </select>
                             <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">Filter</button>
                             @if(request('search') || request('role'))
-                                <a href="{{ route('owner.users') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 text-center">Clear</a>
+                                <button class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"><a href="{{ route('owner.users') }}">Clear</a></button>
                             @endif
                         </form>
-                        <a href="{{ route('owner.users.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-center">Add User</a>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-center"><a href="{{ route('owner.users.create') }}" >Add User</a></button>
+                        
                     </div>
                 </div>
 
