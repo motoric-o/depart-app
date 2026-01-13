@@ -26,28 +26,6 @@ class AuthController extends Controller
         return view('auth.signup');
     }
 
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        // Manually check hash because we use 'password_hash' column
-        $account = Account::where('email', $request->email)->first();
-
-        if (! $account || ! Hash::check($request->password, $account->password_hash)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
-
-        Auth::login($account, $request->remember ?? false);
-        $request->session()->regenerate();
-
-        return redirect()->intended('dashboard');
-    }
-
     public function register(Request $request)
     {
         $request->validate([
@@ -60,27 +38,57 @@ class AuthController extends Controller
         ]);
 
         $customerType = AccountType::where('name', 'Customer')->first();
-        
+
         if (!$customerType) {
             return back()->withErrors(['error' => 'System configuration error: Customer type missing']);
         }
 
-        $account = Account::create([
-            'account_type_id' => $customerType->id,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'birthdate' => $request->birthdate,
-            'password_hash' => Hash::make($request->password),
+        \Illuminate\Support\Facades\DB::statement("CALL sp_register_user(?, ?, ?, ?, NULL, ?)", [
+            $request->first_name,
+            $request->last_name,
+            $request->email,
+            $request->phone,
+            Hash::make($request->password)
         ]);
 
-        // Refresh to ensure ID is populated if needed, though 'create' usually returns it if returned by DB
+        // Refresh to ensure ID is populated if needed
         $account = Account::where('email', $request->email)->first();
 
         Auth::login($account);
         
         return redirect()->route('dashboard');
+    }
+
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        // Manually check hash because we use 'password_hash' column
+        // Use Function sp_login_user
+        $results = \Illuminate\Support\Facades\DB::select("SELECT * FROM sp_login_user(?)", [$request->email]);
+        
+        if (empty($results)) {
+             throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+        
+        $userRow = $results[0];
+
+        if (! Hash::check($request->password, $userRow->password_hash)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        $account = Account::find($userRow->id);
+        Auth::login($account, $request->remember ?? false);
+        $request->session()->regenerate();
+
+        return redirect()->intended('dashboard');
     }
 
     public function logout(Request $request)

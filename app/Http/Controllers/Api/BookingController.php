@@ -37,7 +37,7 @@ class BookingController extends Controller
             // Postgres array syntax for seats: needs to be formatted as {seat1, seat2}
             $seatsArray = '{' . implode(',', $request->seats) . '}';
             
-            $results = DB::select("SELECT sp_create_booking_atomic(?, ?, ?, ?::text[], ?) as booking_id", [
+            $results = DB::select("CALL sp_create_booking_atomic(?, ?, ?, ?::text[], ?, NULL)", [
                 $request->user()->id,
                 $request->schedule_id,
                 $request->travel_date,
@@ -45,7 +45,7 @@ class BookingController extends Controller
                 $totalPrice
             ]);
             
-            $bookingId = $results[0]->booking_id;
+            $bookingId = $results[0]->p_booking_id;
             
             // Fetch the created booking to return to user
             $booking = Booking::with(['schedule.route.destination', 'tickets'])->findOrFail($bookingId);

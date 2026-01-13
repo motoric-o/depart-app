@@ -1,13 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\Destination;
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\AdminController;
 use App\Http\Controllers\Web\OwnerController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    $destinations = App\Models\Destination::orderBy('city_name')->get();
+    $destinations = Destination::orderBy('city_name')->get();
     return view('home', compact('destinations'));
 });
 
@@ -44,7 +45,7 @@ Route::middleware('auth')->group(function () {
             case 'Owner':
                 return redirect()->route('owner.dashboard');
             default:
-                $destinations = App\Models\Destination::orderBy('city_name')->get();
+                $destinations = Destination::orderBy('city_name')->get();
                 return view('home', compact('destinations'));
         }
     })->name('dashboard');

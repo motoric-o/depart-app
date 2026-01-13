@@ -22,7 +22,7 @@ class NotificationController extends Controller
                                 ->first();
 
         if ($notification) {
-            $notification->markAsRead(); // Adds the current timestamp to 'read_at'
+            \Illuminate\Support\Facades\DB::statement("CALL sp_mark_notification_read(?)", [$notification->id]);
         }
 
         return response()->json(['message' => 'Marked as read']);
