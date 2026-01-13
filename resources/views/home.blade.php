@@ -21,25 +21,21 @@
 </div>
 
 <!-- Search Widget Section -->
-<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24">
-    <div class="bg-white rounded-lg shadow-xl p-6 md:p-8">
-        <div class="border-b border-gray-200 pb-4 mb-6">
-            <h2 class="text-lg font-semibold text-gray-700 flex items-center">
-                <svg class="w-6 h-6 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                </svg>
-                Cari Tiket Bus
-            </h2>
-        </div>
-        
-        <form action="{{ route('schedules.index') }}" method="GET">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <!-- Origin -->
-                <div class="relative">
-                    <label for="from" class="block text-sm font-medium text-gray-500 mb-1">Dari</label>
-                    <div class="flex items-center border rounded-md p-3 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        <select name="from" id="from" class="bg-transparent w-full outline-none text-gray-700 font-semibold appearance-none">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24">
+        <form action="{{ route('schedules.index') }}" method="GET" class="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-gray-200">
+            <div class="mb-6 border-b border-gray-100 pb-4">
+                <h2 class="text-2xl font-bold text-gray-800">Cari Jadwal & Pesan Tiket</h2>
+                <p class="text-gray-500 mt-1">Temukan perjalanan bus terbaik antar kota dengan harga resmi.</p>
+            </div>
+            <div class="flex flex-col md:flex-row gap-6 md:items-end">
+                <!-- From -->
+                <div class="flex-1 w-full">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Dari</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </div>
+                        <select name="from" id="from" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 text-base">
                             <option value="">Semua Lokasi</option>
                             @foreach($destinations as $destination)
                                 <option value="{{ $destination->code }}">{{ $destination->city_name }} ({{ $destination->code }})</option>
@@ -48,12 +44,21 @@
                     </div>
                 </div>
 
-                <!-- Destination -->
-                <div class="relative">
-                    <label for="to" class="block text-sm font-medium text-gray-500 mb-1">Ke</label>
-                    <div class="flex items-center border rounded-md p-3 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        <select name="to" id="to" class="bg-transparent w-full outline-none text-gray-700 font-semibold appearance-none">
+                <!-- Swap Button -->
+                <div class="hidden md:flex items-center justify-center mb-1">
+                    <button type="button" id="swapButton" class="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors" title="Tukar Lokasi">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                    </button>
+                </div>
+
+                <!-- To -->
+                <div class="flex-1 w-full">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Ke</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </div>
+                        <select name="to" id="to" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 text-base">
                             <option value="">Semua Tujuan</option>
                             @foreach($destinations as $destination)
                                 <option value="{{ $destination->code }}">{{ $destination->city_name }} ({{ $destination->code }})</option>
@@ -63,24 +68,26 @@
                 </div>
 
                 <!-- Date -->
-                <div class="relative">
-                    <label for="date" class="block text-sm font-medium text-gray-500 mb-1">Pergi Tanggal</label>
-                    <div class="flex items-center border rounded-md p-3 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        <input type="date" name="date" id="date" min="{{ date('Y-m-d') }}" class="bg-transparent w-full outline-none text-gray-700 font-semibold">
+                <div class="flex-1 w-full">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        <input type="date" name="date" min="{{ date('Y-m-d') }}" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 text-base">
                     </div>
                 </div>
 
-                <!-- Search Button -->
-                <div class="flex items-end">
-                    <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-md shadow-lg transition duration-200 flex items-center justify-center">
+                <!-- Button -->
+                <div class="w-full md:w-auto">
+                    <button type="submit" class="w-full md:w-auto bg-blue-600 border border-transparent rounded-md shadow-sm py-2 px-8 inline-flex justify-center items-center text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         Cari Bus
                     </button>
                 </div>
             </div>
-            
-            <div class="mt-4 flex items-center text-sm text-gray-500">
+
+            <div class="mt-6 flex items-center text-sm text-gray-500">
                 <span class="mr-4 flex items-center">
                     <svg class="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     Jaminan Harga Resmi
@@ -96,7 +103,6 @@
             </div>
         </form>
     </div>
-</div>
 
 <!-- Features Section -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -279,3 +285,26 @@
     </div>
 </div>
 @endsection
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const swapBtn = document.getElementById('swapButton');
+        const fromSelect = document.getElementById('from');
+        const toSelect = document.getElementById('to');
+
+        if (swapBtn && fromSelect && toSelect) {
+            swapBtn.addEventListener('click', function() {
+                const temp = fromSelect.value;
+                fromSelect.value = toSelect.value;
+                toSelect.value = temp;
+                
+                // Add a small animation effect
+                swapBtn.querySelector('svg').style.transform = 'rotate(180deg)';
+                setTimeout(() => {
+                    swapBtn.querySelector('svg').style.transform = 'rotate(0deg)';
+                }, 300);
+            });
+            swapBtn.querySelector('svg').style.transition = 'transform 0.3s ease';
+        }
+    });
+</script>

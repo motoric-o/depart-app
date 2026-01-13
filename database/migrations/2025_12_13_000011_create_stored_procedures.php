@@ -415,7 +415,7 @@ return new class extends Migration
                 JOIN destinations d ON r.destination_code = d.code
                 JOIN buses b ON s.bus_id = b.id
                 WHERE (r.source_code = p_source_code OR r.source LIKE '%' || p_source_code || '%')
-                AND r.destination_code = p_dest_code
+                AND (p_dest_code = '' OR p_dest_code IS NULL OR r.destination_code = p_dest_code)
                 AND s.status = 'Scheduled'
                 AND DATE(s.departure_time) >= p_date
                 AND s.price_per_seat BETWEEN p_min_price AND p_max_price

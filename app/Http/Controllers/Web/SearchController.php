@@ -15,11 +15,15 @@ class SearchController extends Controller
         $destinations = Destination::orderBy('city_name')->get();
 
         // Parameters for SP
-        $sourceCode = $request->input('from', '');
-        $destCode   = $request->input('to', '');
-        $travelDate = $request->input('date', date('Y-m-d'));
-        $minPrice   = $request->input('min_price', 0);
-        $maxPrice   = $request->input('max_price', 99999999);
+        $sourceCode = $request->input('from') ?: ''; // Default to empty string if null
+        $destCode   = $request->input('to') ?: '';   // Default to empty string if null
+        $travelDate = $request->input('date');
+        if (empty($travelDate)) {
+            $travelDate = date('Y-m-d');
+        }
+        
+        $minPrice   = $request->filled('min_price') ? $request->input('min_price') : 0;
+        $maxPrice   = $request->filled('max_price') ? $request->input('max_price') : 99999999;
         
         // Execute Stored Procedure
         $rawSchedules = \Illuminate\Support\Facades\DB::select(
@@ -52,6 +56,10 @@ class SearchController extends Controller
         
         // Get unique bus types for the filter sidebar
         $busTypes = \App\Models\Bus::select('bus_type')->distinct()->pluck('bus_type');
+
+        if ($request->ajax()) {
+            return view('customer.schedules.partials.results', compact('schedules', 'travelDate'));
+        }
 
         return view('customer.schedules.index', compact('schedules', 'destinations', 'travelDate', 'busTypes'));
     }
