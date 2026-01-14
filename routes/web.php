@@ -44,6 +44,8 @@ Route::middleware('auth')->group(function () {
                 return redirect()->route('admin.dashboard');
             case 'Owner':
                 return redirect()->route('owner.dashboard');
+            case 'Driver':
+                return redirect()->route('driver.dashboard');
             default:
                 $destinations = Destination::orderBy('city_name')->get();
                 return view('home', compact('destinations'));
@@ -59,7 +61,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('owner')->name('owner.')->group(function () {
         Route::get('/dashboard', [OwnerController::class, 'dashboard'])->name('dashboard');
         
-        // Users CRUD (Admins & Customers)
+        // Users CRUD (Admins & Customers & Drivers)
         Route::get('/users', [OwnerController::class, 'users'])->name('users');
         Route::get('/users/create', [OwnerController::class, 'createUser'])->name('users.create');
         Route::post('/users', [OwnerController::class, 'storeUser'])->name('users.store');
@@ -70,6 +72,29 @@ Route::middleware('auth')->group(function () {
         // Revenue Reports
         Route::get('/reports', [OwnerController::class, 'reports'])->name('reports');
         Route::get('/reports/export', [OwnerController::class, 'exportCsv'])->name('reports.export');
+
+        // Expenses
+        Route::get('/expenses', [OwnerController::class, 'expenses'])->name('expenses');
+        Route::get('/expenses/create', [OwnerController::class, 'createExpense'])->name('expenses.create');
+        Route::post('/expenses', [OwnerController::class, 'storeExpense'])->name('expenses.store');
+        Route::get('/expenses/{id}/edit', [OwnerController::class, 'editExpense'])->name('expenses.edit');
+        Route::put('/expenses/{id}', [OwnerController::class, 'updateExpense'])->name('expenses.update');
+        Route::delete('/expenses/{id}', [OwnerController::class, 'deleteExpense'])->name('expenses.delete');
+        Route::get('/expenses/{id}', [OwnerController::class, 'showExpense'])->name('expenses.show');
+        Route::post('/expenses/{id}/verify', [OwnerController::class, 'verifyExpense'])->name('expenses.verify');
+    });
+
+    // Driver Routes
+    Route::prefix('driver')->name('driver.')->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\Web\DriverController::class, 'dashboard'])->name('dashboard');
+        Route::get('/schedules/{id}', [App\Http\Controllers\Web\DriverController::class, 'schedule'])->name('schedules.show');
+        Route::post('/schedules/{id}/remarks', [App\Http\Controllers\Web\DriverController::class, 'updateRemarks'])->name('schedules.remarks');
+        Route::post('/bookings/{id}/check-in', [App\Http\Controllers\Web\DriverController::class, 'checkInPassenger'])->name('bookings.check-in');
+        
+        Route::get('/expenses', [App\Http\Controllers\Web\DriverController::class, 'expenses'])->name('expenses');
+        Route::post('/expenses', [App\Http\Controllers\Web\DriverController::class, 'storeExpense'])->name('expenses.store');
+        
+        Route::get('/earnings', [App\Http\Controllers\Web\DriverController::class, 'earnings'])->name('earnings');
     });
 
     // Admin Routes

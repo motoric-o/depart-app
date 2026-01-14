@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Account;
 use App\Models\AccountType;
+use App\Models\Expense; // Import Expense model
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class OwnerController extends Controller
 {
@@ -21,12 +23,15 @@ class OwnerController extends Controller
             ->take(5)
             ->get();
 
-        return view('owner.dashboard', compact('routeStats', 'dashboardStats'));
+        $totalExpenses = \App\Models\Expense::sum('amount');
+        $recentExpenses = \App\Models\Expense::orderByDesc('date')->take(5)->get();
+
+        return view('owner.dashboard', compact('routeStats', 'dashboardStats', 'totalExpenses', 'recentExpenses'));
     }
 
     public function users(Request $request)
     {
-        $targetRoles = ['Admin', 'Customer'];
+        $targetRoles = ['Admin', 'Customer', 'Driver'];
         $query = Account::whereHas('accountType', function($q) use ($targetRoles) {
             $q->whereIn('name', $targetRoles);
         })->with('accountType');
@@ -55,8 +60,8 @@ class OwnerController extends Controller
 
     public function createUser()
     {
-        // Only Admin and Customer roles available for creation
-        $roles = AccountType::whereIn('name', ['Admin', 'Customer'])->get();
+        // Allowed roles
+        $roles = AccountType::whereIn('name', ['Admin', 'Customer', 'Driver'])->get();
         return view('owner.users.create', compact('roles'));
     }
 
@@ -72,9 +77,9 @@ class OwnerController extends Controller
             'account_type_id' => 'required|exists:account_types,id',
         ]);
 
-        // Verify the selected role is allowed (Admin or Customer)
+        // Verify the selected role is allowed
         $role = AccountType::findOrFail($request->account_type_id);
-        if (!in_array($role->name, ['Admin', 'Customer'])) {
+        if (!in_array($role->name, ['Admin', 'Customer', 'Driver'])) {
             return back()->withErrors(['account_type_id' => 'Invalid role selected.']);
         }
 
@@ -95,11 +100,11 @@ class OwnerController extends Controller
     {
         $user = Account::with('accountType')->findOrFail($id);
 
-        if (!in_array($user->accountType->name, ['Admin', 'Customer'])) {
-            return redirect()->route('owner.users')->with('error', 'You can only edit Admin or Customer accounts.');
+        if (!in_array($user->accountType->name, ['Admin', 'Customer', 'Driver'])) {
+            return redirect()->route('owner.users')->with('error', 'You can only edit Admin, Customer, or Driver accounts.');
         }
 
-        $roles = AccountType::whereIn('name', ['Admin', 'Customer'])->get();
+        $roles = AccountType::whereIn('name', ['Admin', 'Customer', 'Driver'])->get();
         return view('owner.users.edit', compact('user', 'roles'));
     }
 
@@ -107,8 +112,8 @@ class OwnerController extends Controller
     {
         $user = Account::with('accountType')->findOrFail($id);
 
-        if (!in_array($user->accountType->name, ['Admin', 'Customer'])) {
-            return redirect()->route('owner.users')->with('error', 'You can only edit Admin or Customer accounts.');
+        if (!in_array($user->accountType->name, ['Admin', 'Customer', 'Driver'])) {
+            return redirect()->route('owner.users')->with('error', 'You can only edit Admin, Customer, or Driver accounts.');
         }
 
         $request->validate([
@@ -121,7 +126,7 @@ class OwnerController extends Controller
         ]);
 
         $role = AccountType::findOrFail($request->account_type_id);
-        if (!in_array($role->name, ['Admin', 'Customer'])) {
+        if (!in_array($role->name, ['Admin', 'Customer', 'Driver'])) {
             return back()->withErrors(['account_type_id' => 'Invalid role selected.']);
         }
 
@@ -146,8 +151,8 @@ class OwnerController extends Controller
     {
         $user = Account::with('accountType')->findOrFail($id);
 
-        if (!in_array($user->accountType->name, ['Admin', 'Customer'])) {
-            return redirect()->route('owner.users')->with('error', 'You can only delete Admin or Customer accounts.');
+        if (!in_array($user->accountType->name, ['Admin', 'Customer', 'Driver'])) {
+            return redirect()->route('owner.users')->with('error', 'You can only delete Admin, Customer, or Driver accounts.');
         }
 
         $user->delete();
@@ -203,5 +208,117 @@ class OwnerController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // Expense Management
+
+    public function expenses(Request $request)
+    {
+        $query = Expense::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('description', 'like', "%{$search}%");
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('date', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('date', '<=', $request->date_to);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $expenses = $query->orderBy('date', 'desc')->paginate(10)->withQueryString();
+
+        return view('owner.expenses.index', compact('expenses'));
+    }
+
+    public function createExpense()
+    {
+        return view('owner.expenses.create');
+    }
+
+    public function storeExpense(Request $request)
+    {
+        $request->validate([
+            'description' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0',
+            'type' => 'required|string|in:reimbursement,operational,maintenance,salary,other',
+            'date' => 'required|date',
+        ]);
+
+        Expense::create([
+            'description' => $request->description,
+            'amount' => $request->amount,
+            'type' => $request->type,
+            'status' => 'Approved', // Owner created expenses are auto-approved
+            'date' => $request->date,
+            'account_id' => Auth::id(),
+        ]);
+
+        return redirect()->route('owner.expenses')->with('success', 'Expense created successfully.');
+    }
+
+    public function editExpense($id)
+    {
+        $expense = Expense::findOrFail($id);
+        return view('owner.expenses.edit', compact('expense'));
+    }
+
+    public function updateExpense(Request $request, $id)
+    {
+        $expense = Expense::findOrFail($id);
+
+        $request->validate([
+            'description' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0',
+            'type' => 'required|string|in:reimbursement,operational,maintenance,salary,other',
+            'date' => 'required|date',
+        ]);
+
+        $expense->update([
+            'description' => $request->description,
+            'amount' => $request->amount,
+            'type' => $request->type,
+            'date' => $request->date,
+        ]);
+
+        return redirect()->route('owner.expenses')->with('success', 'Expense updated successfully.');
+    }
+
+    public function deleteExpense($id)
+    {
+        $expense = Expense::findOrFail($id);
+        $expense->delete();
+
+        return redirect()->route('owner.expenses')->with('success', 'Expense deleted successfully.');
+    }
+    public function verifyExpense(Request $request, $id)
+    {
+        $expense = Expense::findOrFail($id);
+        
+        $request->validate([
+            'status' => 'required|in:Approved,Rejected'
+        ]);
+
+        $expense->update(['status' => $request->status]);
+
+        return back()->with('success', 'Expense verified successfully.');
+    }
+
+    public function showExpense($id)
+    {
+        $expense = Expense::with('account')->findOrFail($id);
+        return view('owner.expenses.show', compact('expense'));
     }
 }

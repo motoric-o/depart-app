@@ -8,7 +8,7 @@
                 <h3 class="text-xl font-bold mb-4">Owner Dashboard</h3>
                 <p>{{ __("You're logged in as an Owner!") }}</p>
                 
-                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <a href="{{ route('owner.users') }}" class="block p-4 border rounded shadow-sm bg-blue-50 hover:bg-blue-100 transition duration-150">
                         <h4 class="font-semibold text-blue-700">Manage Users</h4>
                         <p class="text-sm text-gray-600">Manage Admin & Customer accounts.</p>
@@ -17,6 +17,24 @@
                         <h4 class="font-semibold text-blue-700">Revenue Reports</h4>
                         <p class="text-sm text-gray-600">View daily and monthly earnings.</p>
                     </a>
+                    <a href="{{ route('owner.expenses') }}" class="block p-4 border rounded shadow-sm bg-blue-50 hover:bg-blue-100 transition duration-150">
+                        <h4 class="font-semibold text-blue-700">Manage Expenses</h4>
+                        <p class="text-sm text-gray-600">Track reimbursements and costs.</p>
+                    </a>
+                </div>
+
+                <div class="mt-6">
+                    <h4 class="text-lg font-bold mb-3">Financial Overview</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white border rounded-lg p-4 shadow-sm">
+                            <h5 class="text-gray-500 font-medium">Total Revenue</h5>
+                            <p class="text-2xl font-bold text-green-600">Rp {{ number_format($dashboardStats->total_revenue ?? 0, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="bg-white border rounded-lg p-4 shadow-sm">
+                            <h5 class="text-gray-500 font-medium">Total Expenses</h5>
+                            <p class="text-2xl font-bold text-red-600">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="mt-8">

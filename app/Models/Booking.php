@@ -15,7 +15,7 @@ class Booking extends Model
 
     protected $fillable = [
         'account_id', 'schedule_id', 'booking_date', 'travel_date',
-        'total_amount', 'status'
+        'total_amount', 'status', 'is_checked_in'
     ];
 
     protected $with = ['tickets', 'schedule'];

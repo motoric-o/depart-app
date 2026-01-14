@@ -17,6 +17,7 @@
                                 <option value="">All Roles</option>
                                 <option value="Customer" {{ request('role') == 'Customer' ? 'selected' : '' }}>Customer</option>
                                 <option value="Admin" {{ request('role') == 'Admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="Driver" {{ request('role') == 'Driver' ? 'selected' : '' }}>Driver</option>
                                 <option value="Owner" {{ request('role') == 'Owner' ? 'selected' : '' }}>Owner</option>
                             </select>
                             <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">Filter</button>
@@ -24,7 +25,7 @@
                                 <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 text-center"><a href="{{ route('admin.users') }}">Clear</a></button>
                             @endif
                         </form>
-                        <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-center"><a href="{{ route('admin.users.create') }}">Add Customer</a></button>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-center"><a href="{{ route('admin.users.create') }}">Add User</a></button>
                     </div>
                 </div>
 
@@ -61,13 +62,14 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                         {{ $user->accountType->name === 'Admin' ? 'bg-purple-100 text-purple-800' : 
-                                           ($user->accountType->name === 'Owner' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
+                                           ($user->accountType->name === 'Owner' ? 'bg-yellow-100 text-yellow-800' : 
+                                           ($user->accountType->name === 'Driver' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800')) }}">
                                         {{ $user->accountType->name }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->created_at->format('M d, Y') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    @if($user->accountType->name === 'Customer')
+                                    @if(in_array($user->accountType->name, ['Customer', 'Driver']))
                                         <a href="{{ route('admin.users.edit', $user->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
                                         <form action="{{ route('admin.users.delete', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this user?');">
                                             @csrf

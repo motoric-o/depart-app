@@ -14,10 +14,11 @@ class Schedule extends Model
 
     protected $fillable = [
         'route_id', 'bus_id', 'departure_time', 
-        'arrival_time', 'price_per_seat', 'status'
+        'arrival_time', 'price_per_seat', 'status',
+        'driver_id', 'remarks'
     ];
 
-    protected $with = ['route', 'bus'];
+    protected $with = ['route', 'bus', 'driver'];
 
     public function getAvailableSeats($travelDate)
     {
@@ -40,6 +41,11 @@ class Schedule extends Model
     public function bus()
     {
         return $this->belongsTo(Bus::class);
+    }
+
+    public function driver()
+    {
+        return $this->belongsTo(Account::class, 'driver_id');
     }
 
     public function bookings()

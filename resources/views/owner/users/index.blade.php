@@ -17,6 +17,7 @@
                                 <option value="">All Roles</option>
                                 <option value="Customer" {{ request('role') == 'Customer' ? 'selected' : '' }}>Customer</option>
                                 <option value="Admin" {{ request('role') == 'Admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="Driver" {{ request('role') == 'Driver' ? 'selected' : '' }}>Driver</option>
                             </select>
                             <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">Filter</button>
                             @if(request('search') || request('role'))
@@ -63,13 +64,14 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                         {{ $user->accountType->name === 'Admin' ? 'bg-purple-100 text-purple-800' : 
-                                           ($user->accountType->name === 'Customer' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800') }}">
+                                           ($user->accountType->name === 'Driver' ? 'bg-blue-100 text-blue-800' : 
+                                           ($user->accountType->name === 'Customer' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800')) }}">
                                         {{ $user->accountType->name }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->created_at->format('M d, Y') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    @if(in_array($user->accountType->name, ['Admin', 'Customer']))
+                                    @if(in_array($user->accountType->name, ['Admin', 'Customer', 'Driver']))
                                         <a href="{{ route('owner.users.edit', $user->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
                                         <form action="{{ route('owner.users.delete', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this user?');">
                                             @csrf

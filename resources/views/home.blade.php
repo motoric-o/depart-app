@@ -138,7 +138,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Card 1 -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <img src="https://images.unsplash.com/photo-1555899434-94d1368aa7af?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Jakarta - Bandung" class="w-full h-48 object-cover">
+                <img src="https://images.unsplash.com/photo-1611638281871-1063d3e76e1f?q=80&w=2033&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Jakarta - Bandung" class="w-full h-48 object-cover">
                 <div class="p-4">
                     <h3 class="font-bold text-lg mb-1">Jakarta - Bandung</h3>
                     <p class="text-sm text-gray-500 mb-3">Mulai dari Rp 85.000</p>
@@ -147,7 +147,7 @@
             </div>
             <!-- Card 2 -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <img src="https://images.unsplash.com/photo-1574614674724-4f9384724d1a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Surabaya - Malang" class="w-full h-48 object-cover">
+                <img src="https://images.unsplash.com/photo-1721879223016-96dbd4952ffd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bWFsYW5nfGVufDB8fDB8fHww" alt="Surabaya - Malang" class="w-full h-48 object-cover">
                 <div class="p-4">
                     <h3 class="font-bold text-lg mb-1">Surabaya - Malang</h3>
                     <p class="text-sm text-gray-500 mb-3">Mulai dari Rp 45.000</p>
@@ -156,7 +156,7 @@
             </div>
             <!-- Card 3 -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <img src="https://images.unsplash.com/photo-1596405631246-64d5d4148cd8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Yogyakarta - Semarang" class="w-full h-48 object-cover">
+                <img src="https://images.unsplash.com/photo-1652100591395-6d512bfaf5bb?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8c2VtYXJhbmd8ZW58MHx8MHx8fDA%3D" alt="Yogyakarta - Semarang" class="w-full h-48 object-cover">
                 <div class="p-4">
                     <h3 class="font-bold text-lg mb-1">Yogyakarta - Semarang</h3>
                     <p class="text-sm text-gray-500 mb-3">Mulai dari Rp 60.000</p>
@@ -165,7 +165,7 @@
             </div>
             <!-- Card 4 -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <img src="https://images.unsplash.com/photo-1605218427335-3a4dd8846012?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Bali - Surabaya" class="w-full h-48 object-cover">
+                <img src="https://plus.unsplash.com/premium_photo-1690959214934-802fdf410b3e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8c3VyYWJheWF8ZW58MHx8MHx8fDA%3D" alt="Bali - Surabaya" class="w-full h-48 object-cover">
                 <div class="p-4">
                     <h3 class="font-bold text-lg mb-1">Bali - Surabaya</h3>
                     <p class="text-sm text-gray-500 mb-3">Mulai dari Rp 250.000</p>
