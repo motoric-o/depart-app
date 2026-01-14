@@ -24,6 +24,15 @@
                     @csrf
                     @method('PUT')
 
+                    <div class="mb-6">
+                        <label for="account_type_id" class="block text-sm font-medium text-gray-700">Role</label>
+                        <select name="account_type_id" id="account_type_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}" {{ old('account_type_id', $user->account_type_id) == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>

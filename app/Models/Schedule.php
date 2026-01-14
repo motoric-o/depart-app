@@ -17,7 +17,7 @@ class Schedule extends Model
         'arrival_time', 'price_per_seat', 'quota', 'remarks'
     ];
 
-    protected $with = ['route', 'bus'];
+    protected $with = ['route', 'bus', 'driver'];
 
     public function getAvailableSeats($travelDate)
     {
@@ -40,6 +40,11 @@ class Schedule extends Model
     public function bus()
     {
         return $this->belongsTo(Bus::class);
+    }
+
+    public function driver()
+    {
+        return $this->belongsTo(Account::class, 'driver_id');
     }
 
     public function bookings()

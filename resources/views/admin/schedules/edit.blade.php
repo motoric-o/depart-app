@@ -50,6 +50,18 @@
                         </div>
                     </div>
 
+                    <div>
+                         <label for="driver_id" class="block text-sm font-medium text-gray-700">Driver</label>
+                         <select name="driver_id" id="driver_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                              <option value="">Select Driver</option>
+                              @foreach($drivers as $driver)
+                                  <option value="{{ $driver->id }}" {{ old('driver_id', $schedule->driver_id) == $driver->id ? 'selected' : '' }}>
+                                      {{ $driver->first_name }} {{ $driver->last_name }}
+                                  </option>
+                              @endforeach
+                         </select>
+                     </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="departure_time" class="block text-sm font-medium text-gray-700">Departure Time</label>

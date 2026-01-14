@@ -57,7 +57,8 @@ class AdminController extends Controller
 
     public function createUser()
     {
-        return view('admin.users.create');
+        $roles = AccountType::whereIn('name', ['Customer', 'Driver'])->get();
+        return view('admin.users.create', compact('roles'));
     }
 
     public function storeUser(Request $request)
@@ -69,9 +70,13 @@ class AdminController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'nullable|string|max:20',
             'birthdate' => 'required|date',
+            'account_type_id' => 'required|exists:account_types,id',
         ]);
 
-        $customerType = AccountType::where('name', 'Customer')->firstOrFail();
+        $role = AccountType::findOrFail($request->account_type_id);
+        if (!in_array($role->name, ['Customer', 'Driver'])) {
+             return back()->withErrors(['account_type_id' => 'Invalid role selected.']);
+        }
 
         \Illuminate\Support\Facades\DB::statement("CALL sp_create_customer(?, ?, ?, ?, ?, ?, ?)", [
             $request->first_name,
@@ -80,7 +85,7 @@ class AdminController extends Controller
             $request->phone,
             $request->birthdate,
             Hash::make($request->password),
-            $customerType->id
+            $role->id
         ]);
 
         return redirect()->route('admin.users')->with('success', 'Customer created successfully.');
@@ -90,19 +95,20 @@ class AdminController extends Controller
     {
         $user = Account::with('accountType')->findOrFail($id);
 
-        if ($user->accountType->name !== 'Customer') {
-            return redirect()->route('admin.users')->with('error', 'You can only edit Customer accounts.');
+        if (!in_array($user->accountType->name, ['Customer', 'Driver'])) {
+            return redirect()->route('admin.users')->with('error', 'You can only edit Customer or Driver accounts.');
         }
 
-        return view('admin.users.edit', compact('user'));
+        $roles = AccountType::whereIn('name', ['Customer', 'Driver'])->get();
+        return view('admin.users.edit', compact('user', 'roles'));
     }
 
     public function updateUser(Request $request, $id)
     {
         $user = Account::with('accountType')->findOrFail($id);
 
-        if ($user->accountType->name !== 'Customer') {
-            return redirect()->route('admin.users')->with('error', 'You can only edit Customer accounts.');
+        if (!in_array($user->accountType->name, ['Customer', 'Driver'])) {
+            return redirect()->route('admin.users')->with('error', 'You can only edit Customer or Driver accounts.');
         }
 
         $request->validate([
@@ -111,7 +117,13 @@ class AdminController extends Controller
             'email' => 'required|string|email|max:255|unique:accounts,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
             'birthdate' => 'required|date',
+            'account_type_id' => 'required|exists:account_types,id',
         ]);
+
+        $role = AccountType::findOrFail($request->account_type_id);
+        if (!in_array($role->name, ['Customer', 'Driver'])) {
+             return back()->withErrors(['account_type_id' => 'Invalid role selected.']);
+        }
 
         $passwordHash = $user->password_hash;
         if ($request->filled('password')) {
@@ -126,7 +138,7 @@ class AdminController extends Controller
             $request->email,
             $request->phone,
             $request->birthdate,
-            $user->account_type_id // Keep existing type (Customer)
+            $role->id
         ]);
         
         // Handling password update logic inside SP would be cleaner but current SP doesn't support conditional password update easily without passing all fields.
@@ -144,20 +156,20 @@ class AdminController extends Controller
              $user->update(['password_hash' => Hash::make($request->password)]);
         }
 
-        return redirect()->route('admin.users')->with('success', 'Customer updated successfully.');
+        return redirect()->route('admin.users')->with('success', 'User updated successfully.');
     }
 
     public function deleteUser($id)
     {
         $user = Account::with('accountType')->findOrFail($id);
 
-        if ($user->accountType->name !== 'Customer') {
-            return redirect()->route('admin.users')->with('error', 'You can only delete Customer accounts.');
+        if (!in_array($user->accountType->name, ['Customer', 'Driver'])) {
+            return redirect()->route('admin.users')->with('error', 'You can only delete Customer or Driver accounts.');
         }
 
         $user->delete();
 
-        return redirect()->route('admin.users')->with('success', 'Customer deleted successfully.');
+        return redirect()->route('admin.users')->with('success', 'User deleted successfully.');
     }
 
     // --- BUSES MANAGEMENT ---
@@ -399,7 +411,10 @@ class AdminController extends Controller
     {
         $routes = BusRoute::with('destination')->get();
         $buses = Bus::all();
-        return view('admin.schedules.create', compact('routes', 'buses'));
+        $drivers = Account::whereHas('accountType', function($q) {
+            $q->where('name', 'Driver');
+        })->get();
+        return view('admin.schedules.create', compact('routes', 'buses', 'drivers'));
     }
 
     public function storeSchedule(Request $request)
@@ -407,6 +422,7 @@ class AdminController extends Controller
         $request->validate([
             'route_id' => 'required|exists:routes,id',
             'bus_id' => 'required|exists:buses,id',
+            'driver_id' => 'required|exists:accounts,id',
             'departure_time' => 'required|date|after:now',
             'arrival_time' => 'required|date|after:departure_time',
             'price_per_seat' => 'required|numeric|min:0',
@@ -422,6 +438,20 @@ class AdminController extends Controller
                 $request->price_per_seat,
                 $request->quota
             ]);
+            
+            // Fetch the last created schedule for this bus/time (approximate) or use ID if SP returned it.
+            // Stored procedure usually doesn't return ID easily in Laravel statement call.
+            // I will find the schedule I just created.
+            $schedule = Schedule::where('bus_id', $request->bus_id)
+                        ->where('departure_time', $request->departure_time)
+                        ->latest()
+                        ->first();
+                        
+            if ($schedule) {
+                $schedule->driver_id = $request->driver_id;
+                $schedule->save();
+            }
+
         } catch (\Illuminate\Database\QueryException $e) {
              if (str_contains($e->getMessage(), 'Bus is already scheduled')) {
                  return back()->withInput()->withErrors(['bus_id' => 'Bus is already scheduled for this time range.']);
@@ -437,7 +467,10 @@ class AdminController extends Controller
         $schedule = Schedule::findOrFail($id);
         $routes = BusRoute::with('destination')->get();
         $buses = Bus::all();
-        return view('admin.schedules.edit', compact('schedule', 'routes', 'buses'));
+        $drivers = Account::whereHas('accountType', function($q) {
+            $q->where('name', 'Driver');
+        })->get();
+        return view('admin.schedules.edit', compact('schedule', 'routes', 'buses', 'drivers'));
     }
 
     public function updateSchedule(Request $request, $id)
@@ -445,9 +478,9 @@ class AdminController extends Controller
         $schedule = Schedule::findOrFail($id);
 
         $request->validate([
-            // Validation for Full Update ...
             'route_id' => 'required|exists:routes,id',
             'bus_id' => 'required|exists:buses,id',
+            'driver_id' => 'required|exists:accounts,id',
             'departure_time' => 'required|date',
             'arrival_time' => 'required|date|after:departure_time',
             'price_per_seat' => 'required|numeric|min:0',
