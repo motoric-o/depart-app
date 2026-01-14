@@ -14,7 +14,7 @@ class Schedule extends Model
 
     protected $fillable = [
         'route_id', 'bus_id', 'departure_time', 
-        'arrival_time', 'price_per_seat', 'status'
+        'arrival_time', 'price_per_seat', 'quota', 'remarks'
     ];
 
     protected $with = ['route', 'bus'];
@@ -45,5 +45,10 @@ class Schedule extends Model
     public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function scheduleDetails()
+    {
+        return $this->hasMany(ScheduleDetail::class);
     }
 }

@@ -21,7 +21,8 @@ class ScheduleFactory extends Factory
             'departure_time' => $this->faker->dateTimeBetween('now', '+1 month'),
             'arrival_time' => $this->faker->dateTimeBetween('+1 month', '+1 month 5 hours'),
             'price_per_seat' => $this->faker->randomElement([100000, 150000, 250000, 300000]),
-            'status' => 'Scheduled',
+            'remarks' => 'Scheduled',
+            'quota' => $this->faker->numberBetween(30, 50),
         ];
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\DestinationController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\ScheduleDetailController;
 
 // 1. Public Routes (No Login Required)
 Route::post('/register', [AuthController::class, 'register']);
@@ -35,4 +36,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+});
+
+// Schedule Details (Admin - Pilot Feature) - Using 'web' middleware to share Admin Session
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('/schedules/{id}/details', [ScheduleDetailController::class, 'index']);
+    Route::post('/schedules/{id}/details', [ScheduleDetailController::class, 'store']); // Create manual entry
+    Route::put('/schedules/details/{detail_id}', [ScheduleDetailController::class, 'update']);
+    Route::delete('/schedules/details/{detail_id}', [ScheduleDetailController::class, 'destroy']);
 });

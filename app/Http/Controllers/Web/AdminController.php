@@ -40,8 +40,19 @@ class AdminController extends Controller
             });
         }
 
+        // Sorting
+        $sort_by = $request->get('sort_by', 'created_at');
+        $sort_order = $request->get('sort_order', 'desc');
+        $allowed_sorts = ['id', 'first_name', 'email', 'created_at'];
+        
+        if (in_array($sort_by, $allowed_sorts)) {
+            $query->orderBy($sort_by, $sort_order);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
         $users = $query->paginate(10)->withQueryString();
-        return view('admin.users.index', compact('users'));
+        return view('admin.users.index', compact('users', 'sort_by', 'sort_order'));
     }
 
     public function createUser()
@@ -151,10 +162,32 @@ class AdminController extends Controller
 
     // --- BUSES MANAGEMENT ---
 
-    public function buses()
+    public function buses(Request $request)
     {
-        $buses = Bus::paginate(10);
-        return view('admin.buses.index', compact('buses'));
+        $query = Bus::query();
+
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('bus_number', 'like', "%{$search}%")
+                  ->orWhere('bus_type', 'like', "%{$search}%");
+            });
+        }
+
+        // Sorting
+        $sort_by = $request->get('sort_by', 'bus_number');
+        $sort_order = $request->get('sort_order', 'asc');
+        $allowed_sorts = ['bus_number', 'bus_type', 'capacity'];
+        
+        if (in_array($sort_by, $allowed_sorts)) {
+            $query->orderBy($sort_by, $sort_order);
+        } else {
+             $query->orderBy('bus_number', 'asc');
+        }
+
+        $buses = $query->paginate(10)->withQueryString();
+        return view('admin.buses.index', compact('buses', 'sort_by', 'sort_order'));
     }
 
     public function createBus()
@@ -168,7 +201,6 @@ class AdminController extends Controller
             'bus_number' => 'required|string|unique:buses|max:50',
             'bus_type' => 'required|string|max:50',
             'capacity' => 'required|integer|min:1',
-            'quota' => 'required|integer|min:1',
             'seat_rows' => 'required|integer|min:1',
             'seat_columns' => 'required|integer|min:1',
             'remarks' => 'nullable|string',
@@ -178,7 +210,6 @@ class AdminController extends Controller
             $request->bus_number,
             $request->bus_type,
             $request->capacity,
-            $request->quota,
             $request->seat_rows,
             $request->seat_columns,
             $request->remarks
@@ -201,7 +232,6 @@ class AdminController extends Controller
             'bus_number' => 'required|string|max:50|unique:buses,bus_number,' . $bus->id,
             'bus_type' => 'required|string|max:50',
             'capacity' => 'required|integer|min:1',
-            'quota' => 'required|integer|min:1',
             'seat_rows' => 'required|integer|min:1',
             'seat_columns' => 'required|integer|min:1',
             'remarks' => 'nullable|string',
@@ -212,7 +242,6 @@ class AdminController extends Controller
             $request->bus_number,
             $request->bus_type,
             $request->capacity,
-            $request->quota,
             $request->seat_rows,
             $request->seat_columns,
             $request->remarks
@@ -232,10 +261,35 @@ class AdminController extends Controller
 
     // --- ROUTES MANAGEMENT ---
 
-    public function routes()
+    public function routes(Request $request)
     {
-        $routes = BusRoute::with('destination')->paginate(10);
-        return view('admin.routes.index', compact('routes'));
+        $query = BusRoute::with(['sourceDestination', 'destination']);
+
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('source', 'like', "%{$search}%")
+                  ->orWhere('id', 'like', "%{$search}%")
+                  ->orWhereHas('destination', function($subQ) use ($search) {
+                      $subQ->where('city_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Sorting
+        $sort_by = $request->get('sort_by', 'id');
+        $sort_order = $request->get('sort_order', 'asc');
+        $allowed_sorts = ['id', 'source', 'destination_code', 'distance', 'estimated_duration'];
+        
+        if (in_array($sort_by, $allowed_sorts)) {
+            $query->orderBy($sort_by, $sort_order);
+        } else {
+             $query->orderBy('id', 'asc');
+        }
+
+        $routes = $query->paginate(10)->withQueryString();
+        return view('admin.routes.index', compact('routes', 'sort_by', 'sort_order'));
     }
 
     public function createRoute()
@@ -302,10 +356,43 @@ class AdminController extends Controller
 
     // --- SCHEDULES MANAGEMENT ---
 
-    public function schedules()
+    public function schedules(Request $request)
     {
-        $schedules = Schedule::with(['route.destination', 'bus'])->orderBy('departure_time', 'desc')->paginate(10);
-        return view('admin.schedules.index', compact('schedules'));
+        $query = Schedule::with(['route.destination', 'bus']);
+
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                // Search by Schedule ID
+                $q->where('id', 'like', "%{$search}%")
+                  // Search by Bus Number via relationship
+                  ->orWhereHas('bus', function($subQ) use ($search) {
+                      $subQ->where('bus_number', 'like', "%{$search}%");
+                  })
+                  // Search by Route Source or Destination City
+                  ->orWhereHas('route', function($subQ) use ($search) {
+                      $subQ->where('source', 'like', "%{$search}%")
+                           ->orWhereHas('destination', function($subSubQ) use ($search) {
+                               $subSubQ->where('city_name', 'like', "%{$search}%");
+                           });
+                  });
+            });
+        }
+
+        // Sorting
+        $sort_by = $request->get('sort_by', 'departure_time');
+        $sort_order = $request->get('sort_order', 'desc');
+        $allowed_sorts = ['id', 'route_id', 'bus_id', 'departure_time', 'arrival_time', 'price_per_seat', 'remarks'];
+        
+        if (in_array($sort_by, $allowed_sorts)) {
+            $query->orderBy($sort_by, $sort_order);
+        } else {
+             $query->orderBy('departure_time', 'desc');
+        }
+
+        $schedules = $query->paginate(10)->withQueryString();
+        return view('admin.schedules.index', compact('schedules', 'sort_by', 'sort_order'));
     }
 
     public function createSchedule()
@@ -323,15 +410,17 @@ class AdminController extends Controller
             'departure_time' => 'required|date|after:now',
             'arrival_time' => 'required|date|after:departure_time',
             'price_per_seat' => 'required|numeric|min:0',
+            'quota' => 'required|integer|min:1',
         ]);
 
         try {
-            \Illuminate\Support\Facades\DB::statement("CALL sp_create_schedule(?, ?, ?, ?, ?)", [
+            \Illuminate\Support\Facades\DB::statement("CALL sp_create_schedule(?, ?, ?, ?, ?, ?)", [
                 $request->route_id,
                 $request->bus_id,
                 $request->departure_time,
                 $request->arrival_time,
-                $request->price_per_seat
+                $request->price_per_seat,
+                $request->quota
             ]);
         } catch (\Illuminate\Database\QueryException $e) {
              if (str_contains($e->getMessage(), 'Bus is already scheduled')) {
@@ -362,7 +451,8 @@ class AdminController extends Controller
             'departure_time' => 'required|date',
             'arrival_time' => 'required|date|after:departure_time',
             'price_per_seat' => 'required|numeric|min:0',
-            'status' => 'required|string|in:Scheduled,Delayed,Cancelled,Completed',
+            'quota' => 'required|integer|min:1',
+            'remarks' => 'nullable|string',
         ]);
         
         // Note: Currently we only have sp_update_schedule_status. 
@@ -380,15 +470,32 @@ class AdminController extends Controller
         // and keep Eloquent for the rest to be safe, OR I should have made a better SP.
         // To be safe and functional: I'll update other fields via Eloquent, then call SP for status/timestamp update.
         
-        $schedule->fill($request->except('status')); // Update details
+        // Determine Remarks
+        // If remarks in form is null or not present, it might be due to UI logic.
+        // We expect 'remarks_select' and optionally 'remarks_other' from the form if we adhere to the plan.
+        // Let's assume the form sends 'remarks' directly via JS logic OR we handle it here.
+        // User asked for "add another option 'other' that lets us input a text".
+        // Use logic: if request->remarks_select == 'Other', use request->remarks_other -> else use request->remarks_select.
+        
+        $remarks = $request->input('remarks'); // Default if processed by JS
+        
+        if ($request->has('remarks_select')) {
+             if ($request->remarks_select === 'Other') {
+                 $remarks = $request->remarks_other;
+             } else {
+                 $remarks = $request->remarks_select;
+             }
+        }
+
+        $schedule->fill($request->except(['remarks', 'remarks_select', 'remarks_other'])); // Update details
         if ($schedule->isDirty()) {
              $schedule->save();
         }
         
-        // Use SP for Status (and timestamp update included in SP)
-        \Illuminate\Support\Facades\DB::statement("CALL sp_update_schedule_status(?, ?)", [
+        // Use SP for Remarks (and timestamp update included in SP)
+        \Illuminate\Support\Facades\DB::statement("CALL sp_update_schedule_remarks(?, ?)", [
             $schedule->id,
-            $request->status
+            $remarks
         ]);   
 
         return redirect()->route('admin.schedules')->with('success', 'Schedule updated successfully.');
@@ -397,8 +504,38 @@ class AdminController extends Controller
     public function deleteSchedule($id)
     {
         $schedule = Schedule::findOrFail($id);
-        $schedule->delete();
+
+        // Delete dependencies Manually due to missing CASCADE
+        \Illuminate\Support\Facades\DB::transaction(function () use ($schedule) {
+            // 1. Delete ScheduleDetails
+            $schedule->scheduleDetails()->delete();
+
+            // 2. Get Bookings
+            $bookings = \App\Models\Booking::where('schedule_id', $schedule->id)->get();
+            
+            foreach ($bookings as $booking) {
+                // Delete Tickets
+                \App\Models\Ticket::where('booking_id', $booking->id)->delete();
+                
+                // Transactions: Set ticket_id to null or delete? 
+                // FK on transactions.booking_id doesn't cascade either?
+                // Migration 2025_12_13_000010_create_transactions_table.php: 
+                // $table->foreign('booking_id')->references('id')->on('bookings'); (No Cascade)
+                // We should probably delete the transaction if it's strictly linked to this booking.
+                \App\Models\Transaction::where('booking_id', $booking->id)->delete();
+                
+                $booking->delete();
+            }
+
+            $schedule->delete();
+        });
 
         return redirect()->route('admin.schedules')->with('success', 'Schedule deleted successfully.');
+    }
+
+    public function scheduleDetails($id)
+    {
+        $schedule = Schedule::findOrFail($id);
+        return view('admin.schedules.details', compact('schedule'));
     }
 }

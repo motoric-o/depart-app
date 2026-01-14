@@ -152,6 +152,12 @@
                                 </div>
                                 <!-- Button Removed as per request (Auto-apply on enter) -->
                             </div>
+                            <!-- Apply Button -->
+                            <div class="mt-6">
+                                <button type="submit" class="w-full bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                    Terapkan Filter
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -260,13 +266,7 @@
                 });
             };
 
-            // Attach listeners to all inputs
-            inputs.forEach(input => {
-                input.addEventListener('change', (e) => {
-                    e.preventDefault(); // Prevent form submission if it was a submit button
-                    fetchResults();
-                });
-            });
+
 
             // Prevent default form submission
             filterForm.addEventListener('submit', (e) => {
@@ -293,8 +293,8 @@
                 }, 300);
                 swapBtn.querySelector('svg').style.transition = 'transform 0.3s ease';
 
-                // Trigger change to update results
-                fromSelect.dispatchEvent(new Event('change'));
+                // Match values but do NOT trigger auto-search
+                // fromSelect.dispatchEvent(new Event('change'));
             });
         }
     });

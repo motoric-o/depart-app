@@ -13,7 +13,7 @@ class Bus extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'bus_number', 'bus_type', 'capacity', 'quota', 
+        'bus_number', 'bus_type', 'capacity', 
         'seat_rows', 'seat_columns', 'remarks'
     ];
 

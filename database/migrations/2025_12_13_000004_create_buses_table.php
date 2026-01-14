@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('bus_number')->unique();
             $table->string('bus_type');
             $table->integer('capacity');
-            $table->integer('quota');
+
             $table->integer('seat_rows');
             $table->integer('seat_columns');
             $table->text('remarks')->nullable();

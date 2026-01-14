@@ -106,5 +106,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/schedules/{id}/edit', [AdminController::class, 'editSchedule'])->name('schedules.edit');
         Route::put('/schedules/{id}', [AdminController::class, 'updateSchedule'])->name('schedules.update');
         Route::delete('/schedules/{id}', [AdminController::class, 'deleteSchedule'])->name('schedules.delete');
+        
+        // Schedule Details (View Shell)
+        Route::get('/schedules/{id}/details', [AdminController::class, 'scheduleDetails'])->name('schedules.details');
     });
 });

@@ -4,13 +4,45 @@
 <div class="py-12">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 text-gray-900">
+            <div class="p-6 text-gray-900" x-data="{ showFilters: {{ request('sort_by') || request('sort_order') ? 'true' : 'false' }} }">
                 <div class="mb-4">
                     <a href="{{ route('admin.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Back to Dashboard</a>
                 </div>
-                <div class="flex justify-between items-center mb-6">
+                <div class="mb-6 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 md:space-x-4">
                     <h2 class="text-2xl font-bold">Manage Buses</h2>
-                    <a href="{{ route('admin.buses.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Add Bus</a>
+                    <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 w-full md:w-auto">
+                        <form method="GET" action="{{ route('admin.buses') }}" id="filterForm" class="w-full">
+                            <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-2">
+                                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search buses..." class="flex-grow border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 h-[42px]">
+                                <button type="button" @click="showFilters = !showFilters" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 flex items-center justify-center border border-transparent h-[42px] whitespace-nowrap">
+                                    <span>Sort & Filter</span>
+                                    <svg x-show="!showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <svg x-show="showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                                </button>
+                                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 border border-transparent h-[42px]">Search</button>
+                                @if(request('search') || request('sort_by'))
+                                    <a href="{{ route('admin.buses') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 text-center flex items-center justify-center border border-transparent h-[42px]">Clear</a>
+                                @endif
+                            </div>
+
+
+                        </form>
+                        <form action="{{ route('admin.buses.create') }}" method="GET">
+                            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 text-center border border-transparent flex items-center justify-center h-[42px] whitespace-nowrap">Add Bus</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div x-show="showFilters" x-collapse class="w-full grid grid-cols-1 md:grid-cols-2 gap-2 p-4 bg-gray-50 rounded-md shadow-inner mb-6">
+                    <select name="sort_by" form="filterForm" class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+                        <option value="bus_number" {{ request('sort_by') == 'bus_number' ? 'selected' : '' }}>Sort by Number</option>
+                        <option value="bus_type" {{ request('sort_by') == 'bus_type' ? 'selected' : '' }}>Sort by Type</option>
+                        <option value="capacity" {{ request('sort_by') == 'capacity' ? 'selected' : '' }}>Sort by Capacity</option>
+                    </select>
+                    <select name="sort_order" form="filterForm" class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+                        <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Ascending</option>
+                        <option value="desc" {{ request('sort_order') == 'desc' || !request('sort_order') ? 'selected' : '' }}>Descending</option>
+                    </select>
                 </div>
 
                 @if (session('success'))
@@ -23,11 +55,34 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bus Number</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capacity</th>
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                     <a href="{{ route('admin.buses', array_merge(request()->query(), ['sort_by' => 'bus_number', 'sort_order' => request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}" class="group flex items-center">
+                                        Bus Number
+                                        @if(request('sort_by') === 'bus_number' || !request('sort_by'))
+                                            <span class="ml-1">{{ request('sort_order') === 'asc' ? '↑' : '↓' }}</span>
+                                        @endif
+                                    </a>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                     <a href="{{ route('admin.buses', array_merge(request()->query(), ['sort_by' => 'bus_type', 'sort_order' => request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}" class="group flex items-center">
+                                        Type
+                                        @if(request('sort_by') === 'bus_type')
+                                            <span class="ml-1">{{ request('sort_order') === 'asc' ? '↑' : '↓' }}</span>
+                                        @endif
+                                    </a>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                     <a href="{{ route('admin.buses', array_merge(request()->query(), ['sort_by' => 'capacity', 'sort_order' => request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}" class="group flex items-center">
+                                        Capacity
+                                        @if(request('sort_by') === 'capacity')
+                                            <span class="ml-1">{{ request('sort_order') === 'asc' ? '↑' : '↓' }}</span>
+                                        @endif
+                                    </a>
+                                </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Layout</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">

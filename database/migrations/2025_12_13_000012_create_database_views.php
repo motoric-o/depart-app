@@ -25,7 +25,7 @@ return new class extends Migration
             JOIN routes r ON s.route_id = r.id
             JOIN destinations d ON r.destination_code = d.code
             JOIN buses b ON s.bus_id = b.id
-            WHERE s.status = 'Scheduled';
+            WHERE s.remarks = 'Scheduled';
         ");
 
         DB::unprepared("

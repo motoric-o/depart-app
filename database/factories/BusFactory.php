@@ -21,7 +21,7 @@ class BusFactory extends Factory
             'bus_number' => $this->faker->unique()->bothify('B #### ??'), // e.g., B 1234 AB
             'bus_type' => $this->faker->randomElement(['Economy', 'Business', 'VIP', 'Sleeper']),
             'capacity' => 40,
-            'quota' => 40,
+
             'seat_rows' => 10,
             'seat_columns' => 4,
             'remarks' => $this->faker->sentence(),

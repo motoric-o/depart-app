@@ -20,7 +20,8 @@ return new class extends Migration
             $table->dateTime('departure_time');
             $table->dateTime('arrival_time');
             $table->decimal('price_per_seat', 10, 2);
-            $table->string('status')->default('Scheduled');
+            $table->integer('quota')->after('price_per_seat');
+            $table->text('remarks')->nullable()->after('quota'); // Replaces status, using text for flexibility
             $table->timestamps();
         });
 

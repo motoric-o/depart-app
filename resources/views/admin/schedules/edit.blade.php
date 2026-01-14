@@ -27,7 +27,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="route_id" class="block text-sm font-medium text-gray-700">Route</label>
-                            <select name="route_id" id="route_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <select name="route_id" id="route_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
                                 <option value="">Select Route</option>
                                 @foreach($routes as $route)
                                     <option value="{{ $route->id }}" {{ old('route_id', $schedule->route_id) == $route->id ? 'selected' : '' }}>
@@ -39,7 +39,7 @@
 
                         <div>
                             <label for="bus_id" class="block text-sm font-medium text-gray-700">Bus</label>
-                            <select name="bus_id" id="bus_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <select name="bus_id" id="bus_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
                                 <option value="">Select Bus</option>
                                 @foreach($buses as $bus)
                                     <option value="{{ $bus->id }}" {{ old('bus_id', $schedule->bus_id) == $bus->id ? 'selected' : '' }}>
@@ -53,29 +53,43 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="departure_time" class="block text-sm font-medium text-gray-700">Departure Time</label>
-                            <input type="datetime-local" name="departure_time" id="departure_time" value="{{ old('departure_time', \Carbon\Carbon::parse($schedule->departure_time)->format('Y-m-d\TH:i')) }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="datetime-local" name="departure_time" id="departure_time" value="{{ old('departure_time', \Carbon\Carbon::parse($schedule->departure_time)->format('Y-m-d\TH:i')) }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
                         </div>
 
                         <div>
                             <label for="arrival_time" class="block text-sm font-medium text-gray-700">Arrival Time</label>
-                            <input type="datetime-local" name="arrival_time" id="arrival_time" value="{{ old('arrival_time', \Carbon\Carbon::parse($schedule->arrival_time)->format('Y-m-d\TH:i')) }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="datetime-local" name="arrival_time" id="arrival_time" value="{{ old('arrival_time', \Carbon\Carbon::parse($schedule->arrival_time)->format('Y-m-d\TH:i')) }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="price_per_seat" class="block text-sm font-medium text-gray-700">Price Per Seat (IDR)</label>
-                            <input type="number" name="price_per_seat" id="price_per_seat" value="{{ old('price_per_seat', $schedule->price_per_seat) }}" required min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="number" name="price_per_seat" id="price_per_seat" value="{{ old('price_per_seat', $schedule->price_per_seat) }}" required min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
                         </div>
 
                         <div>
-                            <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                            <select name="status" id="status" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="Scheduled" {{ old('status', $schedule->status) == 'Scheduled' ? 'selected' : '' }}>Scheduled</option>
-                                <option value="Delayed" {{ old('status', $schedule->status) == 'Delayed' ? 'selected' : '' }}>Delayed</option>
-                                <option value="Cancelled" {{ old('status', $schedule->status) == 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                <option value="Completed" {{ old('status', $schedule->status) == 'Completed' ? 'selected' : '' }}>Completed</option>
+                            <label for="quota" class="block text-sm font-medium text-gray-700">Quota</label>
+                            <input type="number" name="quota" id="quota" value="{{ old('quota', $schedule->quota) }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+                        </div>
+
+                        <div x-data="{ 
+                            selected: '{{ in_array($schedule->remarks, ['Scheduled', 'Delayed', 'Cancelled', 'Completed']) ? $schedule->remarks : 'Other' }}', 
+                            otherValue: '{{ in_array($schedule->remarks, ['Scheduled', 'Delayed', 'Cancelled', 'Completed']) ? '' : $schedule->remarks }}' 
+                        }">
+                            <label for="remarks_select" class="block text-sm font-medium text-gray-700">Remarks</label>
+                            <select x-model="selected" name="remarks_select" id="remarks_select" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+                                <option value="Scheduled">Scheduled</option>
+                                <option value="Delayed">Delayed</option>
+                                <option value="Cancelled">Cancelled</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Other">Other...</option>
                             </select>
+
+                            <div x-show="selected === 'Other'" class="mt-2">
+                                <label for="remarks_other" class="block text-sm font-medium text-gray-700">Custom Remark</label>
+                                <input type="text" x-model="otherValue" name="remarks_other" id="remarks_other" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2" placeholder="Enter custom status">
+                            </div>
                         </div>
                     </div>
 

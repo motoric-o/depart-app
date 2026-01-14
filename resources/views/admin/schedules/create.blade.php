@@ -61,9 +61,16 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label for="price_per_seat" class="block text-sm font-medium text-gray-700">Price Per Seat (IDR)</label>
-                        <input type="number" name="price_per_seat" id="price_per_seat" value="{{ old('price_per_seat') }}" required min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="price_per_seat" class="block text-sm font-medium text-gray-700">Price Per Seat (IDR)</label>
+                            <input type="number" name="price_per_seat" id="price_per_seat" value="{{ old('price_per_seat') }}" required min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+
+                        <div>
+                            <label for="quota" class="block text-sm font-medium text-gray-700">Quota</label>
+                            <input type="number" name="quota" id="quota" value="{{ old('quota') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
                     </div>
 
                     <div class="flex justify-end pt-4">
