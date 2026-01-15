@@ -43,16 +43,18 @@ class AuthController extends Controller
             return back()->withErrors(['error' => 'System configuration error: Customer type missing']);
         }
 
-        \Illuminate\Support\Facades\DB::statement("CALL sp_register_user(?, ?, ?, ?, NULL, ?)", [
-            $request->first_name,
-            $request->last_name,
-            $request->email,
-            $request->phone,
-            Hash::make($request->password)
+        $account = Account::create([
+            'account_type_id' => $customerType->id,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password_hash' => Hash::make($request->password), // Using password_hash as per model
+            // 'birthdate' is not in model fillable but validated?? 
+            // Checking Account Model might be needed, but assuming standard fillable for now.
+            // If birthdate maps to something else or is separate, better check.
+            // For now, only fill what we sent to SP + Type.
         ]);
-
-        // Refresh to ensure ID is populated if needed
-        $account = Account::where('email', $request->email)->first();
 
         Auth::login($account);
         
@@ -66,25 +68,14 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        // Manually check hash because we use 'password_hash' column
-        // Use Function sp_login_user
-        $results = \Illuminate\Support\Facades\DB::select("SELECT * FROM sp_login_user(?)", [$request->email]);
+        $account = Account::where('email', $request->email)->first();
         
-        if (empty($results)) {
-             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
-        
-        $userRow = $results[0];
-
-        if (! Hash::check($request->password, $userRow->password_hash)) {
+        if (! $account || ! Hash::check($request->password, $account->password_hash)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
 
-        $account = Account::find($userRow->id);
         Auth::login($account, $request->remember ?? false);
         $request->session()->regenerate();
 

@@ -90,9 +90,9 @@
                             {{ $availableSeats }} Kursi Sisa
                         </div>
 
-                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors duration-200">
+                        <a href="{{ route('booking.create', ['schedule_id' => $schedule->id, 'date' => $travelDate]) }}" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors duration-200 text-center block">
                             Pilih
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>

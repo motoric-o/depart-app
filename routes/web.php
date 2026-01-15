@@ -59,9 +59,11 @@ Route::middleware('auth')->group(function () {
         }
     })->name('dashboard');
 
-    // Booking Routes
-    Route::get('/bookings/create', [App\Http\Controllers\Web\BookingController::class, 'create'])->name('bookings.create');
-
+    // Customer Booking Routes
+    Route::get('/booking/create', [\App\Http\Controllers\Web\BookingController::class, 'create'])->name('booking.create');
+    Route::post('/booking', [\App\Http\Controllers\Web\BookingController::class, 'store'])->name('booking.store');
+    Route::get('/booking/{booking_id}/payment', [\App\Http\Controllers\Web\BookingController::class, 'payment'])->name('booking.payment');
+    Route::get('/booking/history', [\App\Http\Controllers\Web\BookingController::class, 'history'])->name('booking.history');
 
     // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
