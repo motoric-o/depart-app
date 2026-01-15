@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreign('route_id')->references('id')->on('routes');
             $table->string('bus_id');
             $table->foreign('bus_id')->references('id')->on('buses');
+            $table->string('driver_id')->nullable()->after('bus_id');
+            $table->foreign('driver_id')->references('id')->on('accounts')->onDelete('set null');
             $table->dateTime('departure_time');
             $table->dateTime('arrival_time');
             $table->decimal('price_per_seat', 10, 2);

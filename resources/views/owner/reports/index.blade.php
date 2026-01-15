@@ -23,7 +23,7 @@
 <div class="py-12" id="printable-area">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="mb-4 no-print">
-            <a href="{{ route('owner.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Back to Dashboard</a>
+            <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Back to Dashboard</a>
         </div>
         
         <div class="flex justify-between items-center mb-6">

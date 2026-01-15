@@ -11,34 +11,63 @@ class ScheduleController extends Controller
 {
     public function search(Request $request)
     {
-        // 1. Validate the User's Search
-        $request->validate([
-            'from' => 'required|string', // e.g., 'Jakarta'
-            'to'   => 'required|string', // e.g., 'Bandung'
-            'date' => 'required|date',   // e.g., '2025-12-25'
-        ]);
+        // Parameters for SP
+        $sourceCode = $request->input('from') ?: ''; 
+        $destCode   = $request->input('to') ?: '';   
+        $travelDate = $request->input('date');
+        if (empty($travelDate)) {
+            $travelDate = date('Y-m-d');
+        }
+        
+        $minPrice   = $request->filled('min_price') ? $request->input('min_price') : 0;
+        $maxPrice   = $request->filled('max_price') ? $request->input('max_price') : 99999999;
+        
+        // Execute Stored Procedure
+        $rawSchedules = \Illuminate\Support\Facades\DB::select(
+            "SELECT * FROM sp_search_trips(?, ?, ?, ?, ?)", 
+            [$sourceCode, $destCode, $travelDate, $minPrice, $maxPrice]
+        );
 
-        $travelDate = $request->date;
+        $scheduleIds = array_column($rawSchedules, 'schedule_id');
+        
+        $query = Schedule::whereIn('id', $scheduleIds)
+                        ->with(['route.destination', 'route.sourceDestination', 'bus']);
 
-        // 2. Find Schedules that match the Route
-        // We look for schedules where the Route matches the source/destination cities
-        $schedules = Schedule::whereHas('route', function($q) use ($request) {
-            $q->where('source', $request->from)
-              ->whereHas('destination', function($subQ) use ($request) {
-                  $subQ->where('city_name', $request->to);
-              });
-        })
-        ->with(['bus', 'route', 'route.destination']) // Eager load details
-        ->get();
+        if ($request->filled('type')) {
+            $types = $request->input('type');
+            if (!is_array($types)) {
+                $types = [$types];
+            }
+            $query->whereHas('bus', function($q) use ($types) {
+                $q->whereIn('bus_type', $types);
+            });
+        }
+                        
+        $schedules = $query->get();
 
-        // 3. The "Occupied" Logic (This is where we put it!)
-        // We loop through each schedule to calculate how many seats are left *for that specific date*.
-        // Inside ScheduleController::search method
-
-        $results = $schedules->map(function ($schedule) use ($travelDate) {
-            // We just call the method we made in the Model
-            $schedule->available_seats = $schedule->getAvailableSeats($travelDate);
-            return $schedule;
+        // Transform data
+        $results = $schedules->map(function ($s) use ($travelDate) {
+            return [
+                'id' => $s->id,
+                'departure_time' => $s->departure_time, 
+                'arrival_time' => $s->arrival_time,
+                'estimated_duration' => $s->estimated_duration,
+                'price_per_seat' => $s->price_per_seat,
+                'formatted_price' => number_format($s->price_per_seat, 0, ',', '.'),
+                'departure_format' => \Carbon\Carbon::parse($s->departure_time)->format('H:i'),
+                'arrival_format' => \Carbon\Carbon::parse($s->arrival_time)->format('H:i'),
+                'duration_hour' => \Carbon\Carbon::parse($s->estimated_duration)->format('H'),
+                'duration_minute' => \Carbon\Carbon::parse($s->estimated_duration)->format('i'),
+                'available_seats' => $s->getAvailableSeats($travelDate),
+                'bus' => [
+                    'bus_number' => $s->bus->bus_number,
+                    'bus_type' => $s->bus->bus_type,
+                ],
+                'route' => [
+                    'source' => $s->route->sourceDestination->city_name ?? $s->route->source,
+                    'destination' => $s->route->destination->city_name ?? $s->route->destination_code,
+                ]
+            ];
         });
 
         return response()->json($results);

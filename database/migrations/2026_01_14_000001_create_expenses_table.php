@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('id')->primary();
             $table->string('description');
             $table->decimal('amount', 10, 2);
+            $table->string('status')->default('Approved')->after('amount'); // Approved, Pending, Rejected
             $table->string('type'); // 'reimbursement', 'operational', 'maintenance', 'salary', 'other'
             $table->date('date');
             $table->string('account_id')->nullable(); // Who recorded it

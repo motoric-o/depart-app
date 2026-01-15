@@ -39,9 +39,23 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Schedule Details (Admin - Pilot Feature) - Using 'web' middleware to share Admin Session
-Route::middleware(['web', 'auth'])->group(function () {
+// Schedule Details (Admin - Pilot Feature) - Using 'web' middleware to share Admin Session
+Route::middleware(['web', 'auth', 'role:Owner,Super Admin,Financial Admin,Scheduling Admin,Operations Admin'])->group(function () {
+    // Phase 2: Refactored Admin API
+    Route::apiResource('/admin/schedules', \App\Http\Controllers\Api\Admin\ScheduleController::class);
+    Route::apiResource('/admin/buses', \App\Http\Controllers\Api\Admin\BusController::class);
+    Route::apiResource('/admin/routes', \App\Http\Controllers\Api\Admin\RouteController::class);
+    Route::apiResource('/admin/users', \App\Http\Controllers\Api\Admin\UserController::class);
+
     Route::get('/schedules/{id}/details', [ScheduleDetailController::class, 'index']);
     Route::post('/schedules/{id}/details', [ScheduleDetailController::class, 'store']); // Create manual entry
     Route::put('/schedules/details/{detail_id}', [ScheduleDetailController::class, 'update']);
     Route::delete('/schedules/details/{detail_id}', [ScheduleDetailController::class, 'destroy']);
+
+    // Phase 5: Expense Management
+    Route::get('/admin/expenses', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'index']);
+    Route::post('/admin/expenses', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'store']);
+    Route::put('/admin/expenses/{id}', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'update']);
+    Route::put('/admin/expenses/{id}/verify', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'verify']);
+    Route::delete('/admin/expenses/{id}', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'destroy']);
 });

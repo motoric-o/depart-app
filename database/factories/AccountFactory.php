@@ -43,7 +43,7 @@ class AccountFactory extends Factory
             'phone' => '081234567890',
             'birthdate' => '2006-08-19',
             'password_hash' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'account_type_id' => '3'
+            'account_type_id' => '1'
         ]);
     }
 
@@ -56,7 +56,7 @@ class AccountFactory extends Factory
             'phone' => '081234567890',
             'birthdate' => '2006-01-01',
             'password_hash' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'account_type_id' => '1'
+            'account_type_id' => '2'
         ]);
     }
 
@@ -69,7 +69,47 @@ class AccountFactory extends Factory
             'phone' => '081234567890',
             'birthdate' => '2006-01-01',
             'password_hash' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'account_type_id' => '1'
+            'account_type_id' => '2'
+        ]);
+    }
+
+    public function superAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email' => 'superadmin@dpdepari.com',
+            'first_name' => 'Super',
+            'last_name' => 'Admin',
+            'account_type_id' => AccountType::where('name', 'Super Admin')->first()->id
+        ]);
+    }
+
+    public function financialAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email' => 'finance@dpdepari.com',
+            'first_name' => 'Financial',
+            'last_name' => 'Admin',
+            'account_type_id' => AccountType::where('name', 'Financial Admin')->first()->id
+        ]);
+    }
+
+    public function schedulingAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email' => 'scheduler@dpdepari.com',
+            'first_name' => 'Scheduling',
+            'last_name' => 'Admin',
+            'account_type_id' => AccountType::where('name', 'Scheduling Admin')->first()->id
+        ]);
+    }
+
+    public function operationsAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email' => 'ops@dpdepari.com',
+            'first_name' => 'Operations',
+            'last_name' => 'Admin',
+            'account_type_id' => AccountType::where('name', 'Operations Admin')->first()->id
         ]);
     }
 }

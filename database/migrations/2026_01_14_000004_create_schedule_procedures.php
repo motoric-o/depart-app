@@ -46,6 +46,7 @@ return new class extends Migration
             CREATE OR REPLACE PROCEDURE sp_create_schedule(
                 p_route_id TEXT,
                 p_bus_id TEXT,
+                p_driver_id TEXT,
                 p_departure_time TIMESTAMP,
                 p_arrival_time TIMESTAMP,
                 p_price_per_seat DECIMAL,
@@ -61,8 +62,8 @@ return new class extends Migration
                     RAISE EXCEPTION 'Bus is already scheduled for this time range.';
                 END IF;
 
-                INSERT INTO schedules (route_id, bus_id, departure_time, arrival_time, price_per_seat, quota, remarks, created_at, updated_at)
-                VALUES (p_route_id, p_bus_id, p_departure_time, p_arrival_time, p_price_per_seat, p_quota, 'Scheduled', NOW(), NOW());
+                INSERT INTO schedules (route_id, bus_id, driver_id, departure_time, arrival_time, price_per_seat, quota, remarks, created_at, updated_at)
+                VALUES (p_route_id, p_bus_id, p_driver_id, p_departure_time, p_arrival_time, p_price_per_seat, p_quota, 'Scheduled', NOW(), NOW());
                 
                 COMMIT;
             END;

@@ -35,18 +35,13 @@ class DatabaseSeeder extends Seeder
         $routes = Route::all();
 
         // 4. Create Users
-        $adminType = AccountType::where('name', 'Admin')->first();
         $custType = AccountType::where('name', 'Customer')->first();
 
-        // Create Admin
-        if (!Account::where('email', 'admin@busapp.com')->exists()) {
-            Account::factory()->create([
-                'account_type_id' => $adminType->id,
-                'email' => 'admin@busapp.com',
-                'first_name' => 'Super',
-                'last_name' => 'Admin'
-            ]);
-        }
+        // Create Admins using Factory States
+        Account::factory()->superAdmin()->create();
+        Account::factory()->financialAdmin()->create();
+        Account::factory()->schedulingAdmin()->create();
+        Account::factory()->operationsAdmin()->create();
 
         // Create Manual Account (Rico)
         Account::factory()->rico()->create();
@@ -59,6 +54,14 @@ class DatabaseSeeder extends Seeder
         ]);
         // FETCH THEM BACK TO GET IDs (C-2025...)
         $customers = Account::where('account_type_id', $custType->id)->get();
+
+        // Create Drivers
+        $driverType = AccountType::where('name', 'Driver')->first();
+        Account::factory(3)->create([
+            'account_type_id' => $driverType->id,
+            'first_name' => 'Driver', // Will append sequence by factory usually or random
+        ]);
+        $drivers = Account::where('account_type_id', $driverType->id)->get();
 
         // 5. Create Schedules (Trips)
         foreach(range(1, 50) as $i) {

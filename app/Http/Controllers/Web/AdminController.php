@@ -11,6 +11,9 @@ use App\Models\AccountType;
 use App\Models\Destination;
 use App\Models\Schedule;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth; // Fix lint error
 
 class AdminController extends Controller
 {
@@ -52,13 +55,20 @@ class AdminController extends Controller
         }
 
         $users = $query->paginate(10)->withQueryString();
-        return view('admin.users.index', compact('users', 'sort_by', 'sort_order'));
+        return view('management.users.index', compact('users', 'sort_by', 'sort_order'));
     }
 
     public function createUser()
     {
-        $roles = AccountType::whereIn('name', ['Customer', 'Driver'])->get();
-        return view('admin.users.create', compact('roles'));
+        $allowedRoles = ['Customer', 'Driver'];
+        if (Auth::user()->accountType->name === 'Owner') {
+            $allowedRoles[] = 'Super Admin';
+            $allowedRoles[] = 'Financial Admin';
+            $allowedRoles[] = 'Scheduling Admin';
+            $allowedRoles[] = 'Operations Admin';
+        }
+        $roles = AccountType::whereIn('name', $allowedRoles)->get();
+        return view('management.users.create', compact('roles'));
     }
 
     public function storeUser(Request $request)
@@ -74,7 +84,14 @@ class AdminController extends Controller
         ]);
 
         $role = AccountType::findOrFail($request->account_type_id);
-        if (!in_array($role->name, ['Customer', 'Driver'])) {
+        $allowedRoles = ['Customer', 'Driver'];
+        if (Auth::user()->accountType->name === 'Owner') {
+            $allowedRoles[] = 'Super Admin';
+            $allowedRoles[] = 'Financial Admin';
+            $allowedRoles[] = 'Scheduling Admin';
+            $allowedRoles[] = 'Operations Admin';
+        }
+        if (!in_array($role->name, $allowedRoles)) {
              return back()->withErrors(['account_type_id' => 'Invalid role selected.']);
         }
 
@@ -95,20 +112,36 @@ class AdminController extends Controller
     {
         $user = Account::with('accountType')->findOrFail($id);
 
-        if (!in_array($user->accountType->name, ['Customer', 'Driver'])) {
-            return redirect()->route('admin.users')->with('error', 'You can only edit Customer or Driver accounts.');
+        $allowedRoles = ['Customer', 'Driver'];
+        if (Auth::user()->accountType->name === 'Owner') {
+            $allowedRoles[] = 'Super Admin';
+            $allowedRoles[] = 'Financial Admin';
+            $allowedRoles[] = 'Scheduling Admin';
+            $allowedRoles[] = 'Operations Admin';
         }
 
-        $roles = AccountType::whereIn('name', ['Customer', 'Driver'])->get();
-        return view('admin.users.edit', compact('user', 'roles'));
+        if (!in_array($user->accountType->name, $allowedRoles)) {
+            return redirect()->route('admin.users')->with('error', 'You do not have permission to edit this account.');
+        }
+
+        $roles = AccountType::whereIn('name', $allowedRoles)->get();
+        return view('management.users.edit', compact('user', 'roles'));
     }
 
     public function updateUser(Request $request, $id)
     {
         $user = Account::with('accountType')->findOrFail($id);
 
-        if (!in_array($user->accountType->name, ['Customer', 'Driver'])) {
-            return redirect()->route('admin.users')->with('error', 'You can only edit Customer or Driver accounts.');
+        $allowedRoles = ['Customer', 'Driver'];
+        if (Auth::user()->accountType->name === 'Owner') {
+            $allowedRoles[] = 'Super Admin';
+            $allowedRoles[] = 'Financial Admin';
+            $allowedRoles[] = 'Scheduling Admin';
+            $allowedRoles[] = 'Operations Admin';
+        }
+
+        if (!in_array($user->accountType->name, $allowedRoles)) {
+            return redirect()->route('admin.users')->with('error', 'You do not have permission to edit this account.');
         }
 
         $request->validate([
@@ -121,7 +154,14 @@ class AdminController extends Controller
         ]);
 
         $role = AccountType::findOrFail($request->account_type_id);
-        if (!in_array($role->name, ['Customer', 'Driver'])) {
+        $allowedRoles = ['Customer', 'Driver'];
+        if (Auth::user()->accountType->name === 'Owner') {
+            $allowedRoles[] = 'Super Admin';
+            $allowedRoles[] = 'Financial Admin';
+            $allowedRoles[] = 'Scheduling Admin';
+            $allowedRoles[] = 'Operations Admin';
+        }
+        if (!in_array($role->name, $allowedRoles)) {
              return back()->withErrors(['account_type_id' => 'Invalid role selected.']);
         }
 
@@ -163,8 +203,16 @@ class AdminController extends Controller
     {
         $user = Account::with('accountType')->findOrFail($id);
 
-        if (!in_array($user->accountType->name, ['Customer', 'Driver'])) {
-            return redirect()->route('admin.users')->with('error', 'You can only delete Customer or Driver accounts.');
+        $allowedRoles = ['Customer', 'Driver'];
+        if (Auth::user()->accountType->name === 'Owner') {
+            $allowedRoles[] = 'Super Admin';
+            $allowedRoles[] = 'Financial Admin';
+            $allowedRoles[] = 'Scheduling Admin';
+            $allowedRoles[] = 'Operations Admin';
+        }
+
+        if (!in_array($user->accountType->name, $allowedRoles)) {
+            return redirect()->route('admin.users')->with('error', 'You do not have permission to delete this account.');
         }
 
         $user->delete();
@@ -172,39 +220,24 @@ class AdminController extends Controller
         return redirect()->route('admin.users')->with('success', 'User deleted successfully.');
     }
 
+    // --- EXPENSES MANAGEMENT ---
+
+    public function expenses()
+    {
+        $canApprove = \Illuminate\Support\Facades\Gate::allows('approve-expense');
+        return view('management.expenses.index', compact('canApprove'));
+    }
+
     // --- BUSES MANAGEMENT ---
 
     public function buses(Request $request)
     {
-        $query = Bus::query();
-
-        // Search
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('bus_number', 'like', "%{$search}%")
-                  ->orWhere('bus_type', 'like', "%{$search}%");
-            });
-        }
-
-        // Sorting
-        $sort_by = $request->get('sort_by', 'bus_number');
-        $sort_order = $request->get('sort_order', 'asc');
-        $allowed_sorts = ['bus_number', 'bus_type', 'capacity'];
-        
-        if (in_array($sort_by, $allowed_sorts)) {
-            $query->orderBy($sort_by, $sort_order);
-        } else {
-             $query->orderBy('bus_number', 'asc');
-        }
-
-        $buses = $query->paginate(10)->withQueryString();
-        return view('admin.buses.index', compact('buses', 'sort_by', 'sort_order'));
+        return view('management.buses.index');
     }
 
     public function createBus()
     {
-        return view('admin.buses.create');
+        return view('management.buses.create');
     }
 
     public function storeBus(Request $request)
@@ -233,7 +266,7 @@ class AdminController extends Controller
     public function editBus($id)
     {
         $bus = Bus::findOrFail($id);
-        return view('admin.buses.edit', compact('bus'));
+        return view('management.buses.edit', compact('bus'));
     }
 
     public function updateBus(Request $request, $id)
@@ -301,13 +334,13 @@ class AdminController extends Controller
         }
 
         $routes = $query->paginate(10)->withQueryString();
-        return view('admin.routes.index', compact('routes', 'sort_by', 'sort_order'));
+        return view('management.routes.index', compact('routes', 'sort_by', 'sort_order'));
     }
 
     public function createRoute()
     {
         $destinations = Destination::all();
-        return view('admin.routes.create', compact('destinations'));
+        return view('management.routes.create', compact('destinations'));
     }
 
     public function storeRoute(Request $request)
@@ -333,7 +366,7 @@ class AdminController extends Controller
     {
         $route = BusRoute::findOrFail($id);
         $destinations = Destination::all();
-        return view('admin.routes.edit', compact('route', 'destinations'));
+        return view('management.routes.edit', compact('route', 'destinations'));
     }
 
     public function updateRoute(Request $request, $id)
@@ -370,41 +403,7 @@ class AdminController extends Controller
 
     public function schedules(Request $request)
     {
-        $query = Schedule::with(['route.destination', 'bus']);
-
-        // Search
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                // Search by Schedule ID
-                $q->where('id', 'like', "%{$search}%")
-                  // Search by Bus Number via relationship
-                  ->orWhereHas('bus', function($subQ) use ($search) {
-                      $subQ->where('bus_number', 'like', "%{$search}%");
-                  })
-                  // Search by Route Source or Destination City
-                  ->orWhereHas('route', function($subQ) use ($search) {
-                      $subQ->where('source', 'like', "%{$search}%")
-                           ->orWhereHas('destination', function($subSubQ) use ($search) {
-                               $subSubQ->where('city_name', 'like', "%{$search}%");
-                           });
-                  });
-            });
-        }
-
-        // Sorting
-        $sort_by = $request->get('sort_by', 'departure_time');
-        $sort_order = $request->get('sort_order', 'desc');
-        $allowed_sorts = ['id', 'route_id', 'bus_id', 'departure_time', 'arrival_time', 'price_per_seat', 'remarks'];
-        
-        if (in_array($sort_by, $allowed_sorts)) {
-            $query->orderBy($sort_by, $sort_order);
-        } else {
-             $query->orderBy('departure_time', 'desc');
-        }
-
-        $schedules = $query->paginate(10)->withQueryString();
-        return view('admin.schedules.index', compact('schedules', 'sort_by', 'sort_order'));
+        return view('management.schedules.index');
     }
 
     public function createSchedule()
@@ -414,7 +413,7 @@ class AdminController extends Controller
         $drivers = Account::whereHas('accountType', function($q) {
             $q->where('name', 'Driver');
         })->get();
-        return view('admin.schedules.create', compact('routes', 'buses', 'drivers'));
+        return view('management.schedules.create', compact('routes', 'buses', 'drivers'));
     }
 
     public function storeSchedule(Request $request)
@@ -430,27 +429,18 @@ class AdminController extends Controller
         ]);
 
         try {
-            \Illuminate\Support\Facades\DB::statement("CALL sp_create_schedule(?, ?, ?, ?, ?, ?)", [
+            \Illuminate\Support\Facades\DB::statement("CALL sp_create_schedule(?, ?, ?, ?, ?, ?, ?)", [
                 $request->route_id,
                 $request->bus_id,
+                $request->driver_id,
                 $request->departure_time,
                 $request->arrival_time,
                 $request->price_per_seat,
                 $request->quota
             ]);
             
-            // Fetch the last created schedule for this bus/time (approximate) or use ID if SP returned it.
-            // Stored procedure usually doesn't return ID easily in Laravel statement call.
-            // I will find the schedule I just created.
-            $schedule = Schedule::where('bus_id', $request->bus_id)
-                        ->where('departure_time', $request->departure_time)
-                        ->latest()
-                        ->first();
-                        
-            if ($schedule) {
-                $schedule->driver_id = $request->driver_id;
-                $schedule->save();
-            }
+            // Removed manual driver_id update since SP now handles it.
+
 
         } catch (\Illuminate\Database\QueryException $e) {
              if (str_contains($e->getMessage(), 'Bus is already scheduled')) {
@@ -470,7 +460,7 @@ class AdminController extends Controller
         $drivers = Account::whereHas('accountType', function($q) {
             $q->where('name', 'Driver');
         })->get();
-        return view('admin.schedules.edit', compact('schedule', 'routes', 'buses', 'drivers'));
+        return view('management.schedules.edit', compact('schedule', 'routes', 'buses', 'drivers'));
     }
 
     public function updateSchedule(Request $request, $id)
@@ -569,6 +559,6 @@ class AdminController extends Controller
     public function scheduleDetails($id)
     {
         $schedule = Schedule::findOrFail($id);
-        return view('admin.schedules.details', compact('schedule'));
+        return view('management.schedules.details', compact('schedule'));
     }
 }

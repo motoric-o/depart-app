@@ -8,7 +8,7 @@ use App\Http\Controllers\Web\OwnerController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    $destinations = Destination::orderBy('city_name')->get();
+    $destinations = Destination::orderBy('city_name', 'asc')->get();
     return view('home', compact('destinations'));
 });
 
@@ -35,7 +35,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Dashboard Redirection
-    // Dashboard Redirection
     Route::get('/dashboard', function () {
         $user = Auth::user();
         
@@ -47,10 +46,22 @@ Route::middleware('auth')->group(function () {
             case 'Driver':
                 return redirect()->route('driver.dashboard');
             default:
-                $destinations = Destination::orderBy('city_name')->get();
-                return view('home', compact('destinations'));
+        $roleValues = ['Owner', 'Super Admin', 'Financial Admin', 'Scheduling Admin', 'Operations Admin'];
+        if (in_array($user->accountType->name, $roleValues)) {
+            return redirect()->route('admin.dashboard'); // Re-use Admin dashboard but content varies by Gates
+        }
+        if ($user->accountType->name === 'Driver') {
+             // Driver dashboard or profile
+             return redirect()->route('profile.edit'); 
+        }
+        
+        return view('customer.dashboard');
         }
     })->name('dashboard');
+
+    // Booking Routes
+    Route::get('/bookings/create', [App\Http\Controllers\Web\BookingController::class, 'create'])->name('bookings.create');
+
 
     // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -61,13 +72,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('owner')->name('owner.')->group(function () {
         Route::get('/dashboard', [OwnerController::class, 'dashboard'])->name('dashboard');
         
-        // Users CRUD (Admins & Customers & Drivers)
-        Route::get('/users', [OwnerController::class, 'users'])->name('users');
-        Route::get('/users/create', [OwnerController::class, 'createUser'])->name('users.create');
-        Route::post('/users', [OwnerController::class, 'storeUser'])->name('users.store');
-        Route::get('/users/{id}/edit', [OwnerController::class, 'editUser'])->name('users.edit');
-        Route::put('/users/{id}', [OwnerController::class, 'updateUser'])->name('users.update');
-        Route::delete('/users/{id}', [OwnerController::class, 'deleteUser'])->name('users.delete');
+        // Users Management unified under Admin Routes
+
 
         // Revenue Reports
         Route::get('/reports', [OwnerController::class, 'reports'])->name('reports');
@@ -98,7 +104,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Admin Routes
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware('role:Owner,Super Admin,Financial Admin,Scheduling Admin,Operations Admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard'); // Optional explicit route
         // Users CRUD
         Route::get('/users', [AdminController::class, 'users'])->name('users');
@@ -134,5 +140,8 @@ Route::middleware('auth')->group(function () {
         
         // Schedule Details (View Shell)
         Route::get('/schedules/{id}/details', [AdminController::class, 'scheduleDetails'])->name('schedules.details');
+
+        // Expenses
+        Route::get('/expenses', [AdminController::class, 'expenses'])->name('expenses');
     });
 });
