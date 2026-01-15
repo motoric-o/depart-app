@@ -5,50 +5,70 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900" 
-                 x-data="datatable({ 
-                    url: '/api/admin/routes',
-                    sort_by: '{{ request('sort_by', 'id') }}',
-                    sort_order: '{{ request('sort_order', 'asc') }}'
-                 })"
+                 x-data="{
+                    ...datatable({ 
+                        url: '/api/admin/routes',
+                        sort_by: '{{ request('sort_by', 'id') }}',
+                        sort_order: '{{ request('sort_order', 'asc') }}'
+                    }),
+                    canManageRoutes: {{ Auth::user()->can('manage-routes') ? 'true' : 'false' }} 
+                 }"
             >
                 <div class="mb-4">
                     <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Back to Dashboard</a>
                 </div>
-                <div class="mb-6 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 md:space-x-4">
-                    <h2 class="text-2xl font-bold">Manage Routes</h2>
-                    <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 w-full md:w-auto">
-                        
-                        <!-- Filter Form -->
-                        <div class="w-full" x-data="{ showFilters: false }">
-                            <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-2">
-                                <input type="text" x-model="filters.search" placeholder="Search routes..." class="grow border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 h-[42px]">
-                                <button type="button" @click="showFilters = !showFilters" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 flex items-center justify-center border border-transparent h-[42px] whitespace-nowrap">
-                                    <span>Sort & Filter</span>
-                                    <svg x-show="!showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    <svg x-show="showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
-                                </button>
-                                <button type="button" @click="fetchData(1)" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 border border-transparent h-[42px]">Search</button>
-                                <button x-show="filters.search || filters.sort_by !== 'id'" @click="filters.search = ''; filters.sort_by = 'id'; fetchData(1)" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 text-center flex items-center justify-center border border-transparent h-[42px]">Clear</button>
-                            </div>
 
-                            <div x-show="showFilters" x-collapse class="w-full grid grid-cols-1 md:grid-cols-2 gap-2 p-4 bg-gray-50 rounded-md shadow-inner mb-6 mt-4">
-                                <select x-model="filters.sort_by" @change="fetchData(1)" class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
-                                    <option value="id">Sort by ID</option>
-                                    <option value="source">Sort by Source</option>
-                                    <option value="destination_code">Sort by Destination</option>
-                                    <option value="distance">Sort by Distance</option>
-                                    <option value="estimated_duration">Sort by Duration</option>
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold" x-text="canManageRoutes ? 'Manage Routes' : 'View Routes'"></h2>
+                    </div>
+                
+                    <!-- Toolbar -->
+                    <div class="w-full" x-data="{ showFilters: false }">
+                        <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-2">
+                             <input type="text" x-model="filters.search" placeholder="Search routes..." class="grow border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 h-[42px]">
+                             
+                             <button type="button" @click="showFilters = !showFilters" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 flex items-center justify-center border border-transparent h-[42px] whitespace-nowrap transition-colors">
+                                <span>Sort & Filter</span>
+                                <svg x-show="!showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                <svg x-show="showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                            </button>
+                            
+                            <button type="button" @click="fetchData(1)" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 border border-transparent h-[42px] font-medium transition-colors">Search</button>
+                            
+                            <button x-show="filters.search || filters.sort_by !== 'id'" 
+                                    @click="filters.search = ''; filters.sort_by = 'id'; fetchData(1)" 
+                                    class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 flex items-center justify-center border border-transparent h-[42px] transition-colors"
+                                    style="display: none;">
+                                Clear
+                            </button>
+
+                            @can('manage-routes')
+                            <form action="{{ route('admin.routes.create') }}" method="GET" class="ml-auto">
+                                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 text-center border border-transparent flex items-center justify-center h-[42px] whitespace-nowrap font-medium transition-colors">Add Route</button>
+                            </form>
+                            @endcan
+                        </div>
+
+                        <div x-show="showFilters" x-collapse style="display: none;" class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-md shadow-inner mb-6 mt-4 border border-gray-200">
+                             <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                                <select x-model="filters.sort_by" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+                                    <option value="id">ID</option>
+                                    <option value="source">Source</option>
+                                    <option value="destination_code">Destination</option>
+                                    <option value="distance">Distance</option>
+                                    <option value="estimated_duration">Duration</option>
                                 </select>
-                                <select x-model="filters.sort_order" @change="fetchData(1)" class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Order</label>
+                                <select x-model="filters.sort_order" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
                                     <option value="asc">Ascending</option>
                                     <option value="desc">Descending</option>
                                 </select>
                             </div>
                         </div>
-
-                        <form action="{{ route('admin.routes.create') }}" method="GET">
-                            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 text-center border border-transparent flex items-center justify-center h-[42px] whitespace-nowrap">Add Route</button>
-                        </form>
                     </div>
                 </div>
 
@@ -111,12 +131,19 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="route.distance + ' km'"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="route.estimated_duration + ' mins'"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a :href="'/admin/routes/' + route.id + '/edit'" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                        <form :action="'/admin/routes/' + route.id + '/delete'" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this route?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                        </form>
+                                        <template x-if="canManageRoutes">
+                                            <div>
+                                                <a :href="'/admin/routes/' + route.id + '/edit'" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
+                                                <form :action="'/admin/routes/' + route.id + '/delete'" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this route?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                                </form>
+                                            </div>
+                                        </template>
+                                        <template x-if="!canManageRoutes">
+                                            <span class="text-gray-400 cursor-not-allowed">Restricted</span>
+                                        </template>
                                     </td>
                                 </tr>
                             </template>

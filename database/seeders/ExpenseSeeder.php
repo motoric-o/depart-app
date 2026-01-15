@@ -15,47 +15,26 @@ class ExpenseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Clear existing expenses to avoid duplicates/messy data
+        // Clear existing expenses
         DB::table('expenses')->truncate();
 
-        $categories = ['reimbursement', 'operational', 'maintenance', 'salary', 'other'];
-        $descriptions = [
-            'reimbursement' => ['Travel Expenses - Jakarta', 'Client Lunch', 'Office Supplies', 'Taxi Fare'],
-            'operational' => ['Internet Bill', 'Electricity Token', 'Water Refill', 'Server Monthly'],
-            'maintenance' => ['Quick Bus Wash', 'Oil Top-up', 'Tire Patch', 'Light Bulb Replacement'],
-            'salary' => ['Daily Helper Wage', 'Driver Meal Allowance', 'Bonus'],
-            'other' => ['Community Donation', 'Parking Fees', 'Snacks for Office'],
-        ];
+        // Fetch potential requestors: Drivers, Ops Admins, Super Admins
+        // We exclude 'Customer' type generally.
+        $requestors = \App\Models\Account::whereHas('accountType', function($q) {
+            $q->whereIn('name', ['Driver', 'Operations Admin', 'Sensors Admin', 'Super Admin']); 
+        })->get();
 
-        // Target Date Range: Current Month (Jan 2026 based on context)
-        // Revenue is ~5M. Expenses should be ~2-3M to show profit.
-        $targetTotal = 0;
-        $maxTotal = 3000000; 
+        if ($requestors->isEmpty()) {
+            // Fallback if no specific users found (e.g. running seed independently)
+            $requestors = \App\Models\Account::factory(3)->state(['account_type_id' => 1])->create(); // create generic
+        }
 
-        for ($i = 0; $i < 15; $i++) {
-            $type = $categories[array_rand($categories)];
-            $descList = $descriptions[$type];
-            $description = $descList[array_rand($descList)];
-            
-            // Random amount between 20k and 500k
-            $amount = rand(20, 500) * 1000; 
-
-            if ($targetTotal + $amount > $maxTotal) {
-                break;
-            }
-
-            // Distribute over the last 15 days
-            $date = Carbon::create(2026, 1, 14)->subDays(rand(0, 14));
-
-            Expense::create([
-                'description' => $description,
-                'amount' => $amount,
-                'type' => $type,
-                'date' => $date,
-                'account_id' => null, 
+        // Generate Expenses
+        foreach ($requestors as $user) {
+            // Each user submits 3-5 expenses
+            Expense::factory(rand(3, 5))->create([
+                'account_id' => $user->id,
             ]);
-
-            $targetTotal += $amount;
         }
     }
 }

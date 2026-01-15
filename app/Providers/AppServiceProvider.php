@@ -48,7 +48,8 @@ class AppServiceProvider extends ServiceProvider
         // Expense Management
         \Illuminate\Support\Facades\Gate::define('create-expense', function ($user) {
             $user->loadMissing('accountType');
-            return $user->accountType && in_array($user->accountType->name, ['Owner', 'Super Admin', 'Operations Admin', 'Driver']);
+            // Financial Admin needs Manage (Create) & Approve
+            return $user->accountType && in_array($user->accountType->name, ['Owner', 'Super Admin', 'Operations Admin', 'Driver', 'Financial Admin']);
         });
 
         \Illuminate\Support\Facades\Gate::define('approve-expense', function ($user) {
@@ -59,6 +60,31 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Gate::define('view-financial-reports', function ($user) {
             $user->loadMissing('accountType');
             return $user->accountType && in_array($user->accountType->name, ['Owner', 'Super Admin', 'Financial Admin']);
+        });
+
+        // View-Only Gates (For Dashboard & Index Pages)
+        \Illuminate\Support\Facades\Gate::define('view-users', function ($user) {
+            $user->loadMissing('accountType');
+            // Ops (Manage Drivers), Sched (View Drivers)
+            return $user->accountType && in_array($user->accountType->name, ['Owner', 'Super Admin', 'Operations Admin', 'Scheduling Admin']);
+        });
+
+        \Illuminate\Support\Facades\Gate::define('view-buses', function ($user) {
+            $user->loadMissing('accountType');
+            // Ops (Manage), Sched (View)
+            return $user->accountType && in_array($user->accountType->name, ['Owner', 'Super Admin', 'Operations Admin', 'Scheduling Admin']);
+        });
+
+        \Illuminate\Support\Facades\Gate::define('view-routes', function ($user) {
+            $user->loadMissing('accountType');
+            // Sched (Manage), Ops (View)
+            return $user->accountType && in_array($user->accountType->name, ['Owner', 'Super Admin', 'Operations Admin', 'Scheduling Admin']);
+        });
+
+        \Illuminate\Support\Facades\Gate::define('view-schedules', function ($user) {
+            $user->loadMissing('accountType');
+            // Sched (Manage), Ops (View)
+            return $user->accountType && in_array($user->accountType->name, ['Owner', 'Super Admin', 'Operations Admin', 'Scheduling Admin']);
         });
     }
 }

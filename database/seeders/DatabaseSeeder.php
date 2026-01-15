@@ -168,5 +168,8 @@ class DatabaseSeeder extends Seeder
                 }
             }
         }
+
+        // 7. Seed Expenses
+        $this->call(ExpenseSeeder::class);
     }
 }

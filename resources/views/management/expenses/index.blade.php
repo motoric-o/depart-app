@@ -52,27 +52,81 @@
                 <div class="mb-4">
                     <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Back to Dashboard</a>
                 </div>
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h3 class="text-xl font-bold">Manage Expenses</h3>
-                        <p class="text-sm text-gray-500">Track and approve operational costs.</p>
-                    </div>
-                    @can('create-expense')
-                    <button @click="showCreateModal = true" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                        Record Expense
-                    </button>
-                    @endcan
-                </div>
 
-                <!-- Filters -->
-                <div class="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <input type="text" x-model="search" placeholder="Search..." class="border-gray-300 rounded-md shadow-sm">
-                    <select x-model="filters.status" @change="refresh()" class="border-gray-300 rounded-md shadow-sm">
-                        <option value="">All Status</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Approved">Approved</option>
-                        <option value="Rejected">Rejected</option>
-                    </select>
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold">Manage Expenses</h3>
+                            <p class="text-sm text-gray-500">Track and approve operational costs.</p>
+                        </div>
+                    </div>
+
+                    <!-- Toolbar -->
+                     <div class="w-full" x-data="{ showFilters: false }">
+                        <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-2">
+                             <input type="text" x-model="filters.search" placeholder="Search expenses..." class="grow border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 h-[42px]">
+                             
+                             <button type="button" @click="showFilters = !showFilters" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 flex items-center justify-center border border-transparent h-[42px] whitespace-nowrap transition-colors">
+                                <span>Sort & Filter</span>
+                                <svg x-show="!showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                <svg x-show="showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                            </button>
+                            
+                            <button type="button" @click="fetchData(1)" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 border border-transparent h-[42px] font-medium transition-colors">Search</button>
+                            
+                            <button x-show="filters.search || filters.status || filters.type" 
+                                    @click="filters.search = ''; filters.sort_by = 'date'; filters.status = ''; filters.type = ''; fetchData(1)" 
+                                    class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 flex items-center justify-center border border-transparent h-[42px] transition-colors"
+                                    style="display: none;">
+                                Clear
+                            </button>
+
+                            @can('create-expense')
+                            <button @click="showCreateModal = true" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 text-center border border-transparent flex items-center justify-center h-[42px] whitespace-nowrap font-medium transition-colors ml-auto">
+                                Record Expense
+                            </button>
+                            @endcan
+                        </div>
+                        
+                        <div x-show="showFilters" x-collapse style="display: none;" class="w-full grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-md shadow-inner mb-6 mt-4 border border-gray-200">
+                             <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                <select x-model="filters.status" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+                                    <option value="">All Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                                <select x-model="filters.type" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+                                    <option value="">All Types</option>
+                                    <option value="operational">Operational</option>
+                                    <option value="maintenance">Maintenance</option>
+                                    <option value="reimbursement">Reimbursement</option>
+                                    <option value="salary">Salary</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                                <select x-model="filters.sort_by" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+                                    <option value="date">Date</option>
+                                    <option value="amount">Amount</option>
+                                    <option value="description">Description</option>
+                                    <option value="created_at">Created At</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Order</label>
+                                <select x-model="filters.sort_order" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+                                    <option value="asc">Ascending</option>
+                                    <option value="desc">Descending</option>
+                                </select>
+                            </div>
+                        </div>
+                     </div>
                 </div>
 
                 <!-- Table -->
