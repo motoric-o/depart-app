@@ -112,10 +112,13 @@
                     </div>
                 </div>
 
-                <button class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition duration-200 text-lg flex justify-center items-center mb-6">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Saya Sudah Membayar
-                </button>
+                <form action="{{ route('booking.complete', $booking->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition duration-200 text-lg flex justify-center items-center mb-6">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Saya Sudah Membayar
+                    </button>
+                </form>
             </div>
 
             <!-- Right: Booking Summary -->

@@ -1,46 +1,27 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header Steps -->
-        <div class="mb-8">
-            <h1 class="text-2xl font-bold text-gray-900 mb-6">Pemesanan Berhasil</h1>
-            <div class="flex items-center justify-center">
-                <div class="flex items-start w-full max-w-3xl">
-                    <!-- Step 1: Done -->
-                    <div class="flex flex-col items-center">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style="background-color: #16a34a; color: white;">1</div>
-                        <span class="text-sm font-bold text-green-700 mt-2">Isi Data</span>
-                    </div>
-                    <div class="flex-1 mx-4 rounded mt-3.5" style="height: 4px; background-color: #16a34a;"></div>
-                    
-                    <!-- Step 2: Done -->
-                    <div class="flex flex-col items-center">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style="background-color: #16a34a; color: white;">2</div>
-                        <span class="text-sm font-bold text-green-700 mt-2">Bayar</span>
-                    </div>
-                    <div class="flex-1 mx-4 rounded mt-3.5" style="height: 4px; background-color: #16a34a;"></div>
-                    
-                    <!-- Step 3: Active -->
-                    <div class="flex flex-col items-center">
-                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">3</div>
-                        <span class="text-sm font-medium text-blue-600 mt-2">Selesai</span>
-                    </div>
-                </div>
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+                <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
             </div>
-        </div>
-
-        <div class="max-w-xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-            </div>
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">Pembayaran Berhasil!</h2>
-            <p class="text-gray-500 mb-8">Tiket Anda telah terbit dan dikirim ke email Anda.</p>
             
-            <a href="{{ route('booking.history') }}" class="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
-                Lihat Tiket Saya
-            </a>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Pembayaran Berhasil!</h2>
+            <p class="text-gray-600 mb-8">Terima kasih, pembayaran Anda telah kami terima. E-Tiket telah diterbitkan.</p>
+
+            <div class="space-y-4">
+                <a href="{{ route('booking.ticket', $booking->id) }}" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Lihat E-Tiket Saya
+                </a>
+                
+                <a href="{{ url('/') }}" class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Kembali ke Beranda
+                </a>
+            </div>
         </div>
     </div>
 </div>
