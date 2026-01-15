@@ -44,14 +44,9 @@ class BookingController extends Controller
 
         $bookingId = \Illuminate\Support\Facades\DB::transaction(function () use ($request, $schedule) {
             
-            // Bypass triggers for BOTH Booking and Ticket creation
-            // This prevents the DB from overwriting our manual IDs with trigger-generated ones,
-            // ensuring the ID in PHP matches the ID in the Database.
-            \Illuminate\Support\Facades\DB::statement("SET session_replication_role = 'replica';");
-
-            // 1. Create Booking
+            // 1. Create Booking (Let DB Trigger handle ID)
             $booking = Booking::create([
-                'id' => 'BKG-' . \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(8)),
+                // 'id' => removed to let Trigger generate it
                 'account_id' => Auth::id(),
                 'schedule_id' => $schedule->id,
                 'booking_date' => now(),
@@ -60,16 +55,21 @@ class BookingController extends Controller
                 'status' => 'Pending Payment'
             ]);
 
-            // 2. Create Ticket
+            // 1b. Refetch Booking ID because Eloquent + Triggers + non-incrementing ID = missing ID
+            // We fetch the latest booking for this user/schedule created just now.
+            $booking = Booking::where('account_id', Auth::id())
+                            ->where('schedule_id', $schedule->id)
+                            ->orderBy('created_at', 'desc')
+                            ->firstOrFail();
+
+            // 2. Create Ticket (Let DB Trigger handle ID)
             Ticket::create([
-                'id' => \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(10)),
+                // 'id' => removed to let Trigger generate it
                 'booking_id' => $booking->id,
                 'passenger_name' => $request->passenger_name,
                 'seat_number' => $request->seat_number,
                 'status' => 'Booked'
             ]);
-
-            \Illuminate\Support\Facades\DB::statement("SET session_replication_role = 'origin';");
 
             return $booking->id;
         });

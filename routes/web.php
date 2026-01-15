@@ -81,15 +81,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports', [OwnerController::class, 'reports'])->name('reports');
         Route::get('/reports/export', [OwnerController::class, 'exportCsv'])->name('reports.export');
 
-        // Expenses
-        Route::get('/expenses', [OwnerController::class, 'expenses'])->name('expenses');
-        Route::get('/expenses/create', [OwnerController::class, 'createExpense'])->name('expenses.create');
-        Route::post('/expenses', [OwnerController::class, 'storeExpense'])->name('expenses.store');
-        Route::get('/expenses/{id}/edit', [OwnerController::class, 'editExpense'])->name('expenses.edit');
-        Route::put('/expenses/{id}', [OwnerController::class, 'updateExpense'])->name('expenses.update');
-        Route::delete('/expenses/{id}', [OwnerController::class, 'deleteExpense'])->name('expenses.delete');
-        Route::get('/expenses/{id}', [OwnerController::class, 'showExpense'])->name('expenses.show');
-        Route::post('/expenses/{id}/verify', [OwnerController::class, 'verifyExpense'])->name('expenses.verify');
     });
 
     // Driver Routes
@@ -145,5 +136,8 @@ Route::middleware('auth')->group(function () {
 
         // Expenses
         Route::get('/expenses', [AdminController::class, 'expenses'])->name('expenses');
+        Route::get('/expenses/create', [AdminController::class, 'createExpense'])->name('expenses.create');
+        Route::post('/expenses', [AdminController::class, 'storeExpense'])->name('expenses.store');
+        Route::post('/expenses/{id}/verify', [AdminController::class, 'verifyExpense'])->name('expenses.verify');
     });
 });

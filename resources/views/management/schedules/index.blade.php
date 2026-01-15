@@ -33,7 +33,7 @@
                     <!-- Toolbar -->
                     <div class="w-full" x-data="{ showFilters: false }">
                         <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-2">
-                             <input type="text" x-model="filters.search" placeholder="Search schedules..." class="grow border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 h-[42px]">
+                             <input type="text" x-model="filters.search" @keydown.enter="fetchData(1)" placeholder="Search schedules..." class="grow border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 h-[42px]">
                              
                              <button type="button" @click="showFilters = !showFilters" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 flex items-center justify-center border border-transparent h-[42px] whitespace-nowrap transition-colors">
                                 <span>Sort & Filter</span>

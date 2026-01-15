@@ -13,7 +13,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // ScheduleController Routes
-Route::get('/schedules/search', [ScheduleController::class, 'search']);
+Route::get('/schedules/search', [ScheduleController::class, 'search'])->name('api.schedules.search');
 Route::get('/schedules/{id}/seats', [ScheduleController::class, 'getTakenSeats']);
 
 // DestinationController Routes
@@ -40,7 +40,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Schedule Details (Admin - Pilot Feature) - Using 'web' middleware to share Admin Session
 // Schedule Details (Admin - Pilot Feature) - Using 'web' middleware to share Admin Session
-Route::middleware(['web', 'auth', 'role:Owner,Super Admin,Financial Admin,Scheduling Admin,Operations Admin'])->group(function () {
+Route::middleware(['web', 'auth', 'role:Owner,Super Admin,Financial Admin,Scheduling Admin,Operations Admin'])
+    ->name('api.') // Namespace these routes to avoid name collisions (e.g. schedules.index)
+    ->group(function () {
     // Phase 2: Refactored Admin API
     Route::apiResource('/admin/schedules', \App\Http\Controllers\Api\Admin\ScheduleController::class);
     Route::apiResource('/admin/buses', \App\Http\Controllers\Api\Admin\BusController::class);

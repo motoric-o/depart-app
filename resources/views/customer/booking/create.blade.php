@@ -7,17 +7,17 @@
         <div class="mb-8">
             <h1 class="text-2xl font-bold text-gray-900 mb-6">Pemesanan Tiket</h1>
             <div class="flex items-center justify-center">
-                <div class="flex items-center w-full max-w-3xl">
+                <div class="flex items-start w-full max-w-3xl">
                     <div class="flex flex-col items-center">
                         <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">1</div>
                         <span class="text-sm font-medium text-blue-600 mt-2">Isi Data</span>
                     </div>
-                    <div class="flex-1 h-1 bg-gray-300 mx-4"></div>
+                    <div class="flex-1 h-1 bg-gray-300 mx-4 mt-3.5"></div>
                     <div class="flex flex-col items-center">
                         <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold text-sm">2</div>
                         <span class="text-sm font-medium text-gray-500 mt-2">Bayar</span>
                     </div>
-                    <div class="flex-1 h-1 bg-gray-300 mx-4"></div>
+                    <div class="flex-1 h-1 bg-gray-300 mx-4 mt-3.5"></div>
                     <div class="flex flex-col items-center">
                         <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold text-sm">3</div>
                         <span class="text-sm font-medium text-gray-500 mt-2">Selesai</span>

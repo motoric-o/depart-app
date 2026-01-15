@@ -11,42 +11,59 @@ class ScheduleController extends Controller
 {
     public function search(Request $request)
     {
-        // Parameters for SP
-        $sourceCode = $request->input('from') ?: ''; 
-        $destCode   = $request->input('to') ?: '';   
-        $travelDate = $request->input('date');
-        if (empty($travelDate)) {
-            $travelDate = date('Y-m-d');
+        \Illuminate\Support\Facades\Log::info('API Search Request Params:', $request->all());
+        
+        // Use Eloquent logic similar to Web\SearchController for consistency
+        $query = Schedule::query();
+
+        // 1. Filter by Source
+        if ($request->filled('from')) {
+            $sourceInput = $request->from;
+            $query->whereHas('route', function ($q) use ($sourceInput) {
+                // Check code first, then fallback
+                $q->where('source_code', $sourceInput)
+                  ->orWhere('source', $sourceInput)
+                  ->orWhereHas('sourceDestination', function ($sq) use ($sourceInput) {
+                      $sq->where('city_name', 'like', "%{$sourceInput}%");
+                  });
+            });
         }
-        
-        $minPrice   = $request->filled('min_price') ? $request->input('min_price') : 0;
-        $maxPrice   = $request->filled('max_price') ? $request->input('max_price') : 99999999;
-        
-        // Execute Stored Procedure
-        $rawSchedules = \Illuminate\Support\Facades\DB::select(
-            "SELECT * FROM sp_search_trips(?, ?, ?, ?, ?)", 
-            [$sourceCode, $destCode, $travelDate, $minPrice, $maxPrice]
-        );
 
-        $scheduleIds = array_column($rawSchedules, 'schedule_id');
-        
-        $query = Schedule::whereIn('id', $scheduleIds)
-                        ->with(['route.destination', 'route.sourceDestination', 'bus']);
+        // 2. Filter by Destination
+        if ($request->filled('to')) {
+            $query->whereHas('route', function ($q) use ($request) {
+                // Check code first
+                $q->where('destination_code', $request->to);
+            });
+        }
 
+        // 3. Filter by Date
+        $travelDate = $request->input('date');
+        if ($travelDate) {
+             $query->whereDate('departure_time', $travelDate);
+        }
+
+        // 4. Filter by Price
+        if ($request->filled('min_price')) {
+            $query->where('price_per_seat', '>=', $request->min_price);
+        }
+        if ($request->filled('max_price')) {
+            $query->where('price_per_seat', '<=', $request->max_price);
+        }
+
+        // 5. Filter by Bus Type
         if ($request->filled('type')) {
-            $types = $request->input('type');
-            if (!is_array($types)) {
-                $types = [$types];
-            }
-            $query->whereHas('bus', function($q) use ($types) {
+            $types = (array)$request->input('type');
+             $query->whereHas('bus', function ($q) use ($types) {
                 $q->whereIn('bus_type', $types);
             });
         }
-                        
-        $schedules = $query->get();
+
+        $schedules = $query->with(['route.destination', 'route.sourceDestination', 'bus'])->get();
 
         // Transform data
-        $results = $schedules->map(function ($s) use ($travelDate) {
+        $results = $schedules->map(function ($s) {
+            $scheduleDate = \Carbon\Carbon::parse($s->departure_time)->toDateString();
             return [
                 'id' => $s->id,
                 'departure_time' => $s->departure_time, 
@@ -58,7 +75,7 @@ class ScheduleController extends Controller
                 'arrival_format' => \Carbon\Carbon::parse($s->arrival_time)->format('H:i'),
                 'duration_hour' => \Carbon\Carbon::parse($s->estimated_duration)->format('H'),
                 'duration_minute' => \Carbon\Carbon::parse($s->estimated_duration)->format('i'),
-                'available_seats' => $s->getAvailableSeats($travelDate),
+                'available_seats' => $s->getAvailableSeats($scheduleDate), // Use schedule's own date
                 'bus' => [
                     'bus_number' => $s->bus->bus_number,
                     'bus_type' => $s->bus->bus_type,

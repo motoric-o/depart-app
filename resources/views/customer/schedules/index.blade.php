@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="min-h-screen bg-gray-50" 
-     x-data="scheduleSearch(@json($schedules))">
+     x-data='scheduleSearch(@json($schedules))'>
 
     <!-- Main Content Section -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -238,7 +238,7 @@
                                          x-text="schedule.available_seats + ' Kursi Sisa'">
                                     </div>
 
-                                    <a :href="'/bookings/create?schedule_id=' + schedule.id + '&date=' + filters.date" 
+                                    <a :href="'/booking/create?schedule_id=' + schedule.id + '&date=' + filters.date" 
                                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors duration-200 text-center block">
                                         Pilih
                                     </a>
@@ -260,11 +260,11 @@
             isSwapped: false,
             openMobileFilters: false, // For mobile sidebar linkage
             filters: {
-                from: '{{ request("from") }}' || '',
-                to: '{{ request("to") }}' || '',
-                date: '{{ $travelDate }}',
-                min_price: '{{ request("min_price") }}',
-                max_price: '{{ request("max_price") }}',
+                from: @json(request("from", "")),
+                to: @json(request("to", "")),
+                date: @json($travelDate ?? ""),
+                min_price: @json(request("min_price", "")),
+                max_price: @json(request("max_price", "")),
                 type: @json(request("type", []))
             },
             
@@ -287,14 +287,20 @@
                 window.history.pushState({}, '', '?' + queryString);
                 
                 try {
-                    // Call the API endpoint we created (using the logic merged into ScheduleController or SearchController)
-                    // Currently Api/ScheduleController returns generic search logic.
-                    // Let's use /api/schedules/search
-                    const res = await fetch(`/api/schedules/search?${queryString}`);
-                    if (!res.ok) throw new Error('API Error');
-                    this.schedules = await res.json();
+                    // Call the API endpoint using correct named route
+                    const apiUrl = '{{ route("api.schedules.search") }}';
+                    const fullUrl = `${apiUrl}?${queryString}`;
+                    console.log('Fetching:', fullUrl);
+                    
+                    const res = await fetch(fullUrl);
+                    if (!res.ok) throw new Error('API Error: ' + res.status);
+                    
+                    const data = await res.json();
+                    console.log('Search Results:', data);
+                    this.schedules = data;
+                    
                 } catch (e) {
-                    console.error(e);
+                    console.error('Fetch error:', e);
                     alert('Gagal memuat jadwal. Silakan coba lagi.');
                 } finally {
                     this.loading = false;
@@ -326,7 +332,7 @@
             },
 
             formatDateHeader(dateStr) {
-                if(!dateStr) return '';
+                if(!dateStr) return 'Semua';
                 const date = new Date(dateStr);
                 return date.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }

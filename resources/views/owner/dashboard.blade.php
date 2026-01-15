@@ -10,31 +10,31 @@
                 
                 <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Fleet Management (Unified Admin Access) -->
-                    <a href="{{ route('admin.schedules') }}" class="block p-4 border rounded shadow-sm bg-purple-50 hover:bg-purple-100 transition duration-150">
-                        <h4 class="font-semibold text-purple-700">Manage Schedules</h4>
-                        <p class="text-sm text-gray-600">Unified Schedule Management.</p>
+                    <a href="{{ route('admin.schedules') }}" class="block bg-indigo-600 rounded-lg shadow p-6 text-white hover:bg-indigo-700 transition">
+                        <div class="text-3xl font-bold">Schedules</div>
+                        <div class="text-sm opacity-80 mt-2">Unified Schedule Management.</div>
                     </a>
-                    <a href="{{ route('admin.buses') }}" class="block p-4 border rounded shadow-sm bg-purple-50 hover:bg-purple-100 transition duration-150">
-                        <h4 class="font-semibold text-purple-700">Manage Buses</h4>
-                        <p class="text-sm text-gray-600">Unified Bus Management.</p>
+                    <a href="{{ route('admin.buses') }}" class="block bg-indigo-600 rounded-lg shadow p-6 text-white hover:bg-indigo-700 transition">
+                        <div class="text-3xl font-bold">Buses</div>
+                        <div class="text-sm opacity-80 mt-2">Unified Bus Management.</div>
                     </a>
-                    <a href="{{ route('admin.routes') }}" class="block p-4 border rounded shadow-sm bg-purple-50 hover:bg-purple-100 transition duration-150">
-                        <h4 class="font-semibold text-purple-700">Manage Routes</h4>
-                        <p class="text-sm text-gray-600">Unified Route Management.</p>
+                    <a href="{{ route('admin.routes') }}" class="block bg-indigo-600 rounded-lg shadow p-6 text-white hover:bg-indigo-700 transition">
+                        <div class="text-3xl font-bold">Routes</div>
+                        <div class="text-sm opacity-80 mt-2">Unified Route Management.</div>
                     </a>
 
                     <!-- Owner Specific -->
-                    <a href="{{ route('admin.users') }}" class="block p-4 border rounded shadow-sm bg-blue-50 hover:bg-blue-100 transition duration-150">
-                        <h4 class="font-semibold text-blue-700">Manage Users</h4>
-                        <p class="text-sm text-gray-600">Unified User Management.</p>
+                    <a href="{{ route('admin.users') }}" class="block bg-indigo-600 rounded-lg shadow p-6 text-white hover:bg-indigo-700 transition">
+                        <div class="text-3xl font-bold">Users</div>
+                        <div class="text-sm opacity-80 mt-2">Unified User Management.</div>
                     </a>
-                    <a href="{{ route('owner.reports') }}" class="block p-4 border rounded shadow-sm bg-blue-50 hover:bg-blue-100 transition duration-150">
-                        <h4 class="font-semibold text-blue-700">Revenue Reports</h4>
-                        <p class="text-sm text-gray-600">View daily and monthly earnings.</p>
+                    <a href="{{ route('owner.reports') }}" class="block bg-indigo-600 rounded-lg shadow p-6 text-white hover:bg-indigo-700 transition">
+                        <div class="text-3xl font-bold">Revenue</div>
+                        <div class="text-sm opacity-80 mt-2">View daily and monthly earnings.</div>
                     </a>
-                    <a href="{{ route('owner.expenses') }}" class="block p-4 border rounded shadow-sm bg-blue-50 hover:bg-blue-100 transition duration-150">
-                        <h4 class="font-semibold text-blue-700">Manage Expenses</h4>
-                        <p class="text-sm text-gray-600">Track reimbursements and costs.</p>
+                    <a href="{{ route('admin.expenses') }}" class="block bg-indigo-600 rounded-lg shadow p-6 text-white hover:bg-indigo-700 transition">
+                        <div class="text-3xl font-bold">Expenses</div>
+                        <div class="text-sm opacity-80 mt-2">Track reimbursements and costs.</div>
                     </a>
                 </div>
 

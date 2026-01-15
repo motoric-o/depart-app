@@ -20,15 +20,23 @@ class SearchController extends Controller
 
         // 3. Apply Filters
 
-        // Filter by Source (Flexible Search)
+        // Filter by Source
         if ($request->filled('from')) {
             $sourceInput = $request->from;
-            // Try to find the city name if a code is passed
-            $city = Destination::where('code', $sourceInput)->value('city_name');
-            $searchTerm = $city ?? $sourceInput;
-
-            $query->whereHas('route', function ($q) use ($searchTerm) {
-                $q->where('source', 'LIKE', '%' . $searchTerm . '%');
+            
+            // The input from home page is a Code (e.g., JKT)
+            // But we might also want to support flexible search later if we change input type.
+            // Since Route.source is a Code, we should match it directly.
+            
+            $query->whereHas('route', function ($q) use ($sourceInput) {
+                // Check if it matches the code directly (using source_code column)
+                $q->where('source_code', $sourceInput)
+                  // Fallback: Check 'source' column just in case
+                  ->orWhere('source', $sourceInput)
+                  // Fallback: Check relationship name
+                  ->orWhereHas('sourceDestination', function ($sq) use ($sourceInput) {
+                      $sq->where('city_name', 'like', "%{$sourceInput}%");
+                  });
             });
         }
 
@@ -40,7 +48,7 @@ class SearchController extends Controller
         }
 
         // Filter by Date
-        $travelDate = $request->input('date', date('Y-m-d'));
+        $travelDate = $request->input('date'); // Remove default date('Y-m-d')
         if ($travelDate) {
             $query->whereDate('departure_time', $travelDate);
         }
@@ -64,7 +72,10 @@ class SearchController extends Controller
         $schedules = $query->get();
 
         // Transform data for JSON/View consistency
-        $schedules = $schedules->map(function($s) use ($travelDate) {
+        $schedules = $schedules->map(function($s) {
+            // Use specific schedule date for availability check
+            $scheduleDate = \Carbon\Carbon::parse($s->departure_time)->toDateString();
+            
             return [
                 'id' => $s->id,
                 'departure_time' => $s->departure_time, 
@@ -76,7 +87,7 @@ class SearchController extends Controller
                 'arrival_format' => \Carbon\Carbon::parse($s->arrival_time)->format('H:i'),
                 'duration_hour' => \Carbon\Carbon::parse($s->estimated_duration)->format('H'),
                 'duration_minute' => \Carbon\Carbon::parse($s->estimated_duration)->format('i'),
-                'available_seats' => $s->getAvailableSeats($travelDate),
+                'available_seats' => $s->getAvailableSeats($scheduleDate),
                 'bus' => [
                     'bus_number' => $s->bus->bus_number,
                     'bus_type' => $s->bus->bus_type,
@@ -92,10 +103,6 @@ class SearchController extends Controller
         $busTypes = \App\Models\Bus::select('bus_type')->distinct()->pluck('bus_type');
 
         if ($request->ajax()) {
-            // Legacy AJAX support might be removed or kept. 
-            // If we switch to full Alpine, we might not need this partial return effectively.
-            // But let's keep it returning JSON if we wanted, or just remove it.
-            // valid JSON response for AJAX requests (if any legacy ones remain)
             return response()->json($schedules);
         }
 

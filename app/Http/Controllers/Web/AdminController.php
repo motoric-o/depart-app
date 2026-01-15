@@ -222,10 +222,77 @@ class AdminController extends Controller
 
     // --- EXPENSES MANAGEMENT ---
 
-    public function expenses()
+    public function expenses(Request $request)
     {
+        $query = \App\Models\Expense::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('description', 'like', "%{$search}%");
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('date', '>=', $request->date_from);
+        }
+        
+        // Removed Date To as it wasn't in original view filter, but good to have if needed. 
+        // Owner view had date_from only? Let's check. Owner view had date_from.
+        
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $expenses = $query->orderBy('date', 'desc')->paginate(10)->withQueryString();
         $canApprove = \Illuminate\Support\Facades\Gate::allows('approve-expense');
-        return view('management.expenses.index', compact('canApprove'));
+
+        return view('management.expenses.index', compact('expenses', 'canApprove'));
+    }
+
+    public function createExpense()
+    {
+        return view('management.expenses.create'); 
+        // We need to ensure management.expenses.create exists. 
+        // If not, I'll copy owner.expenses.create there too.
+    }
+
+    public function storeExpense(Request $request)
+    {
+        $request->validate([
+            'description' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0',
+            'type' => 'required|string|in:reimbursement,operational,maintenance,salary,other',
+            'date' => 'required|date',
+        ]);
+
+        \App\Models\Expense::create([
+            'description' => $request->description,
+            'amount' => $request->amount,
+            'type' => $request->type,
+            'status' => 'Approved', // Admin created expenses are auto-approved
+            'date' => $request->date,
+            'account_id' => Auth::id(),
+        ]);
+
+        return redirect()->route('admin.expenses')->with('success', 'Expense created successfully.');
+    }
+
+    public function verifyExpense(Request $request, $id)
+    {
+        \Illuminate\Support\Facades\Gate::authorize('approve-expense');
+        
+        $expense = \App\Models\Expense::findOrFail($id);
+        
+        $request->validate([
+            'status' => 'required|in:Approved,Rejected,Processed,Canceled,Failed'
+        ]);
+
+        $expense->update(['status' => $request->status]);
+
+        return back()->with('success', 'Expense verified successfully.');
     }
 
     // --- BUSES MANAGEMENT ---

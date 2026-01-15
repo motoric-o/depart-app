@@ -27,12 +27,15 @@ export default function datatable(config) {
             }
 
             // Watchers for Debounced Search
+            // Watcher removed: Search triggers only on Enter or Button Click
+            /*
             this.$watch('filters.search', (value) => {
                 clearTimeout(this.searchDebounce);
                 this.searchDebounce = setTimeout(() => {
                     this.fetchData(1);
                 }, 300);
             });
+            */
         },
 
         async fetchData(page = 1) {

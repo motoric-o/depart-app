@@ -95,7 +95,7 @@ class ExpenseController extends Controller
         Gate::authorize('approve-expense');
         
         $expense = Expense::findOrFail($id);
-        $request->validate(['status' => 'required|in:Approved,Rejected']);
+        $request->validate(['status' => 'required|in:Approved,Rejected,Processed,Canceled,Failed']);
         
         $expense->update(['status' => $request->status]);
         

@@ -53,8 +53,10 @@
                                         <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Rp {{ number_format($expense->amount, 0, ',', '.') }}</td>
                                         <td class="px-4 py-2 whitespace-nowrap text-sm">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                {{ $expense->status == 'Approved' ? 'bg-green-100 text-green-800' : 
-                                                  ($expense->status == 'Rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
+                                                @if($expense->status == 'Approved') bg-green-100 text-green-800
+                                                @elseif($expense->status == 'Processed') bg-blue-100 text-blue-800
+                                                @elseif(in_array($expense->status, ['Rejected', 'Canceled', 'Failed'])) bg-red-100 text-red-800
+                                                @else bg-yellow-100 text-yellow-800 @endif">
                                                 {{ $expense->status }}
                                             </span>
                                         </td>

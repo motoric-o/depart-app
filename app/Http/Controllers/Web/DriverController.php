@@ -76,7 +76,7 @@ class DriverController extends Controller
     {
         $expenses = Expense::where('account_id', Auth::id())
             ->where('type', 'reimbursement')
-            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
             
         return view('driver.expenses.index', compact('expenses'));
@@ -164,7 +164,7 @@ class DriverController extends Controller
         $earningHistory = Expense::where('account_id', Auth::id())
             ->where('status', 'Approved')
             ->where('type', 'reimbursement')
-            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return view('driver.earnings', compact('earnings', 'earningHistory'));
