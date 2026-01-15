@@ -28,14 +28,37 @@ class BookingController extends Controller
 
         $travelDate = $request->date;
 
-        return view('customer.booking.create', compact('schedule', 'travelDate'));
+        // Fetch occupied seats (Robust Method - PHP Filter EVERYTHING)
+        // 1. Fetch ALL bookings for this schedule (ignoring date/status) to bypass DB query quirks
+        $allBookings = Booking::where('schedule_id', $schedule->id)->get();
+
+        // 2. Filter in PHP
+        $validBookingIds = $allBookings->filter(function($b) use ($travelDate) {
+            // Robust Date Check (compare first 10 chars YYYY-MM-DD)
+            $dateMatch = substr($b->travel_date, 0, 10) === substr($travelDate, 0, 10);
+            
+            // Robust Status Check
+            $s = trim($b->status);
+            $statusMatch = in_array($s, ['Booked', 'Pending Payment', 'Confirmed', 'Pending']);
+
+            return $dateMatch && $statusMatch;
+        })->pluck('id');
+
+        // 3. Fetch Tickets for these bookings
+        $occupiedSeats = Ticket::whereIn('booking_id', $validBookingIds)
+                               ->where('status', '!=', 'Cancelled')
+                               ->pluck('seat_number')
+                               ->map(function($seat) { return trim($seat); })
+                               ->toArray();
+
+        return view('customer.booking.create', compact('schedule', 'travelDate', 'occupiedSeats'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'schedule_id' => 'required',
-            // 'travel_date' => 'required|date',
+            'travel_date' => 'required|date',
             'seat_number' => 'required|string',
             'passenger_name' => 'required|string',
         ]);
@@ -90,6 +113,29 @@ class BookingController extends Controller
 
         return view('customer.booking.payment', compact('booking'));
     }
+    public function completePayment($booking_id)
+    {
+        $booking = Booking::findOrFail($booking_id);
+        
+        // Optimize: In real world, verify payment gateway callback. 
+        // Here we simulate success.
+        $booking->update(['status' => 'Booked']);
+        
+        // Update tickets availability if needed (though they are created as 'Booked' initially)
+        $booking->tickets()->update(['status' => 'Valid']);
+
+        return view('customer.booking.success', compact('booking'));
+    }
+
+    public function ticket($booking_id)
+    {
+        $booking = Booking::with(['schedule.bus', 'schedule.route.sourceDestination', 'schedule.route.destination', 'tickets'])
+            ->where('account_id', Auth::id())
+            ->findOrFail($booking_id);
+
+        return view('customer.booking.ticket', compact('booking'));
+    }
+
     public function history()
     {
         $bookings = Booking::with(['schedule.bus', 'schedule.route.sourceDestination', 'schedule.route.destination'])

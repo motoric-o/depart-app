@@ -21,14 +21,28 @@ class Schedule extends Model
 
     public function getAvailableSeats($travelDate)
     {
-        // 1. Count occupied seats for this specific date
-        $occupied = Ticket::whereHas('booking', function($query) use ($travelDate) {
-            $query->where('schedule_id', $this->id)
-                  ->where('travel_date', $travelDate)
-                  ->where('status', '!=', 'cancelled');
-        })->count();
+        // Robust Method: Filter in PHP to match BookingController logic
+        
+        // 1. Fetch ALL bookings for this schedule
+        $allBookings = Booking::where('schedule_id', $this->id)->get();
 
-        // 2. Return the math
+        // 2. Filter valid bookings
+        $validBookingIds = $allBookings->filter(function($b) use ($travelDate) {
+            // Compare Date (String)
+            $dateMatch = substr($b->travel_date, 0, 10) === substr($travelDate, 0, 10);
+            
+            // Compare Status
+            $s = trim($b->status);
+            $statusMatch = in_array($s, ['Booked', 'Pending Payment', 'Confirmed', 'Pending']);
+
+            return $dateMatch && $statusMatch;
+        })->pluck('id');
+
+        // 3. Count Occupied Seats (Tickets)
+        $occupied = Ticket::whereIn('booking_id', $validBookingIds)
+                          ->where('status', '!=', 'Cancelled')
+                          ->count();
+
         return $this->bus->capacity - $occupied;
     }
     

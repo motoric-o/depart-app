@@ -63,6 +63,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/booking/create', [\App\Http\Controllers\Web\BookingController::class, 'create'])->name('booking.create');
     Route::post('/booking', [\App\Http\Controllers\Web\BookingController::class, 'store'])->name('booking.store');
     Route::get('/booking/{booking_id}/payment', [\App\Http\Controllers\Web\BookingController::class, 'payment'])->name('booking.payment');
+    Route::post('/booking/{booking_id}/complete', [\App\Http\Controllers\Web\BookingController::class, 'completePayment'])->name('booking.complete');
+    Route::get('/booking/{booking_id}/ticket', [\App\Http\Controllers\Web\BookingController::class, 'ticket'])->name('booking.ticket');
     Route::get('/booking/history', [\App\Http\Controllers\Web\BookingController::class, 'history'])->name('booking.history');
 
     // Admin Routes

@@ -42,7 +42,7 @@
             <form action="{{ route('booking.store') }}" method="POST" class="flex-1">
                 @csrf
                 <input type="hidden" name="schedule_id" value="{{ $schedule->id }}">
-                <input type="hidden" name="travel_date" value="{{ $travelDate ?: request('date') ?: date('Y-m-d') }}">
+                <input type="hidden" name="travel_date" value="{{ $travelDate ?: request('date') }}">
                 <!-- Login Alert -->
                 @guest
                     <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6 flex items-start">
@@ -110,35 +110,63 @@
                                 @for($r = 1; $r <= $rows; $r++)
                                     <!-- Left Side (A, B) -->
                                     @foreach(['A', 'B'] as $col)
-                                        @php $seatNo = $r . $col; @endphp
-                                        <label class="relative group cursor-pointer group">
-                                            <input type="radio" name="seat_number" value="{{ $seatNo }}" class="peer sr-only">
-                                            <div class="w-12 h-12 rounded-lg border-2 flex flex-col items-center justify-center transition-all bg-white
-                                                peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white peer-checked:shadow-md
-                                                border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:shadow-sm">
-                                                <span class="text-sm font-bold">{{ $r }}{{ $col }}</span>
+                                        @php 
+                                            // Handle potential whitespace issues
+                                            $seatNo = trim($r . $col); 
+                                            $isOccupied = in_array($seatNo, $occupiedSeats ?? []);
+                                        @endphp
+
+                                        @if($isOccupied)
+                                            <div class="w-12 h-12 rounded-lg border-2 bg-gray-100 border-gray-200 flex flex-col items-center justify-center cursor-not-allowed relative">
+                                                <span class="text-sm font-bold text-gray-300">{{ $seatNo }}</span>
+                                                <div class="absolute inset-0 flex items-center justify-center text-lg font-bold text-gray-400 select-none">X</div>
                                             </div>
-                                            <!-- Tooltip -->
-                                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-max px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                                                Kursi {{ $r }}{{ $col }}
-                                            </span>
-                                        </label>
+                                        @else
+                                            <label class="relative group cursor-pointer group">
+                                                <input type="radio" name="seat_number" value="{{ $seatNo }}" class="peer sr-only">
+                                                <div class="w-12 h-12 rounded-lg border-2 flex flex-col items-center justify-center transition-all bg-white
+                                                    peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white peer-checked:shadow-md
+                                                    border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:shadow-sm">
+                                                    <span class="text-sm font-bold">{{ $seatNo }}</span>
+                                                </div>
+                                                <!-- Tooltip -->
+                                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-max px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                                    Kursi {{ $seatNo }}
+                                                </span>
+                                            </label>
+                                        @endif
                                     @endforeach
 
                                     <!-- Aisle -->
-                                    <div class="flex items-center justify-center text-xs text-gray-300 font-medium">{{ $r }}</div>
+                                    <div class="flex items-center justify-center text-xs text-gray-300 font-medium w-6">{{ $r }}</div>
 
                                     <!-- Right Side (C, D) -->
                                     @foreach(['C', 'D'] as $col)
-                                        @php $seatNo = $r . $col; @endphp
-                                        <label class="relative group cursor-pointer group">
-                                            <input type="radio" name="seat_number" value="{{ $seatNo }}" class="peer sr-only">
-                                            <div class="w-12 h-12 rounded-lg border-2 flex flex-col items-center justify-center transition-all bg-white
-                                                peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white peer-checked:shadow-md
-                                                border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:shadow-sm">
-                                                <span class="text-sm font-bold">{{ $r }}{{ $col }}</span>
+                                        @php 
+                                            // Handle potential whitespace issues
+                                            $seatNo = trim($r . $col); 
+                                            $isOccupied = in_array($seatNo, $occupiedSeats ?? []);
+                                        @endphp
+                                        
+                                        @if($isOccupied)
+                                            <div class="w-12 h-12 rounded-lg border-2 bg-gray-100 border-gray-200 flex flex-col items-center justify-center cursor-not-allowed relative">
+                                                <span class="text-sm font-bold text-gray-300">{{ $seatNo }}</span>
+                                                <div class="absolute inset-0 flex items-center justify-center text-lg font-bold text-gray-400 select-none">X</div>
                                             </div>
-                                        </label>
+                                        @else
+                                            <label class="relative group cursor-pointer group">
+                                                <input type="radio" name="seat_number" value="{{ $seatNo }}" class="peer sr-only">
+                                                <div class="w-12 h-12 rounded-lg border-2 flex flex-col items-center justify-center transition-all bg-white
+                                                    peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white peer-checked:shadow-md
+                                                    border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:shadow-sm">
+                                                    <span class="text-sm font-bold">{{ $seatNo }}</span>
+                                                </div>
+                                                <!-- Tooltip -->
+                                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-max px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                                    Kursi {{ $seatNo }}
+                                                </span>
+                                            </label>
+                                        @endif
                                     @endforeach
                                 @endfor
                             </div>
@@ -173,11 +201,9 @@
 
             <!-- Right: Trip Summary -->
             <div class="w-full lg:w-1/3">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-24">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Rincian Perjalanan</h3>
                     
-                    <!-- Route -->
-                    <div class="flex items-start mb-6">
                         <div class="flex flex-col items-center mr-3 pt-1">
                             <div class="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
                             <div class="w-0.5 h-10 bg-gray-200 my-1"></div>

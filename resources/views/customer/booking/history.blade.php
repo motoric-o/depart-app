@@ -90,9 +90,9 @@
                                         Lanjut Bayar
                                     </a>
                                 @elseif($booking->status === 'Booked')
-                                    <button class="px-4 py-2 border border-blue-600 text-blue-600 hover:bg-blue-50 text-sm font-medium rounded-lg transition-colors">
+                                    <a href="{{ route('booking.ticket', $booking->id) }}" class="px-4 py-2 border border-blue-600 text-blue-600 hover:bg-blue-50 text-sm font-medium rounded-lg transition-colors">
                                         Lihat E-Tiket
-                                    </button>
+                                    </a>
                                 @endif
                             </div>
                         </div>
