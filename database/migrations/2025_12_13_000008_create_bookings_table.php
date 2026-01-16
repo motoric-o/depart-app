@@ -21,7 +21,7 @@ return new class extends Migration
             $table->date('travel_date'); // Date when the trip will take place
             $table->decimal('total_amount', 10, 2);
             $table->string('status')->default('Pending');
-            $table->boolean('is_checked_in')->default(false)->after('status');
+
             $table->timestamps();
         });
 

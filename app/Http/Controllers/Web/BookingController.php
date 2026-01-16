@@ -26,7 +26,7 @@ class BookingController extends Controller
             abort(404, 'Schedule not found');
         }
 
-        $travelDate = $request->date;
+        $travelDate = $request->date ?? \Carbon\Carbon::parse($schedule->departure_time)->toDateString();
 
         // Fetch occupied seats (Robust Method - PHP Filter EVERYTHING)
         // 1. Fetch ALL bookings for this schedule (ignoring date/status) to bypass DB query quirks
