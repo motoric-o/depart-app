@@ -90,10 +90,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Web\DriverController::class, 'dashboard'])->name('dashboard');
         Route::get('/schedules/{id}', [App\Http\Controllers\Web\DriverController::class, 'schedule'])->name('schedules.show');
         Route::post('/schedules/{id}/remarks', [App\Http\Controllers\Web\DriverController::class, 'updateRemarks'])->name('schedules.remarks');
-        Route::post('/bookings/{id}/check-in', [App\Http\Controllers\Web\DriverController::class, 'checkInPassenger'])->name('bookings.check-in');
+        Route::post('/seats/{id}/check-in', [App\Http\Controllers\Web\DriverController::class, 'checkInSeat'])->name('seats.check-in');
         
         Route::get('/expenses', [App\Http\Controllers\Web\DriverController::class, 'expenses'])->name('expenses');
         Route::post('/expenses', [App\Http\Controllers\Web\DriverController::class, 'storeExpense'])->name('expenses.store');
+        Route::post('/expenses/{id}/confirm', [App\Http\Controllers\Web\DriverController::class, 'confirmExpense'])->name('expenses.confirm');
+        Route::post('/expenses/{id}/issue', [App\Http\Controllers\Web\DriverController::class, 'reportExpenseIssue'])->name('expenses.issue');
         
         Route::get('/earnings', [App\Http\Controllers\Web\DriverController::class, 'earnings'])->name('earnings');
     });

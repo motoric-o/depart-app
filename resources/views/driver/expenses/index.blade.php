@@ -24,7 +24,7 @@
                                 <label class="block text-sm font-medium text-gray-700">Date</label>
                                 <input type="date" name="date" required value="{{ date('Y-m-d') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             </div>
-                            <button type="submit" class="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Submit Request</button>
+                            <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Request</button>
                         </form>
                     </div>
                 </div>
@@ -43,6 +43,7 @@
                                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
                                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
                                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
@@ -53,12 +54,30 @@
                                         <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Rp {{ number_format($expense->amount, 0, ',', '.') }}</td>
                                         <td class="px-4 py-2 whitespace-nowrap text-sm">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                @if($expense->status == 'Approved') bg-green-100 text-green-800
-                                                @elseif($expense->status == 'Processed') bg-blue-100 text-blue-800
-                                                @elseif(in_array($expense->status, ['Rejected', 'Canceled', 'Failed'])) bg-red-100 text-red-800
+                                                @if($expense->status == 'Paid') bg-green-100 text-green-800
+                                                @elseif($expense->status == 'In Process') bg-blue-100 text-blue-800
+                                                @elseif($expense->status == 'Pending Confirmation') bg-orange-100 text-orange-800
+                                                @elseif(in_array($expense->status, ['Rejected', 'Canceled', 'Failed', 'Payment Issue'])) bg-red-100 text-red-800
                                                 @else bg-yellow-100 text-yellow-800 @endif">
                                                 {{ $expense->status }}
                                             </span>
+                                        </td>
+                                        <td class="px-4 py-2 whitespace-nowrap text-sm font-medium">
+                                            @if($expense->status == 'Pending Confirmation')
+                                                <form action="{{ route('driver.expenses.confirm', $expense->id) }}" method="POST" class="inline-block mr-2">
+                                                    @csrf
+                                                    <button type="submit" class="bg-green-600 text-white hover:bg-green-700 font-bold rounded px-4 py-2 text-xs">Finish</button>
+                                                </form>
+                                                <form action="{{ route('driver.expenses.issue', $expense->id) }}" method="POST" class="inline-block">
+                                                    @csrf
+                                                    <button type="submit" class="bg-red-600 text-white hover:bg-red-700 font-bold rounded px-4 py-2 text-xs">Funds not received?</button>
+                                                </form>
+                                            @elseif($expense->status == 'Paid')
+                                                <form action="{{ route('driver.expenses.issue', $expense->id) }}" method="POST" class="inline-block">
+                                                    @csrf
+                                                    <button type="submit" class="bg-red-600 text-white hover:bg-red-700 font-bold rounded px-4 py-2 text-xs">Funds not received?</button>
+                                                </form>
+                                            @endif
                                         </td>
                                     </tr>
                                     @endforeach

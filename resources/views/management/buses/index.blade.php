@@ -11,7 +11,32 @@
                         sort_by: '{{ request('sort_by', 'bus_number') }}',
                         sort_order: '{{ request('sort_order', 'asc') }}'
                     }),
-                    canManageBuses: {{ Auth::user()->can('manage-buses') ? 'true' : 'false' }}
+                    canManageBuses: {{ Auth::user()->can('manage-buses') ? 'true' : 'false' }},
+                    deleteItem(id, url) {
+                        if (!confirm('Are you sure you want to delete this bus?')) return;
+                        
+                        fetch(url, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Remove item from list
+                                this.items = this.items.filter(item => item.id !== id);
+                                alert(data.message);
+                            } else {
+                                alert('Failed to delete item.');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('An error occurred.');
+                        });
+                    }
                  }"
             >
                 <div class="mb-4">
@@ -117,11 +142,7 @@
                                         <template x-if="canManageBuses">
                                             <div>
                                                 <a :href="'/admin/buses/' + bus.id + '/edit'" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                                <form :action="'/admin/buses/' + bus.id + '/delete'" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this bus?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                                </form>
+                                                <button @click="deleteItem(bus.id, '/admin/buses/' + bus.id)" class="text-red-600 hover:text-red-900">Delete</button>
                                             </div>
                                         </template>
                                         <template x-if="!canManageBuses">

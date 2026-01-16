@@ -217,6 +217,9 @@ class AdminController extends Controller
 
         $user->delete();
 
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'User deleted successfully.']);
+        }
         return redirect()->route('admin.users')->with('success', 'User deleted successfully.');
     }
 
@@ -246,7 +249,7 @@ class AdminController extends Controller
             $query->where('status', $request->status);
         }
 
-        $expenses = $query->orderBy('date', 'desc')->paginate(10)->withQueryString();
+        $expenses = $query->orderBy('date', 'desc')->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
         $canApprove = \Illuminate\Support\Facades\Gate::allows('approve-expense');
 
         return view('management.expenses.index', compact('expenses', 'canApprove'));
@@ -272,7 +275,7 @@ class AdminController extends Controller
             'description' => $request->description,
             'amount' => $request->amount,
             'type' => $request->type,
-            'status' => 'Approved', // Admin created expenses are auto-approved
+            'status' => 'In Process', // Admin created expenses are auto-approved to In Process
             'date' => $request->date,
             'account_id' => Auth::id(),
         ]);
@@ -287,10 +290,18 @@ class AdminController extends Controller
         $expense = \App\Models\Expense::findOrFail($id);
         
         $request->validate([
-            'status' => 'required|in:Approved,Rejected,Processed,Canceled,Failed'
+            'status' => 'required|in:In Process,Pending Confirmation,Rejected,Canceled'
         ]);
 
         $expense->update(['status' => $request->status]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Expense verified successfully.',
+                'new_status' => $request->status
+            ]);
+        }
 
         return back()->with('success', 'Expense verified successfully.');
     }
@@ -368,6 +379,9 @@ class AdminController extends Controller
         $bus = Bus::findOrFail($id);
         $bus->delete();
 
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Bus deleted successfully.']);
+        }
         return redirect()->route('admin.buses')->with('success', 'Bus deleted successfully.');
     }
 
@@ -463,6 +477,9 @@ class AdminController extends Controller
         $route = BusRoute::findOrFail($id);
         $route->delete();
 
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Route deleted successfully.']);
+        }
         return redirect()->route('admin.routes')->with('success', 'Route deleted successfully.');
     }
 
@@ -620,6 +637,9 @@ class AdminController extends Controller
             $schedule->delete();
         });
 
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Schedule deleted successfully.']);
+        }
         return redirect()->route('admin.schedules')->with('success', 'Schedule deleted successfully.');
     }
 

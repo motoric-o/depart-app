@@ -30,3 +30,6 @@ Schedule::call(function () {
         ->delete();
 
 })->daily();
+
+// Auto-finish expenses pending confirmation > 3 days
+Schedule::command('expenses:autofinish')->dailyAt('02:00');

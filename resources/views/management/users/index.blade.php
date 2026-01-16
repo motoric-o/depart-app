@@ -38,6 +38,38 @@
                         return false;
                     },
                     
+                    deleteItem(id, url) {
+                        if (!confirm('Are you sure you want to delete this user?')) return;
+                        
+                        fetch(url, {
+                            method: 'POST', // Using POST with _method DELETE inside logic if needed, but here URL is specific /delete which maps to controller method that handles it. controller method uses delete? valid method is POST to that route? 
+                            // Route definition: Route::delete('/admin/users/{id}/delete', ...)? No, standard resource or explicit?
+                            // Let's check api.php or web.php. Web routes usually match method.
+                            // Route::delete('users/{id}/delete', [AdminController::class, 'deleteUser'])->name('users.delete');
+                            // So we need DELETE method.
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Remove item from list
+                                this.items = this.items.filter(item => item.id !== id);
+                                // Optional: Show success message/toast
+                                alert(data.message);
+                            } else {
+                                alert('Failed to delete item.');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('An error occurred.');
+                        });
+                    },
+                    
                     formatDate(dateString) {
                          const options = { month: 'short', day: 'numeric', year: 'numeric' };
                          return new Date(dateString).toLocaleDateString('en-US', options);
@@ -189,11 +221,7 @@
                                         <template x-if="canManage((user.account_type) ? user.account_type.name : '')">
                                             <div>
                                                 <a :href="'/admin/users/' + user.id + '/edit'" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                                <form :action="'/admin/users/' + user.id + '/delete'" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                                </form>
+                                                <button @click="deleteItem(user.id, '/admin/users/' + user.id)" class="text-red-600 hover:text-red-900">Delete</button>
                                             </div>
                                         </template>
                                         <template x-if="!canManage((user.account_type) ? user.account_type.name : '')">

@@ -22,7 +22,7 @@ class ExpenseFactory extends Factory
     public function definition(): array
     {
         $types = ['reimbursement', 'operational', 'maintenance', 'salary', 'other'];
-        
+
         $descriptions = [
             'reimbursement' => ['Travel Expenses', 'Client Meeting Lunch', 'Office Supplies', 'Taxi Fare', 'Hotel Stay'],
             'operational' => ['Internet Bill', 'Electricity Token', 'Water Bill', 'Server Hosting Fee', 'Office Rent'],
@@ -33,13 +33,13 @@ class ExpenseFactory extends Factory
 
         $type = $this->faker->randomElement($types);
         $descList = $descriptions[$type];
-        
+
         return [
             'id' => $this->faker->uuid(),
             'description' => $this->faker->randomElement($descList) . ' - ' . $this->faker->word(),
             'amount' => $this->faker->numberBetween(50000, 2000000), // 50k to 2M
             'type' => $type,
-            'status' => $this->faker->randomElement(['pending', 'approved', 'rejected']),
+            'status' => $this->faker->randomElement(['Pending', 'In Process', 'Pending Confirmation', 'Paid', 'Payment Issue', 'Rejected', 'Canceled', 'Failed']),
             'date' => $this->faker->dateTimeBetween('-1 month', 'now'),
             'account_id' => Account::factory(), // Default create new, but usually overridden
         ];
@@ -50,18 +50,18 @@ class ExpenseFactory extends Factory
      */
     public function pending(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'status' => 'pending',
+        return $this->state(fn(array $attributes) => [
+            'status' => 'Pending',
         ]);
     }
 
     /**
-     * Indicate that the expense is approved.
+     * Indicate that the expense is approved (In Process).
      */
     public function approved(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'status' => 'approved',
+        return $this->state(fn(array $attributes) => [
+            'status' => 'In Process',
         ]);
     }
 }

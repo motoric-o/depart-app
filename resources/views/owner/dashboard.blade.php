@@ -10,29 +10,29 @@
                 
                 <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Fleet Management (Unified Admin Access) -->
-                    <a href="{{ route('admin.schedules') }}" class="block bg-indigo-600 rounded-lg shadow p-6 text-white hover:bg-indigo-700 transition">
+                    <a href="{{ route('admin.schedules') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
                         <div class="text-3xl font-bold">Schedules</div>
                         <div class="text-sm opacity-80 mt-2">Unified Schedule Management.</div>
                     </a>
-                    <a href="{{ route('admin.buses') }}" class="block bg-indigo-600 rounded-lg shadow p-6 text-white hover:bg-indigo-700 transition">
+                    <a href="{{ route('admin.buses') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
                         <div class="text-3xl font-bold">Buses</div>
                         <div class="text-sm opacity-80 mt-2">Unified Bus Management.</div>
                     </a>
-                    <a href="{{ route('admin.routes') }}" class="block bg-indigo-600 rounded-lg shadow p-6 text-white hover:bg-indigo-700 transition">
+                    <a href="{{ route('admin.routes') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
                         <div class="text-3xl font-bold">Routes</div>
                         <div class="text-sm opacity-80 mt-2">Unified Route Management.</div>
                     </a>
 
                     <!-- Owner Specific -->
-                    <a href="{{ route('admin.users') }}" class="block bg-indigo-600 rounded-lg shadow p-6 text-white hover:bg-indigo-700 transition">
+                    <a href="{{ route('admin.users') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
                         <div class="text-3xl font-bold">Users</div>
                         <div class="text-sm opacity-80 mt-2">Unified User Management.</div>
                     </a>
-                    <a href="{{ route('owner.reports') }}" class="block bg-indigo-600 rounded-lg shadow p-6 text-white hover:bg-indigo-700 transition">
+                    <a href="{{ route('owner.reports') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
                         <div class="text-3xl font-bold">Revenue</div>
                         <div class="text-sm opacity-80 mt-2">View daily and monthly earnings.</div>
                     </a>
-                    <a href="{{ route('admin.expenses') }}" class="block bg-indigo-600 rounded-lg shadow p-6 text-white hover:bg-indigo-700 transition">
+                    <a href="{{ route('admin.expenses') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
                         <div class="text-3xl font-bold">Expenses</div>
                         <div class="text-sm opacity-80 mt-2">Track reimbursements and costs.</div>
                     </a>

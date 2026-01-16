@@ -10,8 +10,34 @@
                         url: '/api/admin/routes',
                         sort_by: '{{ request('sort_by', 'id') }}',
                         sort_order: '{{ request('sort_order', 'asc') }}'
+
                     }),
-                    canManageRoutes: {{ Auth::user()->can('manage-routes') ? 'true' : 'false' }} 
+                    canManageRoutes: {{ Auth::user()->can('manage-routes') ? 'true' : 'false' }},
+                    deleteItem(id, url) {
+                        if (!confirm('Are you sure you want to delete this route?')) return;
+                        
+                        fetch(url, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Remove item from list
+                                this.items = this.items.filter(item => item.id !== id);
+                                alert(data.message);
+                            } else {
+                                alert('Failed to delete item.');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('An error occurred.');
+                        });
+                    } 
                  }"
             >
                 <div class="mb-4">
@@ -134,11 +160,7 @@
                                         <template x-if="canManageRoutes">
                                             <div>
                                                 <a :href="'/admin/routes/' + route.id + '/edit'" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                                <form :action="'/admin/routes/' + route.id + '/delete'" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this route?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                                </form>
+                                                <button @click="deleteItem(route.id, '/admin/routes/' + route.id)" class="text-red-600 hover:text-red-900">Delete</button>
                                             </div>
                                         </template>
                                         <template x-if="!canManageRoutes">

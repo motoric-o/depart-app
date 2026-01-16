@@ -36,40 +36,68 @@ class DriverController extends Controller
 
     public function schedule($id)
     {
-        $schedule = Schedule::with(['route', 'bus', 'bookings.account', 'bookings.tickets'])
+        $schedule = Schedule::with(['route', 'bus'])
             ->where('driver_id', Auth::id())
             ->findOrFail($id);
             
-        // Filter bookings for today or specific date? Ideally schedule is specific date/time?
-        // Wait, current Schedule model design: departure_time is DateTime. So one ID = one specific trip.
-        // Yes, Schedule ID includes date. So we just get bookings for this schedule ID.
-        
-        $bookings = $schedule->bookings()->where('status', 'Confirmed')->get();
+        // Fetch ScheduleDetails (Seats/Tickets) instead of Bookings
+        // Eager load ticket and ticket->booking->account for passenger info
+        $scheduleDetails = $schedule->scheduleDetails()
+            ->with(['ticket', 'ticket.booking.account'])
+            ->whereHas('ticket', function($q) {
+                // optional: filter valid tickets?
+                // $q->where('status', 'Valid');
+            })
+            ->orderBy('seat_number')
+            ->get();
 
-        return view('driver.schedules.show', compact('schedule', 'bookings'));
+        return view('driver.schedules.show', compact('schedule', 'scheduleDetails'));
     }
 
     public function updateRemarks(Request $request, $id)
     {
-        $schedule = Schedule::where('driver_id', Auth::id())->findOrFail($id);
+        $schedule = Schedule::with('bus')->where('driver_id', Auth::id())->findOrFail($id);
         
-        $request->validate(['remarks' => 'required|string']);
+        $request->validate([
+            'remarks' => 'nullable|string',
+            'bus_remarks' => 'nullable|string',
+        ]);
         
-        $schedule->update(['remarks' => $request->remarks]);
+        // Update Schedule Remarks
+        if ($request->has('remarks')) {
+            $schedule->update(['remarks' => $request->remarks]);
+        }
+
+        // Update Bus Remarks
+        if ($request->has('bus_remarks')) {
+            $schedule->bus->update(['remarks' => $request->bus_remarks]);
+        }
         
         return back()->with('success', 'Remarks updated successfully.');
     }
 
-    public function checkInPassenger($bookingId)
+    public function checkInSeat($detailId)
     {
-        // Must ensure the booking belongs to a schedule assigned to this driver
-        $booking = Booking::whereHas('schedule', function($q) {
+        // Find the ScheduleDetail
+        // Ensure it belongs to a schedule assigned to this driver
+        $detail = \App\Models\ScheduleDetail::whereHas('schedule', function($q) {
             $q->where('driver_id', Auth::id());
-        })->findOrFail($bookingId);
+        })->findOrFail($detailId);
 
-        $booking->update(['is_checked_in' => !$booking->is_checked_in]);
+        // Toggle Status
+        // Enum: 'Pending', 'Present', 'Absent'
+        $newStatus = ($detail->attendance_status === 'Present') ? 'Pending' : 'Present';
+        $detail->update(['attendance_status' => $newStatus]);
 
-        return back()->with('success', 'Passenger status updated.');
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Passenger status updated.',
+                'new_status' => $newStatus
+            ]);
+        }
+
+        return back()->with('success', 'Passenger seat check-in updated.');
     }
 
     public function expenses()
@@ -168,5 +196,30 @@ class DriverController extends Controller
             ->get();
 
         return view('driver.earnings', compact('earnings', 'earningHistory'));
+    }
+    public function confirmExpense($id)
+    {
+        $expense = Expense::where('account_id', Auth::id())->findOrFail($id);
+        
+        if ($expense->status !== 'Pending Confirmation') {
+            return back()->with('error', 'Expense cannot be confirmed.');
+        }
+
+        $expense->update(['status' => 'Paid']);
+        
+        return back()->with('success', 'Payment confirmed. Transaction finished.');
+    }
+
+    public function reportExpenseIssue($id)
+    {
+        $expense = Expense::where('account_id', Auth::id())->findOrFail($id);
+        
+        if (!in_array($expense->status, ['Paid', 'Pending Confirmation'])) {
+            return back()->with('error', 'Cannot report issue for this expense.');
+        }
+
+        $expense->update(['status' => 'Payment Issue']);
+        
+        return back()->with('success', 'Issue reported to admin.');
     }
 }

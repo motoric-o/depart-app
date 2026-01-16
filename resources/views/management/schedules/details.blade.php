@@ -73,12 +73,17 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="detail.remarks || '-'"></td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <button @click="openEditModal(detail)" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                                            <button @click="toggleStatus(detail)" 
+                                                class="mr-3 font-bold"
+                                                :class="detail.attendance_status === 'Present' ? 'text-gray-500 hover:text-gray-700' : 'text-blue-600 hover:text-blue-900'"
+                                                x-text="detail.attendance_status === 'Present' ? 'Undo Check-in' : 'Check In'">
+                                            </button>
+                                            <button @click="openEditModal(detail)" class="text-indigo-600 hover:text-indigo-900">Edit</button>
                                         </td>
                                     </tr>
                                 </template>
                                 <tr x-show="details.length === 0">
-                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">No schedule details found (Seats not generated?).</td>
+                                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">No schedule details found (Seats not generated?).</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -232,6 +237,52 @@
                     this.fetchDetails(); // Reload
                 })
                 .catch(error => {
+                    this.message = error.message;
+                    this.messageType = 'error';
+                });
+            },
+
+            toggleStatus(detail) {
+                const newStatus = detail.attendance_status === 'Present' ? 'Pending' : 'Present';
+                const id = detail.id;
+
+                // Optimistic UI Update
+                const oldStatus = detail.attendance_status;
+                detail.attendance_status = newStatus;
+
+                fetch(`/api/schedules/details/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        ticket_id: detail.ticket_id,
+                        seat_number: detail.seat_number,
+                        attendance_status: newStatus,
+                        remarks: detail.remarks
+                    })
+                })
+                .then(response => {
+                     return response.json().then(data => ({ status: response.status, body: data }));
+                })
+                .then(({ status, body }) => {
+                    if (status !== 200) {
+                         // Revert if failed
+                         detail.attendance_status = oldStatus;
+                        throw new Error(body.message || 'Update failed');
+                    }
+                    // Success (maybe show toast?)
+                    this.message = 'Status updated.';
+                    this.messageType = 'success';
+                    // No need to reload logic here if optimistic worked, but verification is safer:
+                    // this.fetchDetails(); 
+                    // Let's rely on optimistic for speed as per user request.
+                })
+                .catch(error => {
+                    // Revert
+                    detail.attendance_status = oldStatus;
                     this.message = error.message;
                     this.messageType = 'error';
                 });

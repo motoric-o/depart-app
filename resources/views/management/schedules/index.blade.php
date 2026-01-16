@@ -18,6 +18,31 @@
                     },
                     formatPrice(price) {
                         return 'Rp ' + new Intl.NumberFormat('id-ID').format(price);
+                    },
+                    deleteItem(id, url) {
+                        if (!confirm('Are you sure you want to delete this schedule?')) return;
+                        
+                        fetch(url, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Remove item from list
+                                this.items = this.items.filter(item => item.id !== id);
+                                alert(data.message);
+                            } else {
+                                alert('Failed to delete item.');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('An error occurred.');
+                        });
                     }
                  }"
             >
@@ -153,11 +178,7 @@
                                         <template x-if="canManageSchedules">
                                             <span>
                                                 <a :href="'/admin/schedules/' + schedule.id + '/edit'" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                                <form :action="'/admin/schedules/' + schedule.id + '/delete'" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this schedule?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                                </form>
+                                                <button @click="deleteItem(schedule.id, '/admin/schedules/' + schedule.id)" class="text-red-600 hover:text-red-900">Delete</button>
                                             </span>
                                         </template>
                                     </td>
