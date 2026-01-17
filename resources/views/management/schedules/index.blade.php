@@ -9,7 +9,8 @@
                     ...datatable({ 
                         url: '/api/admin/schedules',
                         sort_by: '{{ request('sort_by', 'departure_time') }}',
-                        sort_order: '{{ request('sort_order', 'desc') }}'
+                        sort_order: '{{ request('sort_order', 'desc') }}',
+                        filter_category: '{{ request('filter_category') }}'
                     }),
                     canManageSchedules: {{ Auth::user()->can('manage-schedules') ? 'true' : 'false' }},
                     formatDate(dateString) {
@@ -99,6 +100,13 @@
                                     <option value="desc">Descending</option>
                                 </select>
                             </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Filter</label>
+                                <select x-model="filters.filter_category" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+                                    <option value="">All Schedules</option>
+                                    <option value="incomplete">Requires Attention</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -163,7 +171,7 @@
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="schedule.id"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <span x-text="(schedule.route && schedule.route.destination) ? schedule.route.source + ' -> ' + schedule.route.destination.city_name : 'N/A'"></span>
+                                        <span x-text="(schedule.route && schedule.route.destination) ? schedule.route.source + ' -> ' + schedule.route.destination.city_name : (schedule.route_source ? schedule.route_source + ' -> ' + schedule.route_destination : 'N/A')"></span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="schedule.bus ? schedule.bus.bus_number : 'N/A'"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="schedule.driver ? (schedule.driver.first_name + ' ' + (schedule.driver.last_name || '')) : 'Unassigned'"></td>

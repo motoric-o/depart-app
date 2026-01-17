@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('buses', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->string('bus_number')->unique();
+            $table->string('bus_name')->nullable();
             $table->string('bus_type');
             $table->integer('capacity');
 

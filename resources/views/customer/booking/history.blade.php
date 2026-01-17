@@ -31,21 +31,34 @@
                         <div class="p-6">
                             <!-- Top Row: ID and Status -->
                             <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">ID Pemesanan</span>
-                                    <p class="text-sm font-mono font-bold text-gray-900">{{ $booking->id }}</p>
+                                <div class="space-y-2">
+                                    <div>
+                                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">ID Pemesanan</span>
+                                        <p class="text-sm font-mono font-bold text-gray-900">{{ $booking->id }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">ID Jadwal</span>
+                                        <p class="text-sm font-mono font-bold text-gray-900">{{ $booking->schedule->id }}</p>
+                                    </div>
                                 </div>
-                                @php
-                                    $statusClasses = match($booking->status) {
-                                        'Pending Payment' => 'bg-yellow-100 text-yellow-800',
-                                        'Booked' => 'bg-green-100 text-green-800', 
-                                        'Cancelled' => 'bg-red-100 text-red-800',
-                                        default => 'bg-gray-100 text-gray-800'
-                                    };
-                                @endphp
-                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase {{ $statusClasses }}">
-                                    {{ $booking->status }}
-                                </span>
+                                <div class="flex flex-col items-end gap-2">
+                                    @php
+                                        $statusClasses = match($booking->status) {
+                                            'Pending Payment' => 'bg-yellow-100 text-yellow-800',
+                                            'Booked' => 'bg-green-100 text-green-800', 
+                                            'Cancelled' => 'bg-red-100 text-red-800',
+                                            default => 'bg-gray-100 text-gray-800'
+                                        };
+                                    @endphp
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase {{ $statusClasses }}">
+                                        {{ $booking->status }}
+                                    </span>
+                                    @if($booking->schedule->remarks)
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-yellow-400 text-blue-900 shadow-sm border border-yellow-500/20 text-center">
+                                            {{ $booking->schedule->remarks }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
 
                             <!-- Middle Row: Trip Info -->
@@ -56,8 +69,8 @@
                                         <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
                                     </div>
                                     <div>
-                                        <h4 class="font-bold text-gray-900">{{ $booking->schedule->bus->bus_name }}</h4>
-                                        <p class="text-xs text-gray-500">{{ $booking->schedule->bus->bus_number }} • {{ $booking->schedule->bus->type }}</p>
+                                        <h4 class="font-bold text-gray-900">{{ $booking->schedule->bus ? $booking->schedule->bus->bus_name : 'Bus Not Assigned' }}</h4>
+                                        <p class="text-xs text-gray-500">{{ $booking->schedule->bus ? ($booking->schedule->bus->bus_number . ' • ' . $booking->schedule->bus->type) : 'Pending Assignment' }}</p>
                                     </div>
                                 </div>
 
@@ -65,11 +78,11 @@
                                 <div class="flex-1 border-l border-gray-100 pl-0 md:pl-6">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="text-sm font-semibold text-gray-900">
-                                            {{ $booking->schedule->route->sourceDestination->city_name ?? $booking->schedule->route->source }}
+                                            {{ $booking->schedule->route ? ($booking->schedule->route->sourceDestination->city_name ?? $booking->schedule->route->source) : ($booking->schedule->route_source ?? 'N/A') }}
                                         </span>
                                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                                         <span class="text-sm font-semibold text-gray-900">
-                                            {{ $booking->schedule->route->destination->city_name ?? $booking->schedule->route->destination_code }}
+                                            {{ $booking->schedule->route ? ($booking->schedule->route->destination->city_name ?? $booking->schedule->route->destination_code) : ($booking->schedule->route_destination ?? 'N/A') }}
                                         </span>
                                     </div>
                                     <p class="text-xs text-gray-500">

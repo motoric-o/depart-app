@@ -19,10 +19,11 @@ class BusController extends Controller
 
         $searchable = [
             'bus_number' => 'like',
+            'bus_name' => 'like',
             'bus_type' => 'like'
         ];
 
-        $sortable = ['bus_number', 'bus_type', 'capacity', 'created_at'];
+        $sortable = ['bus_number', 'bus_name', 'bus_type', 'capacity', 'created_at'];
 
         $buses = $this->applyApiParams($query, $request, $searchable, $sortable, ['field' => 'bus_number', 'order' => 'asc']);
 
@@ -41,6 +42,7 @@ class BusController extends Controller
         \Illuminate\Support\Facades\Gate::authorize('manage-buses');
         $validated = $request->validate([
             'bus_number' => 'required|string|unique:buses,bus_number',
+            'bus_name' => 'nullable|string',
             'bus_type' => 'required|string',
             'capacity' => 'required|integer|min:1',
             'seat_rows' => 'required|integer|min:1',
@@ -58,6 +60,7 @@ class BusController extends Controller
 
         $validated = $request->validate([
             'bus_number' => 'required|string|unique:buses,bus_number,' . $bus->id,
+            'bus_name' => 'nullable|string',
             'bus_type' => 'required|string',
             'capacity' => 'required|integer|min:1',
             'seat_rows' => 'required|integer|min:1',

@@ -13,12 +13,19 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->string('id')->primary(); // JKT251213001
-            $table->string('route_id');
-            $table->foreign('route_id')->references('id')->on('routes');
-            $table->string('bus_id');
-            $table->foreign('bus_id')->references('id')->on('buses');
+            
+            $table->string('route_id')->nullable();
+            $table->foreign('route_id')->references('id')->on('routes')->onDelete('set null');
+            
+            $table->string('route_source')->nullable()->after('route_id');
+            $table->string('route_destination')->nullable()->after('route_source');
+
+            $table->string('bus_id')->nullable();
+            $table->foreign('bus_id')->references('id')->on('buses')->onDelete('set null');
+
             $table->string('driver_id')->nullable()->after('bus_id');
             $table->foreign('driver_id')->references('id')->on('accounts')->onDelete('set null');
+            
             $table->dateTime('departure_time');
             $table->dateTime('arrival_time');
             $table->decimal('price_per_seat', 10, 2);

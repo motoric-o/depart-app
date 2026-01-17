@@ -648,4 +648,53 @@ class AdminController extends Controller
         $schedule = Schedule::findOrFail($id);
         return view('management.schedules.details', compact('schedule'));
     }
+
+    // --- FINANCIAL REPORTS ---
+
+    public function financialReports()
+    {
+        // 1. Total Revenue (Success transactions)
+        $totalRevenue = \App\Models\Transaction::where('status', 'Success')->sum('total_amount');
+
+        // 2. Total Expenses (Approved/Reimbursed/Completed expenses)
+        // Adjust status check based on business logic. "Approved", "Reimbursed" seems final.
+        // Assuming 'Approved' is the final state for Owner-created and 'Reimbursed'/'Operational' might map to a status?
+        // Let's check Expense model or Controller for valid statuses.
+        // In OwnerController: 'Approved'. In AdminController: 'In Process' -> 'Verified' maybe?
+        // AdminController::verifyExpense uses: 'In Process,Pending Confirmation,Rejected,Canceled'.
+        // Wait, 'Approved' is used in OwnerController.
+        // Let's assume 'Approved' and 'In Process' (if money is out) count? Or just Approved?
+        // For NET PROFIT, we should probably only count finalized expenses.
+        // Let's use 'Approved' and check if there are other "paid" statuses.
+        // AdminController doesn't seem to set "Approved", it sets "In Process" initially?
+        // Let's check verifyExpense again.
+        // $request->validate(['status' => 'required|in:In Process,Pending Confirmation,Rejected,Canceled']);
+        // It seems Admin doesn't have "Approved"?
+        // OwnerController::storeExpense sets 'Approved'.
+        // So for Admin view, we should probably include 'Approved' (from Owner) and maybe 'In Process' (from Admin)?
+        // Or is there a different flow?
+        // Let's stick safe: All expenses that are NOT Rejected or Canceled are effectively "Liabilities".
+        // But for "Net Profit", usually actual spent money.
+        // For now, I will exclude 'Rejected' and 'Canceled'.
+        
+        $totalExpenses = \App\Models\Expense::whereNotIn('status', ['Rejected', 'Canceled'])->sum('amount');
+
+        // 3. Net Profit
+        $netProfit = $totalRevenue - $totalExpenses;
+
+        // 4. Top Performing Routes
+        // Ordered by Total Revenue
+        $topRoutes = \App\Models\RouteStat::orderByDesc('total_revenue')
+            ->take(5)
+            ->get();
+            
+        // 5. Recent Transactions (For context)
+        $recentTransactions = \App\Models\Transaction::with(['account', 'booking'])
+            ->where('status', 'Success')
+            ->orderBy('transaction_date', 'desc')
+            ->take(10)
+            ->get();
+
+        return view('admin.reports.index', compact('totalRevenue', 'totalExpenses', 'netProfit', 'topRoutes', 'recentTransactions'));
+    }
 }

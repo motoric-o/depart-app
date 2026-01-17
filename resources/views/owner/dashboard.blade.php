@@ -28,9 +28,9 @@
                         <div class="text-3xl font-bold">Users</div>
                         <div class="text-sm opacity-80 mt-2">Unified User Management.</div>
                     </a>
-                    <a href="{{ route('owner.reports') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
-                        <div class="text-3xl font-bold">Revenue</div>
-                        <div class="text-sm opacity-80 mt-2">View daily and monthly earnings.</div>
+                    <a href="{{ route('admin.financial.reports') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
+                        <div class="text-3xl font-bold">Finance</div>
+                        <div class="text-sm opacity-80 mt-2">View revenue, expenses & top routes.</div>
                     </a>
                     <a href="{{ route('admin.expenses') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
                         <div class="text-3xl font-bold">Expenses</div>
@@ -40,7 +40,7 @@
 
                 <div class="mt-6">
                     <h4 class="text-lg font-bold mb-3">Financial Overview</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="bg-white border rounded-lg p-4 shadow-sm">
                             <h5 class="text-gray-500 font-medium">Total Revenue</h5>
                             <p class="text-2xl font-bold text-green-600">Rp {{ number_format($dashboardStats->total_revenue ?? 0, 0, ',', '.') }}</p>
@@ -48,6 +48,10 @@
                         <div class="bg-white border rounded-lg p-4 shadow-sm">
                             <h5 class="text-gray-500 font-medium">Total Expenses</h5>
                             <p class="text-2xl font-bold text-red-600">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="bg-white border rounded-lg p-4 shadow-sm">
+                            <h5 class="text-gray-500 font-medium">Net Profit</h5>
+                            <p class="text-2xl font-bold {{ ($netProfit ?? 0) >= 0 ? 'text-blue-600' : 'text-red-600' }}">Rp {{ number_format($netProfit ?? 0, 0, ',', '.') }}</p>
                         </div>
                     </div>
                 </div>

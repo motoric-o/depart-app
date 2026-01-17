@@ -14,7 +14,8 @@ class Schedule extends Model
 
     protected $fillable = [
         'route_id', 'bus_id', 'departure_time', 
-        'arrival_time', 'price_per_seat', 'quota', 'remarks'
+        'arrival_time', 'price_per_seat', 'quota', 'remarks',
+        'route_source', 'route_destination'
     ];
 
     protected $with = ['route', 'bus', 'driver'];
@@ -42,6 +43,10 @@ class Schedule extends Model
         $occupied = Ticket::whereIn('booking_id', $validBookingIds)
                           ->where('status', '!=', 'Cancelled')
                           ->count();
+
+        if (!$this->bus) {
+             return 0;
+        }
 
         return $this->bus->capacity - $occupied;
     }

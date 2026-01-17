@@ -19,6 +19,12 @@ class SearchController extends Controller
         $query = Schedule::query();
 
         // 3. Apply Filters
+        
+        // Exclude Incomplete Schedules
+        $query->whereNotNull('bus_id')
+              ->whereNotNull('route_id')
+              ->where('remarks', 'not like', '%Canceled%')
+              ->where('remarks', 'not like', '%Pending%');
 
         // Filter by Source
         if ($request->filled('from')) {

@@ -30,4 +30,19 @@ class Route extends Model
     {
         return $this->hasMany(Schedule::class);
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($route) {
+            $route->load('schedules', 'destination'); // Ensure relations are loaded
+            
+            foreach ($route->schedules as $schedule) {
+                $schedule->route_source = $route->source;
+                $schedule->route_destination = $route->destination->city_name ?? $route->destination_code;
+                $schedule->route_id = null;
+                $schedule->remarks = 'Canceled';
+                $schedule->save();
+            }
+        });
+    }
 }

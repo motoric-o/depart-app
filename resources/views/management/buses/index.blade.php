@@ -80,6 +80,7 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
                                 <select x-model="filters.sort_by" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
                                     <option value="bus_number">Bus Number</option>
+                                    <option value="bus_name">Bus Name</option>
                                     <option value="bus_type">Type</option>
                                     <option value="capacity">Capacity</option>
                                 </select>
@@ -115,6 +116,12 @@
                                         <span x-show="filters.sort_by === 'bus_number'" class="ml-1" x-text="filters.sort_order === 'asc' ? '↑' : '↓'"></span>
                                     </div>
                                 </th>
+                                <th @click="sortBy('bus_name')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer group hover:bg-gray-100">
+                                    <div class="flex items-center">
+                                        Bus Name
+                                        <span x-show="filters.sort_by === 'bus_name'" class="ml-1" x-text="filters.sort_order === 'asc' ? '↑' : '↓'"></span>
+                                    </div>
+                                </th>
                                 <th @click="sortBy('bus_type')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer group hover:bg-gray-100">
                                     <div class="flex items-center">
                                         Type
@@ -135,6 +142,7 @@
                             <template x-for="bus in items" :key="bus.id">
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="bus.bus_number"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="bus.bus_name || '-'"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="bus.bus_type"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="bus.capacity"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="bus.seat_rows + ' x ' + bus.seat_columns"></td>

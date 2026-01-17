@@ -40,9 +40,9 @@
 
                     <!-- Financial & Operations -->
                     @can('view-financial-reports')
-                    <a href="{{ route('owner.reports') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
+                    <a href="{{ route('admin.financial.reports') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
                         <div class="text-3xl font-bold">Finance</div>
-                        <div class="text-sm opacity-80 mt-2">View revenue and expenses.</div>
+                        <div class="text-sm opacity-80 mt-2">View revenue, expenses & top routes.</div>
                     </a>
                     @endcan
 

@@ -31,6 +31,11 @@
                         </div>
 
                         <div>
+                            <label for="bus_name" class="block text-sm font-medium text-gray-700">Bus Name</label>
+                            <input type="text" name="bus_name" id="bus_name" value="{{ old('bus_name', $bus->bus_name) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+                        </div>
+
+                        <div>
                             <label for="bus_type" class="block text-sm font-medium text-gray-700">Bus Type</label>
                             <input type="text" name="bus_type" id="bus_type" value="{{ old('bus_type', $bus->bus_type) }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
                         </div>

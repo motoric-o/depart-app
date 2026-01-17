@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('ticket_id')->nullable();
             $table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('set null');
 
+            $table->string('seat_number')->nullable();
+
             $table->enum('attendance_status', ['Pending', 'Present', 'Absent'])->default('Pending');
             $table->text('remarks')->nullable();
             $table->timestamps();

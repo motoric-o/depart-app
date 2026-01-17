@@ -143,5 +143,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/expenses/create', [AdminController::class, 'createExpense'])->name('expenses.create');
         Route::post('/expenses', [AdminController::class, 'storeExpense'])->name('expenses.store');
         Route::post('/expenses/{id}/verify', [AdminController::class, 'verifyExpense'])->name('expenses.verify');
+
+        // Financial Reports
+        Route::get('/financial-reports', [AdminController::class, 'financialReports'])->name('financial.reports');
     });
 });

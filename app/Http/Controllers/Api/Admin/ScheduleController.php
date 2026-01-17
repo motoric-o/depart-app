@@ -30,6 +30,20 @@ class ScheduleController extends Controller
 
         $sortable = ['id', 'route_id', 'bus_id', 'driver_id', 'departure_time', 'arrival_time', 'price_per_seat', 'remarks'];
 
+        // Filter: Incomplete
+        if ($request->get('filter_category') === 'incomplete') {
+            $query->where(function($q) {
+                $q->whereNull('bus_id')
+                  ->orWhereNull('driver_id')
+                  ->orWhereNull('route_id')
+                  ->orWhere('remarks', 'like', '%Canceled%')
+                  ->orWhere('remarks', 'like', '%Pending%');
+            });
+        }
+
+        // Custom Sort: Problematic items on top
+        $query->orderByRaw("CASE WHEN bus_id IS NULL OR driver_id IS NULL OR remarks LIKE '%Canceled%' OR remarks LIKE '%Pending%' THEN 0 ELSE 1 END");
+
         $schedules = $this->applyApiParams($query, $request, $searchable, $sortable, ['field' => 'departure_time', 'order' => 'desc']);
 
         return response()->json($schedules);

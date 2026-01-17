@@ -21,15 +21,33 @@
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
             <!-- Ticket Header -->
             <div class="bg-blue-600 px-6 sm:px-8 py-6 text-white relative overflow-hidden">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
                     <div>
                         <p class="text-blue-100 text-sm font-medium uppercase tracking-wider mb-1">Bus Operator</p>
-                        <h2 class="text-2xl font-bold truncate" title="{{ $booking->schedule->bus->bus_name }}">{{ $booking->schedule->bus->bus_name }}</h2>
-                        <p class="text-blue-100 text-sm opacity-90 mt-1">{{ $booking->schedule->bus->bus_number }} • {{ $booking->schedule->bus->type }}</p>
+                        <h2 class="text-2xl font-bold truncate" title="{{ $booking->schedule->bus ? $booking->schedule->bus->bus_name : 'Bus Not Assigned' }}">{{ $booking->schedule->bus ? ($booking->schedule->bus->bus_name ?? 'Bus Not Assigned') : 'Bus Not Assigned' }}</h2>
+                        <div class="flex items-center gap-2 mt-1">
+                             <p class="text-blue-100 text-sm opacity-90">{{ $booking->schedule->bus ? ($booking->schedule->bus->bus_number . ' • ' . $booking->schedule->bus->bus_type) : 'Pending Assignment' }}</p>
+                        </div>
+                        <div class="mt-2 text-blue-100 text-xs opacity-80 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            Driver: {{ $booking->schedule->driver ? ($booking->schedule->driver->first_name . ' ' . $booking->schedule->driver->last_name) : 'Pending Assignment' }}
+                        </div>
                     </div>
-                    <div class="text-left sm:text-right">
-                        <p class="text-blue-100 text-sm font-medium uppercase tracking-wider mb-1">Booking ID</p>
-                        <h2 class="text-xl font-mono font-bold tracking-wide">{{ $booking->id }}</h2>
+                    <div class="text-left sm:text-right space-y-3">
+                        <div>
+                            <p class="text-blue-100 text-sm font-medium uppercase tracking-wider mb-1">Booking ID</p>
+                            <h2 class="text-xl font-mono font-bold tracking-wide leading-none">{{ $booking->id }}</h2>
+                        </div>
+                        <div>
+                             <p class="text-blue-100 text-xs font-medium uppercase tracking-wider mb-0.5 opacity-80">Schedule ID</p>
+                             <p class="font-mono font-semibold text-sm">{{ $booking->schedule->id }}</p>
+                        </div>
+                        @if($booking->schedule->remarks)
+                        <div>
+                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-yellow-400 text-blue-900 shadow-sm box-decoration-clone">
+                                {{ $booking->schedule->remarks }}
+                             </span>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -47,7 +65,7 @@
                             </div>
                             <div class="pb-8">
                                 <p class="text-gray-500 text-xs uppercase tracking-wide mb-1">Berangkat</p>
-                                <h4 class="text-xl font-bold text-gray-900">{{ $booking->schedule->route->sourceDestination->city_name ?? $booking->schedule->route->source }}</h4>
+                                <h4 class="text-xl font-bold text-gray-900">{{ $booking->schedule->route ? ($booking->schedule->route->sourceDestination->city_name ?? $booking->schedule->route->source) : ($booking->schedule->route_source ?? 'N/A') }}</h4>
                                 <p class="text-gray-600 font-medium mt-1">
                                     {{ \Carbon\Carbon::parse($booking->travel_date)->translatedFormat('l, d F Y') }}
                                     <span class="mx-2 text-gray-300">|</span>
@@ -63,7 +81,7 @@
                             </div>
                             <div>
                                 <p class="text-gray-500 text-xs uppercase tracking-wide mb-1">Tiba</p>
-                                <h4 class="text-xl font-bold text-gray-900">{{ $booking->schedule->route->destination->city_name ?? $booking->schedule->route->destination_code }}</h4>
+                                <h4 class="text-xl font-bold text-gray-900">{{ $booking->schedule->route ? ($booking->schedule->route->destination->city_name ?? $booking->schedule->route->destination_code) : ($booking->schedule->route_destination ?? 'N/A') }}</h4>
                                 <p class="text-gray-600 font-medium mt-1">
                                     {{ \Carbon\Carbon::parse($booking->travel_date)->translatedFormat('l, d F Y') }}
                                     <span class="mx-2 text-gray-300">|</span> 

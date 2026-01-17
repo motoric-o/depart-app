@@ -13,12 +13,22 @@ class Bus extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'bus_number', 'bus_type', 'capacity', 
+        'bus_number', 'bus_name', 'bus_type', 'capacity', 
         'seat_rows', 'seat_columns', 'remarks'
     ];
 
     public function schedules()
     {
         return $this->hasMany(Schedule::class);
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function ($bus) {
+            $bus->schedules()->update([
+                'bus_id' => null, 
+                'remarks' => 'Pending Bus Assignment'
+            ]);
+        });
     }
 }

@@ -28,4 +28,15 @@ class Account extends Authenticatable
     {
         return $this->belongsTo(AccountType::class);
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($account) {
+            // Update schedules where this account is the driver
+            \App\Models\Schedule::where('driver_id', $account->id)->update([
+                'driver_id' => null,
+                'remarks' => 'Pending Driver Assignment'
+            ]);
+        });
+    }
 }

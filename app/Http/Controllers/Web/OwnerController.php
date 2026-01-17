@@ -24,9 +24,12 @@ class OwnerController extends Controller
             ->get();
 
         $totalExpenses = \App\Models\Expense::sum('amount');
+        // Calculate Net Profit
+        $netProfit = ($dashboardStats->total_revenue ?? 0) - $totalExpenses;
+        
         $recentExpenses = \App\Models\Expense::orderByDesc('date')->take(5)->get();
 
-        return view('owner.dashboard', compact('routeStats', 'dashboardStats', 'totalExpenses', 'recentExpenses'));
+        return view('owner.dashboard', compact('routeStats', 'dashboardStats', 'totalExpenses', 'recentExpenses', 'netProfit'));
     }
 
     // User Management is led by AdminController (Unified)
