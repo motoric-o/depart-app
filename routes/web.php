@@ -127,6 +127,11 @@ Route::middleware('auth')->group(function () {
         Route::put('/routes/{id}', [AdminController::class, 'updateRoute'])->name('routes.update');
         Route::delete('/routes/{id}', [AdminController::class, 'deleteRoute'])->name('routes.delete');
 
+        // Bookings CRUD
+        Route::get('/bookings', [AdminController::class, 'bookings'])->name('bookings');
+        // Route::get('/bookings/{id}/details', ...); // If we add details page later
+        Route::delete('/bookings/{id}', [AdminController::class, 'deleteBooking'])->name('bookings.delete');
+
         // Schedules CRUD (Maybe linked from Route, but global list is also fine)
         Route::get('/schedules', [AdminController::class, 'schedules'])->name('schedules');
         Route::get('/schedules/create', [AdminController::class, 'createSchedule'])->name('schedules.create');

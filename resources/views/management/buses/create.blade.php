@@ -26,47 +26,47 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="bus_number" class="block text-sm font-medium text-gray-700">Bus Number</label>
-                            <input type="text" name="bus_number" id="bus_number" value="{{ old('bus_number') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="e.g. B-1234-XYZ">
+                            <input type="text" name="bus_number" id="bus_number" value="{{ old('bus_number') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="e.g. B-1234-XYZ">
                         </div>
 
                         <div>
                             <label for="bus_name" class="block text-sm font-medium text-gray-700">Bus Name</label>
-                            <input type="text" name="bus_name" id="bus_name" value="{{ old('bus_name') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="e.g. Sinar Jaya">
+                            <input type="text" name="bus_name" id="bus_name" value="{{ old('bus_name') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="e.g. Sinar Jaya">
                         </div>
 
                         <div>
                             <label for="bus_type" class="block text-sm font-medium text-gray-700">Bus Type</label>
-                            <input type="text" name="bus_type" id="bus_type" value="{{ old('bus_type') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="e.g. Executive, Economy">
+                            <input type="text" name="bus_type" id="bus_type" value="{{ old('bus_type') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="e.g. Executive, Economy">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="capacity" class="block text-sm font-medium text-gray-700">Capacity</label>
-                            <input type="number" name="capacity" id="capacity" value="{{ old('capacity') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="number" name="capacity" id="capacity" value="{{ old('capacity') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
 
                         <div>
                             <label for="quota" class="block text-sm font-medium text-gray-700">Quota</label>
-                            <input type="number" name="quota" id="quota" value="{{ old('quota') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="number" name="quota" id="quota" value="{{ old('quota') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="seat_rows" class="block text-sm font-medium text-gray-700">Seat Rows</label>
-                            <input type="number" name="seat_rows" id="seat_rows" value="{{ old('seat_rows') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="number" name="seat_rows" id="seat_rows" value="{{ old('seat_rows') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
 
                         <div>
                             <label for="seat_columns" class="block text-sm font-medium text-gray-700">Seat Columns</label>
-                            <input type="number" name="seat_columns" id="seat_columns" value="{{ old('seat_columns') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="number" name="seat_columns" id="seat_columns" value="{{ old('seat_columns') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
                     </div>
 
                     <div>
                         <label for="remarks" class="block text-sm font-medium text-gray-700">Remarks</label>
-                        <textarea name="remarks" id="remarks" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('remarks') }}</textarea>
+                        <textarea name="remarks" id="remarks" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">{{ old('remarks') }}</textarea>
                     </div>
 
                     <div class="flex justify-end pt-4">

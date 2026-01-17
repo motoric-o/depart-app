@@ -26,12 +26,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="source" class="block text-sm font-medium text-gray-700">Source City</label>
-                            <input type="text" name="source" id="source" value="{{ old('source') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="e.g. Jakarta">
+                            <input type="text" name="source" id="source" value="{{ old('source') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="e.g. Jakarta">
                         </div>
 
                         <div>
                             <label for="destination_code" class="block text-sm font-medium text-gray-700">Destination</label>
-                            <select name="destination_code" id="destination_code" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <select name="destination_code" id="destination_code" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                                 <option value="">Select Destination</option>
                                 @foreach($destinations as $destination)
                                     <option value="{{ $destination->code }}" {{ old('destination_code') == $destination->code ? 'selected' : '' }}>
@@ -45,12 +45,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="distance" class="block text-sm font-medium text-gray-700">Distance (km)</label>
-                            <input type="number" name="distance" id="distance" value="{{ old('distance') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="number" name="distance" id="distance" value="{{ old('distance') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
 
                         <div>
                             <label for="estimated_duration" class="block text-sm font-medium text-gray-700">Estimated Duration (minutes)</label>
-                            <input type="number" name="estimated_duration" id="estimated_duration" value="{{ old('estimated_duration') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="number" name="estimated_duration" id="estimated_duration" value="{{ old('estimated_duration') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
                     </div>
 

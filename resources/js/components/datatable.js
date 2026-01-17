@@ -17,6 +17,9 @@ export default function datatable(config) {
             sort_order: config.sort_order || 'desc',
             ...config.filters
         },
+        selectedItems: [],
+
+        // ... existing properties ...
         loading: false,
         url: config.url,
 
@@ -26,16 +29,29 @@ export default function datatable(config) {
                 this.fetchData();
             }
 
-            // Watchers for Debounced Search
-            // Watcher removed: Search triggers only on Enter or Button Click
-            /*
-            this.$watch('filters.search', (value) => {
-                clearTimeout(this.searchDebounce);
-                this.searchDebounce = setTimeout(() => {
-                    this.fetchData(1);
-                }, 300);
+            this.$watch('items', () => {
+                this.selectedItems = [];
             });
-            */
+        },
+
+        toggleSelectAll() {
+            if (this.allSelected) {
+                this.selectedItems = [];
+            } else {
+                this.selectedItems = this.items.map(item => item.id);
+            }
+        },
+
+        toggleSelect(id) {
+            if (this.selectedItems.includes(id)) {
+                this.selectedItems = this.selectedItems.filter(item => item !== id);
+            } else {
+                this.selectedItems.push(id);
+            }
+        },
+
+        get allSelected() {
+            return this.items.length > 0 && this.selectedItems.length === this.items.length;
         },
 
         async fetchData(page = 1) {
@@ -59,12 +75,12 @@ export default function datatable(config) {
 
                 this.items = data.data;
                 this.pagination = {
-                    current_page: data.current_page,
-                    last_page: data.last_page,
-                    total: data.total,
-                    from: data.from,
-                    to: data.to,
-                    per_page: data.per_page
+                    current_page: parseInt(data.current_page),
+                    last_page: parseInt(data.last_page),
+                    total: parseInt(data.total),
+                    from: parseInt(data.from),
+                    to: parseInt(data.to),
+                    per_page: parseInt(data.per_page)
                 };
             } catch (error) {
                 console.error('Datatable Fetch Error:', error);
@@ -87,6 +103,31 @@ export default function datatable(config) {
         addFilter(key, value) {
             this.filters[key] = value;
             this.fetchData(1);
+        },
+
+        get pages() {
+            const range = 2; // Number of pages to show around current page
+            let pages = [];
+            let start = Math.max(1, this.pagination.current_page - range);
+            let end = Math.min(this.pagination.last_page, this.pagination.current_page + range);
+
+            // Always show first page
+            if (start > 1) {
+                pages.push(1);
+                if (start > 2) pages.push('...');
+            }
+
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+
+            // Always show last page
+            if (end < this.pagination.last_page) {
+                if (end < this.pagination.last_page - 1) pages.push('...');
+                pages.push(this.pagination.last_page);
+            }
+
+            return pages;
         }
     };
 }

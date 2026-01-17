@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->string('account_id');
-            $table->foreign('account_id')->references('id')->on('accounts');
+            $table->string('account_id')->nullable();
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('set null');
+            $table->string('customer_name')->nullable()->after('account_id');
             $table->string('booking_id');
             $table->foreign('booking_id')->references('id')->on('bookings');
             $table->string('ticket_id')->nullable();

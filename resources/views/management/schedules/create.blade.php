@@ -26,7 +26,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="route_id" class="block text-sm font-medium text-gray-700">Route</label>
-                            <select name="route_id" id="route_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <select name="route_id" id="route_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                                 <option value="">Select Route</option>
                                 @foreach($routes as $route)
                                     <option value="{{ $route->id }}" {{ old('route_id') == $route->id ? 'selected' : '' }}>
@@ -37,7 +37,8 @@
                         </div>
 
                         <div>
-                            <select name="bus_id" id="bus_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <label for="bus_id" class="block text-sm font-medium text-gray-700">Bus</label>
+                            <select name="bus_id" id="bus_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                                 <option value="">Select Bus</option>
                                 @foreach($buses as $bus)
                                     <option value="{{ $bus->id }}" {{ old('bus_id') == $bus->id ? 'selected' : '' }}>
@@ -50,7 +51,7 @@
                     
                     <div>
                         <label for="driver_id" class="block text-sm font-medium text-gray-700">Driver</label>
-                        <select name="driver_id" id="driver_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <select name="driver_id" id="driver_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                              <option value="">Select Driver</option>
                              @foreach($drivers as $driver)
                                  <option value="{{ $driver->id }}" {{ old('driver_id') == $driver->id ? 'selected' : '' }}>
@@ -63,24 +64,24 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="departure_time" class="block text-sm font-medium text-gray-700">Departure Time</label>
-                            <input type="datetime-local" name="departure_time" id="departure_time" value="{{ old('departure_time') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="datetime-local" name="departure_time" id="departure_time" value="{{ old('departure_time') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
 
                         <div>
                             <label for="arrival_time" class="block text-sm font-medium text-gray-700">Arrival Time</label>
-                            <input type="datetime-local" name="arrival_time" id="arrival_time" value="{{ old('arrival_time') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="datetime-local" name="arrival_time" id="arrival_time" value="{{ old('arrival_time') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="price_per_seat" class="block text-sm font-medium text-gray-700">Price Per Seat (IDR)</label>
-                            <input type="number" name="price_per_seat" id="price_per_seat" value="{{ old('price_per_seat') }}" required min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="number" name="price_per_seat" id="price_per_seat" value="{{ old('price_per_seat') }}" required min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
 
                         <div>
                             <label for="quota" class="block text-sm font-medium text-gray-700">Quota</label>
-                            <input type="number" name="quota" id="quota" value="{{ old('quota') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="number" name="quota" id="quota" value="{{ old('quota') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
                     </div>
 

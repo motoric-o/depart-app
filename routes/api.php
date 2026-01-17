@@ -48,6 +48,7 @@ Route::middleware(['web', 'auth', 'role:Owner,Super Admin,Financial Admin,Schedu
     Route::apiResource('/admin/buses', \App\Http\Controllers\Api\Admin\BusController::class);
     Route::apiResource('/admin/routes', \App\Http\Controllers\Api\Admin\RouteController::class);
     Route::apiResource('/admin/users', \App\Http\Controllers\Api\Admin\UserController::class);
+    Route::apiResource('/admin/bookings', \App\Http\Controllers\Api\Admin\BookingController::class);
 
     Route::get('/schedules/{id}/details', [ScheduleDetailController::class, 'index']);
     Route::post('/schedules/{id}/details', [ScheduleDetailController::class, 'store']); // Create manual entry

@@ -13,9 +13,63 @@
                     }),
                     canManageBuses: {{ Auth::user()->can('manage-buses') ? 'true' : 'false' }},
                     deleteItem(id, url) {
-                        if (!confirm('Are you sure you want to delete this bus?')) return;
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: 'You won\'t be able to revert this!',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#2563EB',
+                            cancelButtonColor: '#4B5563',
+                            confirmButtonText: 'Yes, delete it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                               this.performDelete([id], url);
+                            }
+                        })
+                    },
+
+                    bulkDelete() {
+                        if (this.selectedItems.length === 0) return;
                         
-                        fetch(url, {
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: `You are about to delete ${this.selectedItems.length} buses. This cannot be undone!`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#2563EB',
+                            cancelButtonColor: '#4B5563',
+                            confirmButtonText: 'Yes, delete them!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                const promises = this.selectedItems.map(id => {
+                                    return fetch(`/admin/buses/${id}`, {
+                                        method: 'DELETE',
+                                        headers: {
+                                            'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').getAttribute('content'),
+                                            'Accept': 'application/json'
+                                        }
+                                    }).then(res => res.json());
+                                });
+
+                                Promise.all(promises).then(results => {
+                                    const failed = results.filter(r => !r.success);
+                                    if (failed.length === 0) {
+                                        this.items = this.items.filter(item => !this.selectedItems.includes(item.id));
+                                        this.selectedItems = [];
+                                        Swal.fire('Deleted!', 'Selected buses have been deleted.', 'success');
+                                    } else {
+                                        Swal.fire('Error!', `${failed.length} items failed to delete.`, 'error');
+                                    }
+                                }).catch(err => {
+                                    console.error(err);
+                                    Swal.fire('Error!', 'An error occurred during bulk deletion.', 'error');
+                                });
+                            }
+                        })
+                    },
+
+                    performDelete(ids, url) {
+                         fetch(url, {
                             method: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').getAttribute('content'),
@@ -25,16 +79,15 @@
                         .then(res => res.json())
                         .then(data => {
                             if (data.success) {
-                                // Remove item from list
-                                this.items = this.items.filter(item => item.id !== id);
-                                alert(data.message);
+                                this.items = this.items.filter(item => item.id !== ids[0]);
+                                Swal.fire('Deleted!', data.message, 'success');
                             } else {
-                                alert('Failed to delete item.');
+                                Swal.fire('Error!', 'Failed to delete item.', 'error');
                             }
                         })
                         .catch(err => {
-                            console.error(err);
-                            alert('An error occurred.');
+                             console.error(err);
+                             Swal.fire('Error!', 'An error occurred.', 'error');
                         });
                     }
                  }"
@@ -60,6 +113,29 @@
                             </button>
                             
                             <button type="button" @click="fetchData(1)" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 border border-transparent h-[42px] font-medium transition-colors">Search</button>
+
+                            <!-- Actions Dropdown -->
+                            <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                                <button type="button" @click="open = !open" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 flex items-center h-[42px] transition-colors shadow-sm font-medium">
+                                    Actions
+                                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                                <div x-show="open" x-cloak class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200">
+                                    <a href="#" 
+                                       @click.prevent="if(selectedItems.length === 1) window.location.href = '/admin/buses/' + selectedItems[0] + '/edit'"
+                                       :class="{'text-gray-400 cursor-not-allowed': selectedItems.length !== 1, 'text-gray-700 hover:bg-gray-100': selectedItems.length === 1}"
+                                       class="block px-4 py-2 text-sm w-full text-left">
+                                        Edit
+                                    </a>
+                                    <button type="button" 
+                                            @click="bulkDelete()"
+                                            :disabled="selectedItems.length === 0"
+                                            :class="{'text-gray-400 cursor-not-allowed': selectedItems.length === 0, 'text-red-700 hover:bg-red-50': selectedItems.length > 0}"
+                                            class="block px-4 py-2 text-sm w-full text-left">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
                             
                             <button x-show="filters.search || filters.sort_by !== 'bus_number'" 
                                     @click="filters.search = ''; filters.sort_by = 'bus_number'; fetchData(1)" 
@@ -75,7 +151,8 @@
                             @endcan
                         </div>
 
-                        <div x-show="showFilters" x-collapse style="display: none;" class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-md shadow-inner mb-6 mt-4 border border-gray-200">
+                        <div x-show="showFilters" x-collapse x-cloak class="overflow-hidden">
+                            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-md shadow-inner mb-6 mt-4 border border-gray-200">
                              <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
                                 <select x-model="filters.sort_by" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
@@ -96,11 +173,7 @@
                     </div>
                 </div>
 
-                @if (session('success'))
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                        <span class="block sm:inline">{{ session('success') }}</span>
-                    </div>
-                @endif
+                <!-- Alerts handled by global App layout -->
 
                 <div class="overflow-x-auto relative min-h-[200px]">
                     <div x-show="loading" class="absolute inset-0 bg-white bg-opacity-75 z-10 flex items-center justify-center">
@@ -110,6 +183,12 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
+                                <th class="px-6 py-3 text-left w-10">
+                                    <input type="checkbox" 
+                                           class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                           @change="toggleSelectAll()"
+                                           :checked="allSelected">
+                                </th>
                                 <th @click="sortBy('bus_number')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer group hover:bg-gray-100">
                                     <div class="flex items-center">
                                         Bus Number
@@ -135,28 +214,23 @@
                                     </div>
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Layout</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                        <tbody class="bg-white divide-y divide-gray-200">
                             <template x-for="bus in items" :key="bus.id">
-                                <tr>
+                                <tr :class="{'bg-blue-50': selectedItems.includes(bus.id)}">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" 
+                                               class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                               :value="bus.id"
+                                               @change="toggleSelect(bus.id)"
+                                               :checked="selectedItems.includes(bus.id)">
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="bus.bus_number"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="bus.bus_name || '-'"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="bus.bus_type"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="bus.capacity"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="bus.seat_rows + ' x ' + bus.seat_columns"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <template x-if="canManageBuses">
-                                            <div>
-                                                <a :href="'/admin/buses/' + bus.id + '/edit'" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                                <button @click="deleteItem(bus.id, '/admin/buses/' + bus.id)" class="text-red-600 hover:text-red-900">Delete</button>
-                                            </div>
-                                        </template>
-                                        <template x-if="!canManageBuses">
-                                            <span class="text-gray-400 cursor-not-allowed">Restricted</span>
-                                        </template>
-                                    </td>
                                 </tr>
                             </template>
                              <tr x-show="items.length === 0 && !loading">
@@ -172,18 +246,34 @@
                         Showing <span x-text="pagination.from"></span> to <span x-text="pagination.to"></span> of <span x-text="pagination.total"></span> results
                     </div>
                     <div class="flex space-x-2">
+                    <div class="flex space-x-1">
                         <button 
                             @click="fetchData(pagination.current_page - 1)" 
                             :disabled="pagination.current_page <= 1"
                             :class="{'opacity-50 cursor-not-allowed': pagination.current_page <= 1}"
-                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                             Previous
                         </button>
+
+                        <template x-for="page in pages">
+                            <button 
+                                @click="page !== '...' ? fetchData(page) : null" 
+                                :class="{
+                                    'bg-blue-600 text-white border-blue-600': pagination.current_page === page, 
+                                    'bg-white text-gray-700 hover:bg-gray-50 border-gray-300': pagination.current_page !== page,
+                                    'cursor-default': page === '...'
+                                }" 
+                                :disabled="page === '...'"
+                                x-text="page" 
+                                class="px-3 py-1 border rounded-md text-sm font-medium transition-colors">
+                            </button>
+                        </template>
+
                         <button 
                             @click="fetchData(pagination.current_page + 1)" 
                             :disabled="pagination.current_page >= pagination.last_page"
                             :class="{'opacity-50 cursor-not-allowed': pagination.current_page >= pagination.last_page}"
-                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                             Next
                         </button>
                     </div>

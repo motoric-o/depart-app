@@ -53,7 +53,11 @@ return new class extends Migration
             SELECT 
                 b.id as booking_id,
                 b.account_id,
-                CONCAT(a.first_name, ' ', a.last_name) as customer_name,
+                -- Use live name if account exists, otherwise backup name
+                CASE 
+                    WHEN b.account_id IS NOT NULL THEN CONCAT(a.first_name, ' ', a.last_name) 
+                    ELSE b.customer_name 
+                END as customer_name,
                 a.email,
                 b.booking_date,
                 b.travel_date,
@@ -66,7 +70,7 @@ return new class extends Migration
                 bus.bus_number,
                 (SELECT COUNT(*) FROM tickets t WHERE t.booking_id = b.id) as seat_count
             FROM bookings b
-            JOIN accounts a ON b.account_id = a.id
+            LEFT JOIN accounts a ON b.account_id = a.id
             JOIN schedules s ON b.schedule_id = s.id
             JOIN routes r ON s.route_id = r.id
             JOIN destinations d ON r.destination_code = d.code

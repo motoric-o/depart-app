@@ -12,7 +12,28 @@ return new class extends Migration
      */
     public function up()
     {
-        // This file is now emptied as procedures are moved to separate files.
+        DB::unprepared("
+            CREATE OR REPLACE FUNCTION backup_deleted_account_name() RETURNS TRIGGER AS $$
+            BEGIN
+                -- Update Bookings
+                UPDATE bookings 
+                SET customer_name = OLD.first_name || ' ' || OLD.last_name
+                WHERE account_id = OLD.id;
+
+                -- Update Transactions
+                UPDATE transactions 
+                SET customer_name = OLD.first_name || ' ' || OLD.last_name
+                WHERE account_id = OLD.id;
+
+                RETURN OLD;
+            END;
+            $$ LANGUAGE plpgsql;
+
+            CREATE TRIGGER trg_backup_account_name 
+            BEFORE DELETE ON accounts 
+            FOR EACH ROW 
+            EXECUTE FUNCTION backup_deleted_account_name();
+        ");
     }
 
     /**
@@ -20,6 +41,9 @@ return new class extends Migration
      */
     public function down()
     {
-        // Nothing to reverse
+        DB::unprepared("
+            DROP TRIGGER IF EXISTS trg_backup_account_name ON accounts;
+            DROP FUNCTION IF EXISTS backup_deleted_account_name();
+        ");
     }
 };

@@ -15,7 +15,7 @@
                     
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Description</label>
-                        <input type="text" name="description" value="{{ old('description') }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="text" name="description" value="{{ old('description') }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
                         @error('description')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -23,7 +23,7 @@
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Amount (Rp)</label>
-                        <input type="number" name="amount" value="{{ old('amount') }}" required min="0" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="number" name="amount" value="{{ old('amount') }}" required min="0" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
                         @error('amount')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -31,7 +31,7 @@
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Type</label>
-                        <select name="type" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select name="type" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
                             <option value="reimbursement" {{ old('type') == 'reimbursement' ? 'selected' : '' }}>Reimbursement</option>
                             <option value="operational" {{ old('type') == 'operational' ? 'selected' : '' }}>Operational</option>
                             <option value="maintenance" {{ old('type') == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
@@ -45,7 +45,7 @@
 
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700">Date</label>
-                        <input type="date" name="date" value="{{ old('date', date('Y-m-d')) }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="date" name="date" value="{{ old('date', date('Y-m-d')) }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
                         @error('date')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror

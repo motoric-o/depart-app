@@ -483,6 +483,29 @@ class AdminController extends Controller
         return redirect()->route('admin.routes')->with('success', 'Route deleted successfully.');
     }
 
+    // --- BOOKINGS MANAGEMENT ---
+
+    public function bookings(Request $request)
+    {
+        return view('management.bookings.index');
+    }
+
+    public function deleteBooking($id)
+    {
+        $booking = \App\Models\Booking::findOrFail($id);
+        
+        \Illuminate\Support\Facades\DB::transaction(function () use ($booking) {
+             \App\Models\Ticket::where('booking_id', $booking->id)->delete();
+             \App\Models\Transaction::where('booking_id', $booking->id)->delete();
+             $booking->delete();
+        });
+
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Booking deleted successfully.']);
+        }
+        return redirect()->route('admin.bookings')->with('success', 'Booking deleted successfully.');
+    }
+
     // --- SCHEDULES MANAGEMENT ---
 
     public function schedules(Request $request)

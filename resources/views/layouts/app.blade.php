@@ -17,9 +17,7 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- AlpineJS -->
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
 </head>
 <body class="font-sans antialiased bg-gray-100 text-gray-900">
     <div class="min-h-screen flex flex-col">
@@ -167,7 +165,28 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: "{{ session('success') }}",
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: "{{ session('error') }}",
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            @endif
+
             const toggleBtn = document.getElementById('chatbot-toggle');
+
             const closeBtn = document.getElementById('chatbot-close');
             const widgetWindow = document.getElementById('chatbot-window');
             const form = document.getElementById('chatbot-form');
