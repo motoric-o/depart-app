@@ -32,4 +32,14 @@ class Transaction extends Model
     {
         return $this->belongsTo(Ticket::class);
     }
+
+    public function paymentIssueProofs()
+    {
+        return $this->hasMany(PaymentIssueProof::class);
+    }
+
+    public function expense()
+    {
+        return $this->hasOne(Expense::class);
+    }
 }

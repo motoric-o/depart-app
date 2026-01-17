@@ -21,6 +21,9 @@ return new class extends Migration
             $table->date('date');
             $table->string('account_id')->nullable(); // Who recorded it
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('set null');
+            $table->string('proof_file')->nullable();
+            $table->string('transaction_id')->nullable();
+            $table->foreign('transaction_id')->references('id')->on('transactions')->onDelete('set null');
             $table->timestamps();
         });
 

@@ -103,6 +103,7 @@ class DriverController extends Controller
     public function expenses()
     {
         $expenses = Expense::where('account_id', Auth::id())
+            ->with('transaction.paymentIssueProofs')
             ->where('type', 'reimbursement')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
@@ -116,7 +117,13 @@ class DriverController extends Controller
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0',
             'date' => 'required|date',
+            'proof_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
+
+        $path = null;
+        if ($request->hasFile('proof_file')) {
+            $path = $request->file('proof_file')->store('expenses', 'public');
+        }
 
         Expense::create([
             'account_id' => Auth::id(),
@@ -125,6 +132,7 @@ class DriverController extends Controller
             'type' => 'reimbursement',
             'status' => 'Pending',
             'date' => $request->date,
+            'proof_file' => $path,
         ]);
 
         return redirect()->route('driver.expenses')->with('success', 'Reimbursement request submitted.');
@@ -210,16 +218,74 @@ class DriverController extends Controller
         return back()->with('success', 'Payment confirmed. Transaction finished.');
     }
 
-    public function reportExpenseIssue($id)
+    public function reportExpenseIssue(Request $request, $id)
     {
-        $expense = Expense::where('account_id', Auth::id())->findOrFail($id);
+        $expense = Expense::with('transaction')->where('account_id', Auth::id())->where('id', $id)->first();
+        
+        if (!$expense) {
+            $exists = Expense::find($id);
+            if ($exists) {
+                return back()->with('error', "Error: Unauthorized. Expense belongs to {$exists->account_id}, you are " . Auth::id());
+            }
+            return back()->with('error', "Error: Expense ID {$id} not found in database.");
+        }
         
         if (!in_array($expense->status, ['Paid', 'Pending Confirmation'])) {
             return back()->with('error', 'Cannot report issue for this expense.');
         }
 
+        $request->validate([
+             'message' => 'required|string|max:1000',
+             'proof_file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048'
+        ]);
+
+        $path = null;
+        if ($request->hasFile('proof_file')) {
+            $path = $request->file('proof_file')->store('payment_issues', 'public');
+        }
+
+        // Update Expense
         $expense->update(['status' => 'Payment Issue']);
+
+        // Ensure Transaction exists
+        if (!$expense->transaction) {
+            $transaction = \App\Models\Transaction::create([
+                'account_id' => $expense->account_id,
+                'booking_id' => null,
+                'ticket_id' => null,
+                'transaction_date' => now(),
+                'payment_method' => 'Transfer', // Default for reimbursement
+                'sub_total' => $expense->amount,
+                'total_amount' => $expense->amount,
+                'type' => 'Expense',
+                'status' => 'Payment Issue',
+            ]);
+            
+            // Trigger generates ID, so we must fetch it manually
+            $transaction = \App\Models\Transaction::where('account_id', $expense->account_id)
+                ->where('type', 'Expense')
+                ->where('status', 'Payment Issue')
+                ->where('sub_total', $expense->amount)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            $expense->transaction_id = $transaction->id;
+            $expense->save();
+            $expense->load('transaction');
+        } else {
+             $expense->transaction->update(['status' => 'Payment Issue']);
+        }
+
+        // Create Proof Record
+        if ($expense->transaction) {
+            \App\Models\PaymentIssueProof::create([
+                'transaction_id' => $expense->transaction->id,
+                'file_path' => $path,
+                'message' => $request->message,
+                'sender_type' => 'driver'
+            ]);
+        }
         
-        return back()->with('success', 'Issue reported to admin.');
+        return back()->with('success', 'Issue reported to admin with proof.');
     }
 }

@@ -74,13 +74,28 @@ export default function usersManager(config) {
                         if (failed.length === 0) {
                             this.items = this.items.filter(item => !this.selectedItems.includes(item.id));
                             this.selectedItems = [];
-                            Swal.fire('Deleted!', 'Selected users have been deleted.', 'success');
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: 'Selected users have been deleted.',
+                                icon: 'success',
+                                confirmButtonColor: '#2563EB'
+                            });
                         } else {
-                            Swal.fire('Error!', `${failed.length} items failed to delete.`, 'error');
+                            Swal.fire({
+                                title: 'Error!',
+                                text: `${failed.length} items failed to delete.`,
+                                icon: 'error',
+                                confirmButtonColor: '#2563EB'
+                            });
                         }
                     }).catch(err => {
                         console.error(err);
-                        Swal.fire('Error!', 'An error occurred during bulk deletion.', 'error');
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred during bulk deletion.',
+                            icon: 'error',
+                            confirmButtonColor: '#2563EB'
+                        });
                     });
                 }
             })
@@ -98,14 +113,29 @@ export default function usersManager(config) {
                 .then(data => {
                     if (data.success) {
                         this.items = this.items.filter(item => item.id !== ids[0]);
-                        Swal.fire('Deleted!', data.message, 'success');
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonColor: '#2563EB'
+                        });
                     } else {
-                        Swal.fire('Error!', 'Failed to delete item.', 'error');
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to delete item.',
+                            icon: 'error',
+                            confirmButtonColor: '#2563EB'
+                        });
                     }
                 })
                 .catch(err => {
                     console.error(err);
-                    Swal.fire('Error!', 'An error occurred.', 'error');
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred.',
+                        icon: 'error',
+                        confirmButtonColor: '#2563EB'
+                    });
                 });
         },
 

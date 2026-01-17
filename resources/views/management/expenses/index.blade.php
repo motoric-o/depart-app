@@ -74,11 +74,25 @@
                                         </button>
                                     </div>
                                     
+                                    <!-- Payment Issue Actions -->
+                                    <div x-show="selectionCommonStatus === 'Payment Issue'">
+                                        <button type="button" 
+                                                @click="bulkAction('verify', 'Pending Confirmation')"
+                                                class="block px-4 py-2 text-sm w-full text-left text-green-700 hover:bg-green-50">
+                                            Resolve (Re-process)
+                                        </button>
+                                        <button type="button" 
+                                                @click="bulkAction('verify', 'Rejected')"
+                                                class="block px-4 py-2 text-sm w-full text-left text-red-700 hover:bg-red-50">
+                                            Reject
+                                        </button>
+                                    </div>
+                                    
                                     <!-- Fallback / Empty State -->
-                                    <div x-show="!['Pending', 'In Process'].includes(selectionCommonStatus)" class="px-4 py-2 text-sm text-gray-400 italic">
+                                    <div x-show="!['Pending', 'In Process', 'Payment Issue'].includes(selectionCommonStatus)" class="px-4 py-2 text-sm text-gray-400 italic">
                                         <span x-show="selectedItems.length === 0">No items selected</span>
                                         <span x-show="selectedItems.length > 0 && selectionCommonStatus === 'mixed'">Mixed status selection</span>
-                                        <span x-show="selectedItems.length > 0 && selectionCommonStatus !== 'mixed' && !['Pending', 'In Process'].includes(selectionCommonStatus)">No actions available</span>
+                                        <span x-show="selectedItems.length > 0 && selectionCommonStatus !== 'mixed' && !['Pending', 'In Process', 'Payment Issue'].includes(selectionCommonStatus)">No actions available</span>
                                     </div>
                                     @endcan
                                 </div>
@@ -185,6 +199,7 @@
                                         <span x-show="filters.sort_by === 'status'" class="ml-1" x-text="filters.sort_order === 'asc' ? '↑' : '↓'"></span>
                                     </div>
                                 </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proof</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -212,15 +227,154 @@
                                             x-text="expense.status">
                                         </span>
                                     </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <!-- Check for Payment Issue Proof first -->
+                                        <template x-if="expense.transaction && (expense.transaction.payment_issue_proofs || expense.transaction.paymentIssueProofs) && (expense.transaction.payment_issue_proofs || expense.transaction.paymentIssueProofs).length > 0">
+                                            <div>
+                                                <button type="button" 
+                                                        @click="openIssueModal(expense)"
+                                                        class="text-red-600 hover:text-red-900 hover:underline font-bold text-left">
+                                                    Review Issue
+                                                </button>
+                                                <template x-if="expense.proof_file">
+                                                     <div class="mt-1">
+                                                        <button type="button" @click="openReceiptModal(expense)" class="text-xs text-gray-500 hover:text-gray-700 hover:underline">Original Receipt</button>
+                                                     </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                        
+                                        <!-- Fallback to standard proof if no issue proof -->
+                                        <template x-if="!expense.transaction || !(expense.transaction.payment_issue_proofs || expense.transaction.paymentIssueProofs) || (expense.transaction.payment_issue_proofs || expense.transaction.paymentIssueProofs).length === 0">
+                                            <div>
+                                                <template x-if="expense.proof_file">
+                                                    <button type="button" @click="openReceiptModal(expense)" class="text-blue-600 hover:text-blue-900 hover:underline">View Receipt</button>
+                                                </template>
+                                                <template x-if="!expense.proof_file">
+                                                    <span class="text-gray-400">-</span>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </td>
                                 </tr>
                             </template>
                              <tr x-show="items.length === 0 && !loading">
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">No expenses found.</td>
+                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">No expenses found.</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                
+
+                        <!-- Review Issue Modal -->
+                        <div x-show="issueModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                <div x-show="issueModalOpen" x-transition.opacity class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" aria-hidden="true" @click="closeIssueModal()"></div>
+                                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                                
+                                <div x-show="issueModalOpen" x-transition.scale class="relative z-10 inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full">
+                                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                        <div class="sm:flex sm:items-start">
+                                            <div class="mt-3 sm:mt-0 sm:ml-0 sm:text-left w-full">
+                                                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                                    Review Payment Issue
+                                                </h3>
+                                                <div class="mt-4" x-show="activeIssue">
+                                                    <p class="text-sm text-gray-500 font-bold">Driver Message:</p>
+                                                    <p class="text-sm text-gray-700 mb-4 bg-gray-50 p-2 rounded" x-text="activeIssue.message || 'No message provided'"></p>
+                                                    
+                                                    <p class="text-sm text-gray-500 font-bold mb-2">Proof File:</p>
+                                                    <template x-if="activeIssue.file_path">
+                                                        <div class="w-full">
+                                                            <template x-if="isPdf(activeIssue.file_path)">
+                                                                <iframe :src="'/storage/' + activeIssue.file_path" class="w-full h-[80vh] rounded border" frameborder="0"></iframe>
+                                                            </template>
+                                                            <template x-if="!isPdf(activeIssue.file_path)">
+                                                                <img :src="'/storage/' + activeIssue.file_path" class="w-full h-auto rounded border" alt="Issue Proof">
+                                                            </template>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="!activeIssue.file_path">
+                                                        <p class="text-gray-400 italic">No file uploaded</p>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                        <button type="button" 
+                                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm"
+                                                @click="verifyExpense(activeExpense.id, 'Pending Confirmation'); closeIssueModal()">
+                                            Resolve (Re-process)
+                                        </button>
+                                        <button type="button" 
+                                                class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                                @click="verifyExpense(activeExpense.id, 'Rejected'); closeIssueModal()">
+                                            Reject
+                                        </button>
+                                        
+                                        <a x-show="activeIssue && activeIssue.file_path" 
+                                           :href="'/storage/' + activeIssue.file_path" 
+                                           target="_blank"
+                                           class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-blue-50 text-base font-medium text-blue-700 hover:bg-blue-100 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                            Open in New Tab
+                                        </a>
+
+                                        <button type="button" 
+                                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                                @click="closeIssueModal()">
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Original Receipt Modal -->
+                        <div x-show="receiptModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="receipt-modal-title" role="dialog" aria-modal="true">
+                            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                <div x-show="receiptModalOpen" x-transition.opacity class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" aria-hidden="true" @click="closeReceiptModal()"></div>
+                                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                                
+                                <div x-show="receiptModalOpen" x-transition.scale class="relative z-10 inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full">
+                                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                        <div class="sm:flex sm:items-start">
+                                            <div class="mt-3 sm:mt-0 sm:ml-0 sm:text-left w-full">
+                                                <h3 class="text-lg leading-6 font-medium text-gray-900" id="receipt-modal-title">
+                                                    Original Receipt
+                                                </h3>
+                                                <div class="mt-4" x-show="activeExpense">
+                                                    <template x-if="activeExpense.proof_file">
+                                                        <div class="w-full">
+                                                            <template x-if="isPdf(activeExpense.proof_file)">
+                                                                <iframe :src="'/storage/' + activeExpense.proof_file" class="w-full h-[80vh] rounded border" frameborder="0"></iframe>
+                                                            </template>
+                                                            <template x-if="!isPdf(activeExpense.proof_file)">
+                                                                <img :src="'/storage/' + activeExpense.proof_file" class="w-full h-auto rounded border" alt="Receipt">
+                                                            </template>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                        <a x-show="activeExpense && activeExpense.proof_file" 
+                                            :href="'/storage/' + activeExpense.proof_file" 
+                                            target="_blank"
+                                            class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-blue-50 text-base font-medium text-blue-700 hover:bg-blue-100 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                                             Open in New Tab
+                                         </a>
+                                         
+                                        <button type="button" 
+                                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                                @click="closeReceiptModal()">
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                 <!-- Pagination -->
                 <div class="mt-4 flex justify-between items-center" x-show="pagination.total > 0">
                     <div class="text-sm text-gray-700">

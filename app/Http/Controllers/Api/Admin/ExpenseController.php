@@ -14,7 +14,7 @@ class ExpenseController extends Controller
 
     public function index(Request $request)
     {
-        $query = Expense::with('account.accountType');
+        $query = Expense::with(['account.accountType', 'transaction.paymentIssueProofs']);
 
         // RBAC Filter
         if (Gate::allows('view-financial-reports') || Gate::allows('approve-expense')) {

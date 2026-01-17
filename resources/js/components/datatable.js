@@ -46,6 +46,14 @@ export default function datatable(config) {
             }
         },
 
+        toggleSelect(id) {
+            if (this.selectedItems.includes(id)) {
+                this.selectedItems = this.selectedItems.filter(item => item !== id);
+            } else {
+                this.selectedItems.push(id);
+            }
+        },
+
         async fetchData(page = 1) {
             this.loading = true;
             this.pagination.current_page = page;

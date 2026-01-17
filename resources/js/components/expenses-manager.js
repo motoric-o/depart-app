@@ -5,6 +5,41 @@ export default function expensesManager(config) {
     return {
         ...datatable(config),
 
+        issueModalOpen: false,
+        activeIssue: null,
+        activeExpense: null,
+
+        openIssueModal(expense) {
+            if (!expense.transaction || !expense.transaction.payment_issue_proofs || expense.transaction.payment_issue_proofs.length === 0) {
+                // Fallback if casing is different or empty (should be handled by button visibility, but safety first)
+                const proofs = expense.transaction?.paymentIssueProofs || [];
+                if (proofs.length === 0) return;
+                this.activeIssue = proofs[proofs.length - 1];
+            } else {
+                this.activeIssue = expense.transaction.payment_issue_proofs[expense.transaction.payment_issue_proofs.length - 1];
+            }
+            this.activeExpense = expense;
+            this.issueModalOpen = true;
+        },
+
+        closeIssueModal() {
+            this.issueModalOpen = false;
+            this.activeIssue = null;
+            this.activeExpense = null;
+        },
+
+        receiptModalOpen: false,
+
+        openReceiptModal(expense) {
+            this.activeExpense = expense;
+            this.receiptModalOpen = true;
+        },
+
+        closeReceiptModal() {
+            this.receiptModalOpen = false;
+            this.activeExpense = null;
+        },
+
         formatMoney(amount) {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
         },
@@ -12,6 +47,10 @@ export default function expensesManager(config) {
         formatDate(dateString) {
             const options = { day: '2-digit', month: 'short', year: 'numeric' };
             return new Date(dateString).toLocaleDateString('en-GB', options);
+        },
+
+        isPdf(filePath) {
+            return filePath && filePath.toLowerCase().endsWith('.pdf');
         },
 
         typeClass(type) {
@@ -62,14 +101,24 @@ export default function expensesManager(config) {
                 // Let's being strict: Only 'Pending' items can be Approved.
                 invalidCount = selectedExpenses.filter(e => e.status !== 'Pending').length;
                 if (invalidCount > 0) {
-                    Swal.fire('Invalid Selection', `You can only approve expenses that are 'Pending'. ${invalidCount} selected items are invalid.`, 'warning');
+                    Swal.fire({
+                        title: 'Invalid Selection',
+                        text: `You can only approve expenses that are 'Pending'. ${invalidCount} selected items are invalid.`,
+                        icon: 'warning',
+                        confirmButtonColor: '#2563EB'
+                    });
                     return;
                 }
             } else if (status === 'Pending Confirmation') {
-                // Pay (Pending Confirmation) only if 'In Process' (Approved)
-                invalidCount = selectedExpenses.filter(e => e.status !== 'In Process').length;
+                // Pay (Pending Confirmation) only if 'In Process' (Approved) OR resolving 'Payment Issue'
+                invalidCount = selectedExpenses.filter(e => e.status !== 'In Process' && e.status !== 'Payment Issue').length;
                 if (invalidCount > 0) {
-                    Swal.fire('Invalid Selection', `You can only pay expenses that are 'In Process' (Approved). ${invalidCount} selected items are invalid.`, 'warning');
+                    Swal.fire({
+                        title: 'Invalid Selection',
+                        text: `You can only pay expenses that are 'In Process' (Approved) or resolve 'Payment Issue'. ${invalidCount} selected items are invalid.`,
+                        icon: 'warning',
+                        confirmButtonColor: '#2563EB'
+                    });
                     return;
                 }
             }
@@ -105,13 +154,78 @@ export default function expensesManager(config) {
                         // We could count failures if we want strict checking.
                         this.fetchData(this.pagination.current_page);
                         this.selectedItems = [];
-                        Swal.fire('Success!', 'Selected expenses have been updated.', 'success');
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Selected expenses have been updated.',
+                            icon: 'success',
+                            confirmButtonColor: '#2563EB'
+                        });
                     }).catch(err => {
                         console.error(err);
-                        Swal.fire('Error!', 'An error occurred during bulk update.', 'error');
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred during bulk update.',
+                            icon: 'error',
+                            confirmButtonColor: '#2563EB'
+                        });
                     });
                 }
             })
+        },
+
+        verifyExpense(id, status) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Update status to ${status}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#2563EB',
+                cancelButtonColor: '#4B5563',
+                confirmButtonText: 'Yes, update it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/api/admin/expenses/${id}/verify`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').getAttribute('content')
+                        },
+                        body: JSON.stringify({ status: status })
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error('Network response was not ok');
+                            return res.json();
+                        })
+                        .then(data => {
+                            if (data.id) {
+                                this.fetchData(this.pagination.current_page);
+                                Swal.fire({
+                                    title: 'Updated!',
+                                    text: 'Expense status updated successfully.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#2563EB'
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: 'Failed to update status.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#2563EB'
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'An error occurred.',
+                                icon: 'error',
+                                confirmButtonColor: '#2563EB'
+                            });
+                        });
+                }
+            });
         }
     };
 }

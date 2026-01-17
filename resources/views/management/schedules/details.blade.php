@@ -78,7 +78,7 @@
                                                 :class="detail.attendance_status === 'Present' ? 'text-gray-500 hover:text-gray-700' : 'text-blue-600 hover:text-blue-900'"
                                                 x-text="detail.attendance_status === 'Present' ? 'Undo Check-in' : 'Check In'">
                                             </button>
-                                            <button @click="openEditModal(detail)" class="text-indigo-600 hover:text-indigo-900">Edit</button>
+                                            <button @click="openEditModal(detail)" class="text-blue-600 hover:text-blue-900">Edit</button>
                                         </td>
                                     </tr>
                                 </template>

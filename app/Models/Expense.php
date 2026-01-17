@@ -19,6 +19,8 @@ class Expense extends Model
         'status',
         'date',
         'account_id',
+        'proof_file',
+        'transaction_id'
     ];
 
     protected $casts = [
@@ -29,5 +31,10 @@ class Expense extends Model
     public function account()
     {
         return $this->belongsTo(Account::class);
+    }
+
+    public function transaction()
+    {
+        return $this->belongsTo(Transaction::class);
     }
 }

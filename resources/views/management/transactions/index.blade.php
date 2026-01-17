@@ -15,15 +15,48 @@
                             status: '{{ request('status') }}'
                         }
                     }),
+                    showProofModal: false,
+                    selectedProofs: [],
+                    selectedTransactionId: null,
                     formatDate(dateString) {
                          const options = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false };
                          return new Date(dateString).toLocaleDateString('en-US', options);
                     },
                     formatPrice(price) {
                         return 'Rp ' + new Intl.NumberFormat('id-ID').format(price);
+                    },
+                    viewProofs(transaction) {
+                        this.selectedProofs = transaction.payment_issue_proofs || [];
+                        this.selectedTransactionId = transaction.id;
+                        this.showProofModal = true;
                     }
                  }"
             >
+                <div class="mb-4">
+                    <a href="{{ route('admin.financial.reports') }}" class="text-gray-600 hover:text-gray-900">&larr; Back to Reports</a>
+                </div>
+
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Transactions</h2>
+                    </div>
+                
+                    <!-- Toolbar -->
+                    <div class="w-full" x-data="{ showFilters: false, openExport: false }">
+                        <!-- ... (Keep toolbar existing code implicitly or explicitly if replace covers it. I am replacing from line 7, effectively re-writing x-data. I should check if I need to copy Toolbar content.) -->
+                        <!-- Actually, replace_file_content replaces the RANGE only. -->
+                        <!-- The previous content for toolbar is HUGE. I better not replace the whole block if I can avoid it. -->
+                        <!-- But x-data defines the scope. I need to modify x-data which is at the top div. -->
+                        <!-- I will target the top div x-data definition specifically. -->
+                    </div>
+                    <!-- ... -->
+                </div>
+                <!-- ... -->
+                <!-- I'll use multi-replace to target x-data AND the table row AND add the modal at the end. -->
+                <!-- Wait, I cannot use comments in replacement content for instructions. -->
+                <!-- I will use multi_replace. -->
+            </div>
+
                 <div class="mb-4">
                     <a href="{{ route('admin.financial.reports') }}" class="text-gray-600 hover:text-gray-900">&larr; Back to Reports</a>
                 </div>
@@ -154,14 +187,16 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900" x-text="formatPrice(transaction.total_amount)"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full cursor-pointer"
                                               :class="{
                                                   'bg-green-100 text-green-800': transaction.status === 'Success',
-                                                  'bg-yellow-100 text-yellow-800': transaction.status === 'Pending',
-                                                  'bg-red-100 text-red-800': transaction.status === 'Failed'
+                                                  'bg-yellow-100 text-yellow-800': transaction.status === 'Pending' || transaction.status === 'Pending Confirmation',
+                                                  'bg-red-100 text-red-800': transaction.status === 'Failed' || transaction.status === 'Payment Issue'
                                               }"
+                                              @click="transaction.status === 'Payment Issue' ? viewProofs(transaction) : null"
                                               x-text="transaction.status">
                                         </span>
+                                        <span x-show="transaction.status === 'Payment Issue'" class="ml-2 text-xs text-blue-600 hover:underline cursor-pointer" @click="viewProofs(transaction)">(View Proof)</span>
                                     </td>
                                 </tr>
                             </template>
@@ -209,6 +244,50 @@
                             Next
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Proof Modal -->
+    <div x-show="showProofModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="showProofModal" @click="showProofModal = false" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div x-show="showProofModal" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Payment Issue Proofs</h3>
+                            <div class="mt-4">
+                                <template x-if="selectedProofs.length === 0">
+                                    <p class="text-sm text-gray-500">No proofs found.</p>
+                                </template>
+                                <template x-for="proof in selectedProofs" :key="proof.id">
+                                    <div class="mb-4 border-b border-gray-200 pb-4">
+                                        <p class="text-sm font-medium text-gray-800 mb-1" x-text="proof.sender_type === 'driver' ? 'Driver Message:' : 'Admin Message:'"></p>
+                                        <p class="text-sm text-gray-600 italic mb-2" x-text='proof.message'></p>
+                                        <template x-if="proof.file_path">
+                                            <a :href="'/storage/' + proof.file_path" target="_blank" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                View File
+                                            </a>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <form :action="'/admin/transactions/' + selectedTransactionId + '/resolve'" method="POST" class="w-full sm:w-auto sm:ml-3">
+                        @csrf
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm">
+                            Resolve Payment
+                        </button>
+                    </form>
+                    <button type="button" @click="showProofModal = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Close
+                    </button>
                 </div>
             </div>
         </div>

@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('account_id')->nullable();
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('set null');
             $table->string('customer_name')->nullable()->after('account_id');
-            $table->string('booking_id');
-            $table->foreign('booking_id')->references('id')->on('bookings');
+            $table->string('booking_id')->nullable();
+            $table->foreign('booking_id')->references('id')->on('bookings')->onDelete('set null');
             $table->string('ticket_id')->nullable();
             $table->foreign('ticket_id')->references('id')->on('tickets')->onUpdate('cascade')->onDelete('set null');
             $table->dateTime('transaction_date');

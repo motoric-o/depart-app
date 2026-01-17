@@ -709,7 +709,7 @@ class AdminController extends Controller
 
     public function transactions(Request $request)
     {
-        $query = \App\Models\Transaction::with(['account', 'booking']);
+        $query = \App\Models\Transaction::with(['account', 'booking', 'paymentIssueProofs']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -783,5 +783,16 @@ class AdminController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+    public function resolveTransactionIssue($id)
+    {
+        $transaction = \App\Models\Transaction::with('expense')->findOrFail($id);
+        
+        $transaction->update(['status' => 'Pending Confirmation']);
+        if ($transaction->expense) {
+            $transaction->expense->update(['status' => 'Pending Confirmation']);
+        }
+        
+        return back()->with('success', 'Payment issue resolved. Status reset to Pending Confirmation.');
     }
 }

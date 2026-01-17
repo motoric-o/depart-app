@@ -95,7 +95,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/expenses', [App\Http\Controllers\Web\DriverController::class, 'expenses'])->name('expenses');
         Route::post('/expenses', [App\Http\Controllers\Web\DriverController::class, 'storeExpense'])->name('expenses.store');
         Route::post('/expenses/{id}/confirm', [App\Http\Controllers\Web\DriverController::class, 'confirmExpense'])->name('expenses.confirm');
-        Route::post('/expenses/{id}/issue', [App\Http\Controllers\Web\DriverController::class, 'reportExpenseIssue'])->name('expenses.issue');
+        Route::post('/expenses/{id}/issue', function (Illuminate\Http\Request $request, $id) {
+             \Illuminate\Support\Facades\Log::info("Hit issue route for ID: $id");
+             return app(App\Http\Controllers\Web\DriverController::class)->reportExpenseIssue($request, $id);
+        })->name('expenses.issue');
         
         Route::get('/earnings', [App\Http\Controllers\Web\DriverController::class, 'earnings'])->name('earnings');
     });
@@ -151,6 +154,7 @@ Route::middleware('auth')->group(function () {
 
         // Transactions
         Route::get('/transactions', [AdminController::class, 'transactions'])->name('transactions');
+        Route::post('/transactions/{id}/resolve', [AdminController::class, 'resolveTransactionIssue'])->name('transactions.resolve');
         Route::get('/transactions/export', [AdminController::class, 'exportTransactions'])->name('transactions.export');
 
         // Financial Reports
