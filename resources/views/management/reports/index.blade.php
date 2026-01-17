@@ -27,40 +27,72 @@
         </div>
         
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold">Financial Overview</h2>
-            <div class="relative no-print" id="export-menu-container">
-                <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">
-                    Print Report
-                </button>
-            </div>
+            <h2 class="text-2xl font-bold">Financial Report</h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+        <!-- Main Financials -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <!-- Total Revenue Card -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-green-500">
                 <div class="text-gray-500 text-sm font-medium uppercase">Total Revenue</div>
-                <div class="mt-2 text-3xl font-bold text-green-600">
+                <div class="mt-2 text-3xl font-bold text-gray-900">
                     Rp {{ number_format($totalRevenue, 0, ',', '.') }}
                 </div>
-                <div class="text-sm text-gray-500 mt-1">Confirmed transactions</div>
-            </div>
-
-            <!-- Total Expenses Card -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <div class="text-gray-500 text-sm font-medium uppercase">Total Expenses</div>
-                <div class="mt-2 text-3xl font-bold text-red-600">
-                    Rp {{ number_format($totalExpenses, 0, ',', '.') }}
-                </div>
-                <div class="text-sm text-gray-500 mt-1">Approved/In Process</div>
+                <div class="text-sm text-gray-500 mt-1">All time earnings</div>
             </div>
 
             <!-- Net Profit Card -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-blue-500">
                 <div class="text-gray-500 text-sm font-medium uppercase">Net Profit</div>
                 <div class="mt-2 text-3xl font-bold {{ $netProfit >= 0 ? 'text-blue-600' : 'text-red-600' }}">
                     Rp {{ number_format($netProfit, 0, ',', '.') }}
                 </div>
                 <div class="text-sm text-gray-500 mt-1">Revenue - Expenses</div>
+            </div>
+
+            <!-- Total Expenses Card -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-red-500">
+                <div class="text-gray-500 text-sm font-medium uppercase">Total Expenses</div>
+                <div class="mt-2 text-3xl font-bold text-red-600">
+                    Rp {{ number_format($totalExpenses, 0, ',', '.') }}
+                </div>
+                <div class="text-sm text-gray-500 mt-1">Approved & In Process</div>
+            </div>
+        </div>
+
+        <!-- Period Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Monthly Revenue Card -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-gray-500 text-sm font-medium uppercase">Monthly Revenue</div>
+                        <div class="mt-1 text-2xl font-bold text-gray-800">
+                            Rp {{ number_format($monthlyRevenue ?? 0, 0, ',', '.') }}
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">{{ now()->format('F Y') }}</div>
+                    </div>
+                    <div class="p-3 bg-blue-50 rounded-full">
+                        <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Revenue Card -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-gray-500 text-sm font-medium uppercase">Today's Revenue</div>
+                        <div class="mt-1 text-2xl font-bold text-gray-800">
+                            Rp {{ number_format($dailyRevenue ?? 0, 0, ',', '.') }}
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">{{ now()->format('M d, Y') }}</div>
+                    </div>
+                    <div class="p-3 bg-green-50 rounded-full">
+                        <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -70,9 +102,7 @@
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-bold mb-4">Top Performing Routes</h3>
                     <div class="overflow-x-auto">
-                        @if($topRoutes->isEmpty())
-                            <p class="text-gray-500 text-sm">No route data available.</p>
-                        @else
+                        @if(isset($topRoutes) && $topRoutes->isNotEmpty())
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
@@ -94,6 +124,8 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        @else
+                            <p class="text-gray-500 text-sm italic">No route data available.</p>
                         @endif
                     </div>
                 </div>
@@ -102,12 +134,18 @@
             <!-- Recent Transactions -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
                 <div class="p-6 text-gray-900">
-                    <h3 class="text-lg font-bold mb-4">Recent Transactions</h3>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold">Recent Transactions</h3>
+                        <a href="{{ route('admin.transactions') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                            View Full Transactions &rarr;
+                        </a>
+                    </div>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer/Account</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                                 </tr>
@@ -116,12 +154,15 @@
                                 @forelse($recentTransactions as $transaction)
                                 <tr>
                                     <td class="px-4 py-3 text-sm text-gray-500">#{{ $transaction->id }}</td>
+                                    <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                                        {{ $transaction->account->first_name ?? 'Guest' }}
+                                    </td>
                                     <td class="px-4 py-3 text-sm text-gray-500">{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('M d') }}</td>
                                     <td class="px-4 py-3 text-sm font-medium text-gray-900">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="3" class="px-4 py-3 text-sm text-gray-500 text-center">No transactions found.</td>
+                                    <td colspan="4" class="px-4 py-3 text-sm text-gray-500 text-center">No transactions found.</td>
                                 </tr>
                                 @endforelse
                             </tbody>

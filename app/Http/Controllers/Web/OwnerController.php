@@ -42,15 +42,23 @@ class OwnerController extends Controller
         $monthlyRevenue = \App\Models\Transaction::where('status', 'Success')->whereMonth('transaction_date', now()->month)->whereYear('transaction_date', now()->year)->sum('total_amount');
         
         // Get Daily Breakdown for current month via SP
-        $dailyBreakdown = \Illuminate\Support\Facades\DB::select("SELECT * FROM sp_get_monthly_revenue(?, ?)", [now()->year, now()->month]);
+        $dailyBreakdown = \Illuminate\Support\Facades\DB::select("SELECT * FROM sp_get_monthly_revenue(?, ?)", [now()->year, now()->month]); // This variable might be unused in new view but keeping for compatibility if we add charts later
         
+        // New Additions for Unified View
+        $totalExpenses = \App\Models\Expense::whereNotIn('status', ['Rejected', 'Canceled'])->sum('amount');
+        $netProfit = $totalRevenue - $totalExpenses;
+        
+        $topRoutes = \App\Models\RouteStat::orderByDesc('total_revenue')
+            ->take(5)
+            ->get();
+
         $recentTransactions = \App\Models\Transaction::with(['account', 'booking'])
             ->where('status', 'Success')
             ->orderBy('transaction_date', 'desc')
             ->take(10)
             ->get();
 
-        return view('owner.reports.index', compact('totalRevenue', 'dailyRevenue', 'monthlyRevenue', 'recentTransactions', 'dailyBreakdown'));
+        return view('management.reports.index', compact('totalRevenue', 'dailyRevenue', 'monthlyRevenue', 'recentTransactions', 'dailyBreakdown', 'totalExpenses', 'netProfit', 'topRoutes'));
     }
 
     public function exportCsv()

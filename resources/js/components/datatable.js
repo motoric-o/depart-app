@@ -34,24 +34,16 @@ export default function datatable(config) {
             });
         },
 
+        checkAllSelected() {
+            return this.items.length > 0 && this.selectedItems.length === this.items.length;
+        },
+
         toggleSelectAll() {
-            if (this.allSelected) {
+            if (this.checkAllSelected()) {
                 this.selectedItems = [];
             } else {
                 this.selectedItems = this.items.map(item => item.id);
             }
-        },
-
-        toggleSelect(id) {
-            if (this.selectedItems.includes(id)) {
-                this.selectedItems = this.selectedItems.filter(item => item !== id);
-            } else {
-                this.selectedItems.push(id);
-            }
-        },
-
-        get allSelected() {
-            return this.items.length > 0 && this.selectedItems.length === this.items.length;
         },
 
         async fetchData(page = 1) {
@@ -105,7 +97,7 @@ export default function datatable(config) {
             this.fetchData(1);
         },
 
-        get pages() {
+        getPages() {
             const range = 2; // Number of pages to show around current page
             let pages = [];
             let start = Math.max(1, this.pagination.current_page - range);

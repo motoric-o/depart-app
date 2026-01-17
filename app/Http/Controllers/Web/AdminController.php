@@ -678,28 +678,12 @@ class AdminController extends Controller
     {
         // 1. Total Revenue (Success transactions)
         $totalRevenue = \App\Models\Transaction::where('status', 'Success')->sum('total_amount');
+        
+        // 1b. Periodic Revenue
+        $dailyRevenue = \App\Models\Transaction::where('status', 'Success')->whereDate('transaction_date', today())->sum('total_amount');
+        $monthlyRevenue = \App\Models\Transaction::where('status', 'Success')->whereMonth('transaction_date', now()->month)->whereYear('transaction_date', now()->year)->sum('total_amount');
 
         // 2. Total Expenses (Approved/Reimbursed/Completed expenses)
-        // Adjust status check based on business logic. "Approved", "Reimbursed" seems final.
-        // Assuming 'Approved' is the final state for Owner-created and 'Reimbursed'/'Operational' might map to a status?
-        // Let's check Expense model or Controller for valid statuses.
-        // In OwnerController: 'Approved'. In AdminController: 'In Process' -> 'Verified' maybe?
-        // AdminController::verifyExpense uses: 'In Process,Pending Confirmation,Rejected,Canceled'.
-        // Wait, 'Approved' is used in OwnerController.
-        // Let's assume 'Approved' and 'In Process' (if money is out) count? Or just Approved?
-        // For NET PROFIT, we should probably only count finalized expenses.
-        // Let's use 'Approved' and check if there are other "paid" statuses.
-        // AdminController doesn't seem to set "Approved", it sets "In Process" initially?
-        // Let's check verifyExpense again.
-        // $request->validate(['status' => 'required|in:In Process,Pending Confirmation,Rejected,Canceled']);
-        // It seems Admin doesn't have "Approved"?
-        // OwnerController::storeExpense sets 'Approved'.
-        // So for Admin view, we should probably include 'Approved' (from Owner) and maybe 'In Process' (from Admin)?
-        // Or is there a different flow?
-        // Let's stick safe: All expenses that are NOT Rejected or Canceled are effectively "Liabilities".
-        // But for "Net Profit", usually actual spent money.
-        // For now, I will exclude 'Rejected' and 'Canceled'.
-        
         $totalExpenses = \App\Models\Expense::whereNotIn('status', ['Rejected', 'Canceled'])->sum('amount');
 
         // 3. Net Profit
@@ -718,6 +702,86 @@ class AdminController extends Controller
             ->take(10)
             ->get();
 
-        return view('admin.reports.index', compact('totalRevenue', 'totalExpenses', 'netProfit', 'topRoutes', 'recentTransactions'));
+        return view('management.reports.index', compact('totalRevenue', 'totalExpenses', 'netProfit', 'topRoutes', 'recentTransactions', 'dailyRevenue', 'monthlyRevenue'));
+    }
+
+    // --- TRANSACTIONS MANAGEMENT ---
+
+    public function transactions(Request $request)
+    {
+        $query = \App\Models\Transaction::with(['account', 'booking']);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                  ->orWhereHas('account', function($sq) use ($search) {
+                      $sq->where('first_name', 'like', "%{$search}%")
+                         ->orWhere('last_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->filled('date')) {
+            $query->whereDate('transaction_date', $request->date);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Sorting
+        $sort_by = $request->get('sort_by', 'transaction_date');
+        $sort_order = $request->get('sort_order', 'desc');
+        // Allow sorting by these columns
+        $allowed_sorts = ['id', 'transaction_date', 'total_amount', 'status'];
+        
+        if (in_array($sort_by, $allowed_sorts)) {
+            $query->orderBy($sort_by, $sort_order);
+        } else {
+             $query->orderBy('transaction_date', 'desc');
+        }
+
+        $per_page = $request->get('per_page', 10);
+        $transactions = $query->paginate($per_page)->withQueryString();
+
+        if ($request->wantsJson()) {
+            return response()->json($transactions);
+        }
+
+        return view('management.transactions.index', compact('transactions'));
+    }
+
+    public function exportTransactions()
+    {
+        // Export logic (similar to OwnerController)
+        $transactions = \App\Models\Transaction::with('account')->where('status', 'Success')->get();
+
+        $csvFileName = 'transactions-' . date('Y-m-d') . '.csv';
+        $headers = [
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=$csvFileName",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        ];
+
+        $callback = function() use ($transactions) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['Transaction ID', 'Customer Name', 'Date', 'Amount', 'Status']);
+
+            foreach ($transactions as $transaction) {
+                fputcsv($file, [
+                    $transaction->id,
+                    ($transaction->account->first_name ?? 'Guest') . ' ' . ($transaction->account->last_name ?? ''),
+                    $transaction->transaction_date,
+                    $transaction->total_amount,
+                    $transaction->status
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

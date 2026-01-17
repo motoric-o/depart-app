@@ -187,7 +187,7 @@
                                     <input type="checkbox" 
                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                            @change="toggleSelectAll()"
-                                           :checked="allSelected">
+                                           :checked="checkAllSelected()">
                                 </th>
                                 <th @click="sortBy('bus_number')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer group hover:bg-gray-100">
                                     <div class="flex items-center">
@@ -255,7 +255,7 @@
                             Previous
                         </button>
 
-                        <template x-for="page in pages">
+                        <template x-for="page in getPages()">
                             <button 
                                 @click="page !== '...' ? fetchData(page) : null" 
                                 :class="{

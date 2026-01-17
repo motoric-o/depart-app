@@ -6,7 +6,7 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">Add New Customer</h2>
+                    <h2 class="text-2xl font-bold">Add New User</h2>
                     <a href="{{ route('admin.users') }}" class="text-gray-600 hover:text-gray-900">Back to List</a>
                 </div>
 
