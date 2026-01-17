@@ -60,5 +60,6 @@ Route::middleware(['web', 'auth', 'role:Owner,Super Admin,Financial Admin,Schedu
     Route::post('/admin/expenses', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'store']);
     Route::put('/admin/expenses/{id}', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'update']);
     Route::put('/admin/expenses/{id}/verify', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'verify']);
+    Route::put('/admin/expenses/{id}/confirm', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'confirm']);
     Route::delete('/admin/expenses/{id}', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'destroy']);
 });

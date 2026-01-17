@@ -21,9 +21,6 @@ class ExpenseController extends Controller
             // Can see all (Owner, Admin, FinAdmin)
         } else {
             // Can only see own (Driver, Ops Admin maybe?)
-            // If Ops Admin manages others, maybe they see all? 
-            // Let's assume Ops Admin creates expenses mostly, but Financial Admin approves.
-            // Safe bet: Only Approvers see all. Others see own.
             $query->where('account_id', Auth::id());
         }
 
@@ -31,20 +28,19 @@ class ExpenseController extends Controller
         $searchable = [
             'description' => 'like',
             'type' => 'like',
-            // 'status' => 'exact' // If we want to support status filter via 'search', but strict filter is better:
         ];
         
-        // Manual Status filter (ApiSearchable can handle this if we map it, but let's keep explicit for now or merge)
+        // Manual Status filter
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-        if ($request->filled('type')) { // ApiSearchable might not capture exact match well if 'like' is used, duplicate safe.
+        if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
 
-        $sortable = ['date', 'amount', 'description', 'status', 'created_at'];
+        $sortable = ['date', 'amount', 'description', 'status', 'created_at', 'type'];
 
-        $expenses = $this->applyApiParams($query, $request, $searchable, $sortable, ['field' => 'date', 'order' => 'desc']);
+        $expenses = $this->applyApiParams($query, $request, $searchable, $sortable, ['field' => 'created_at', 'order' => 'desc']);
 
         return response()->json($expenses);
     }
@@ -58,10 +54,27 @@ class ExpenseController extends Controller
             'amount' => 'required|numeric|min:0',
             'type' => 'required|string|in:reimbursement,operational,maintenance,salary,other',
             'date' => 'required|date',
+            'proof_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048'
         ]);
 
-        // Auto-approve if user can approve expenses
-        $status = Gate::allows('approve-expense') ? 'Approved' : 'Pending';
+        // Auto-approve if user can approve expenses (Wait, typically Admins verify requests, even from other admins. Let's keep it Pending unless specified otherwise)
+        // For now, let's stick to Pending for everyone to enable the flow.
+        // Or if Ops Admin creates it, it's 'Pending'.
+        $status = 'Pending';
+        if (Gate::allows('approve-expense') && $request->type !== 'operational') {
+            // If it's a simple expense by an admin, maybe auto-approved?
+            // But if it's an 'operational' request flow, it typically needs approval.
+            // Let's force Pending for 'operational' to ensure flow.
+             $status = 'Approved';
+        }
+        if ($request->type === 'operational') {
+            $status = 'Pending';
+        }
+
+        $path = null;
+        if ($request->hasFile('proof_file')) {
+             $path = $request->file('proof_file')->store('expenses', 'public');
+        }
 
         $expense = Expense::create([
             'description' => $request->description,
@@ -70,6 +83,7 @@ class ExpenseController extends Controller
             'status' => $status,
             'date' => $request->date,
             'account_id' => Auth::id(),
+            'proof_file' => $path
         ]);
 
         return response()->json($expense, 201);
@@ -79,9 +93,6 @@ class ExpenseController extends Controller
     {
         $expense = Expense::findOrFail($id);
         
-        // Only owner/creator can edit? Or Approver?
-        // Usually, if Pending, Creator can edit. If Approved, Locked?
-        // Let's allow Approvers to edit details too.
         if ($expense->account_id !== Auth::id() && !Gate::allows('approve-expense')) {
              return response()->json(['message' => 'Unauthorized'], 403);
         }
@@ -95,9 +106,28 @@ class ExpenseController extends Controller
         Gate::authorize('approve-expense');
         
         $expense = Expense::findOrFail($id);
-        $request->validate(['status' => 'required|in:Approved,In Process,Pending Confirmation,Paid,Payment Issue,Rejected,Processed,Canceled,Failed']);
+        // Added 'Confirmed' to valid statuses
+        $request->validate(['status' => 'required|in:Approved,In Process,Pending Confirmation,Paid,Payment Issue,Rejected,Processed,Canceled,Failed,Confirmed']);
         
         $expense->update(['status' => $request->status]);
+        
+        return response()->json($expense);
+    }
+
+    public function confirm($id)
+    {
+        $expense = Expense::findOrFail($id);
+        
+        // Only the creator can confirm receipt
+        if ($expense->account_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized. Only the creator can confirm receipt.'], 403);
+        }
+
+        if ($expense->status !== 'Paid') {
+             return response()->json(['message' => 'Expense must be Paid before confirmation.'], 400);
+        }
+
+        $expense->update(['status' => 'Confirmed']);
         
         return response()->json($expense);
     }

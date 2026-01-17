@@ -121,7 +121,7 @@ class OwnerController extends Controller
             $query->where('status', $request->status);
         }
 
-        $expenses = $query->orderBy('date', 'desc')->paginate(10)->withQueryString();
+        $expenses = $query->orderBy('created_at', 'desc')->orderBy('date', 'desc')->paginate(10)->withQueryString();
 
         return view('owner.expenses.index', compact('expenses'));
     }

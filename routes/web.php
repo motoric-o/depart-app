@@ -148,6 +148,7 @@ Route::middleware('auth')->group(function () {
 
         // Expenses
         Route::get('/expenses', [AdminController::class, 'expenses'])->name('expenses');
+        Route::get('/request-funds', [AdminController::class, 'requestFunds'])->name('expenses.requests');
         Route::get('/expenses/create', [AdminController::class, 'createExpense'])->name('expenses.create');
         Route::post('/expenses', [AdminController::class, 'storeExpense'])->name('expenses.store');
         Route::post('/expenses/{id}/verify', [AdminController::class, 'verifyExpense'])->name('expenses.verify');

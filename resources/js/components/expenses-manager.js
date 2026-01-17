@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 export default function expensesManager(config) {
     return {
         ...datatable(config),
+        current_user_id: config.current_user_id,
 
         issueModalOpen: false,
         activeIssue: null,
@@ -220,6 +221,51 @@ export default function expensesManager(config) {
                             Swal.fire({
                                 title: 'Error!',
                                 text: 'An error occurred.',
+                                icon: 'error',
+                                confirmButtonColor: '#2563EB'
+                            });
+                        });
+                }
+            });
+        },
+
+        confirmExpense(id) {
+            Swal.fire({
+                title: 'Confirm Receipt?',
+                text: "Have you received the funds for this request?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10B981', // Green
+                cancelButtonColor: '#4B5563',
+                confirmButtonText: 'Yes, I received it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/api/admin/expenses/${id}/confirm`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').getAttribute('content')
+                        }
+                    })
+                        .then(res => {
+                            if (!res.ok) return res.json().then(err => { throw new Error(err.message || 'Error confirming'); });
+                            return res.json();
+                        })
+                        .then(data => {
+                            this.fetchData(this.pagination.current_page);
+                            Swal.fire({
+                                title: 'Confirmed!',
+                                text: 'Receipt confirmed successfully.',
+                                icon: 'success',
+                                confirmButtonColor: '#10B981'
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: error.message || 'An error occurred.',
                                 icon: 'error',
                                 confirmButtonColor: '#2563EB'
                             });

@@ -106,6 +106,7 @@ class DriverController extends Controller
             ->with('transaction.paymentIssueProofs')
             ->where('type', 'reimbursement')
             ->orderBy('created_at', 'desc')
+            ->orderBy('date', 'desc')
             ->paginate(10);
             
         return view('driver.expenses.index', compact('expenses'));

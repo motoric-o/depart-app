@@ -51,6 +51,11 @@
                         <div class="text-3xl font-bold">Expenses</div>
                         <div class="text-sm opacity-80 mt-2">Manage expense requests.</div>
                     </a>
+                    @elsecan('create-expense')
+                    <a href="{{ route('admin.expenses.requests') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
+                        <div class="text-3xl font-bold">Request Funds</div>
+                        <div class="text-sm opacity-80 mt-2">Submit and track funding requests.</div>
+                    </a>
                     @endcan
                 </div>
                 </div>

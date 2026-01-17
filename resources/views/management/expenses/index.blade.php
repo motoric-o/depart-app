@@ -7,7 +7,8 @@
             <div class="p-6 text-gray-900" 
                  x-data="expensesManager({ 
                     url: '/api/admin/expenses',
-                    sort_by: '{{ request('sort_by', 'date') }}',
+                    current_user_id: {{ json_encode(Auth::id()) }},
+                    sort_by: '{{ request('sort_by', 'created_at') }}',
                     sort_order: '{{ request('sort_order', 'desc') }}',
                     filters: {
                         type: '{{ request('type') }}',
@@ -247,11 +248,20 @@
                                         <!-- Fallback to standard proof if no issue proof -->
                                         <template x-if="!expense.transaction || !(expense.transaction.payment_issue_proofs || expense.transaction.paymentIssueProofs) || (expense.transaction.payment_issue_proofs || expense.transaction.paymentIssueProofs).length === 0">
                                             <div>
+                                                <!-- Confirm Receipt Button -->
+                                                <template x-if="expense.status === 'Paid' && expense.account_id == current_user_id">
+                                                    <button type="button" 
+                                                            @click="confirmExpense(expense.id)"
+                                                            class="text-green-600 hover:text-green-900 hover:underline font-bold block mb-1">
+                                                        Confirm Receipt
+                                                    </button>
+                                                </template>
+
                                                 <template x-if="expense.proof_file">
                                                     <button type="button" @click="openReceiptModal(expense)" class="text-blue-600 hover:text-blue-900 hover:underline">View Receipt</button>
                                                 </template>
                                                 <template x-if="!expense.proof_file">
-                                                    <span class="text-gray-400">-</span>
+                                                    <span class="text-gray-400" x-show="!(expense.status === 'Paid' && expense.account_id == current_user_id)">-</span>
                                                 </template>
                                             </div>
                                         </template>

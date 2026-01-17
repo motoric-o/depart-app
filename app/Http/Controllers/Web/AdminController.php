@@ -255,6 +255,16 @@ class AdminController extends Controller
         return view('management.expenses.index', compact('expenses', 'canApprove'));
     }
 
+    public function requestFunds()
+    {
+        $expenses = \App\Models\Expense::where('account_id', \Illuminate\Support\Facades\Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->orderBy('date', 'desc')
+            ->paginate(10);
+            
+        return view('admin.expenses.requests', compact('expenses'));
+    }
+
     public function createExpense()
     {
         return view('management.expenses.create'); 
@@ -264,23 +274,47 @@ class AdminController extends Controller
 
     public function storeExpense(Request $request)
     {
+        // ... (existing store logic, maybe needs tweak?)
+        // Wait, storeExpense in AdminController manually creates expense with 'In Process'.
+        // But for Op Admin requests, it should be 'Pending' probably? 
+        // Or if I reuse this store, it becomes 'In Process' immediately.
+        // User said: "send request -> financial admin approves (In Process)".
+        // So initial status should be PENDING.
+        
         $request->validate([
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0',
             'type' => 'required|string|in:reimbursement,operational,maintenance,salary,other',
             'date' => 'required|date',
+            'proof_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048'
         ]);
+        
+        // Handle File Upload
+        $path = null;
+        if ($request->hasFile('proof_file')) {
+             $path = $request->file('proof_file')->store('expenses', 'public');
+        }
+
+        // Logic check: If generic Admin creates expense, maybe In Process is fine?
+        // But if Op Admin requests, it should be Pending.
+        // Let's check permissions.
+        $status = 'Pending';
+        if (\Illuminate\Support\Facades\Gate::allows('approve-expense') && $request->type !== 'operational') {
+             $status = 'In Process'; // Auto-approve for Approvers (Fin Admin/Owner)
+        }
 
         \App\Models\Expense::create([
             'description' => $request->description,
             'amount' => $request->amount,
             'type' => $request->type,
-            'status' => 'In Process', // Admin created expenses are auto-approved to In Process
+            'status' => $status,
             'date' => $request->date,
             'account_id' => Auth::id(),
+            'proof_file' => $path
         ]);
-
-        return redirect()->route('admin.expenses')->with('success', 'Expense created successfully.');
+        
+        // Redirect back (works for both Management View and Request View as they submit here)
+        return back()->with('success', 'Request submitted successfully.');
     }
 
     public function verifyExpense(Request $request, $id)
