@@ -29,6 +29,11 @@ class Account extends Authenticatable
         return $this->belongsTo(AccountType::class);
     }
 
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class, 'user_id');
+    }
+
     protected static function booted()
     {
         static::deleting(function ($account) {

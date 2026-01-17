@@ -55,7 +55,8 @@ Route::middleware('auth')->group(function () {
              return redirect()->route('profile.edit'); 
         }
         
-        return view('customer.dashboard');
+        $destinations = Destination::orderBy('city_name', 'asc')->get();
+        return view('home', compact('destinations'));
         }
     })->name('dashboard');
 
@@ -66,6 +67,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/booking/{booking_id}/complete', [\App\Http\Controllers\Web\BookingController::class, 'completePayment'])->name('booking.complete');
     Route::get('/booking/{booking_id}/ticket', [\App\Http\Controllers\Web\BookingController::class, 'ticket'])->name('booking.ticket');
     Route::get('/booking/history', [\App\Http\Controllers\Web\BookingController::class, 'history'])->name('booking.history');
+
+    // Bookmarks
+    Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'index'])->name('bookmarks.index');
+    Route::post('/bookmarks/toggle', [\App\Http\Controllers\BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
 
     // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {

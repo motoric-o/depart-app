@@ -44,4 +44,14 @@ class Booking extends Model
     {
         return $this->hasOne(Transaction::class)->latestOfMany('created_at');
     }
+    public function bookmarks()
+    {
+        return $this->morphMany(Bookmark::class, 'bookmarkable');
+    }
+
+    public function isBookmarkedBy($user)
+    {
+        if (!$user) return false;
+        return $this->bookmarks()->where('user_id', $user->id)->exists();
+    }
 }

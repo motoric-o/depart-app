@@ -58,6 +58,15 @@
                                             {{ $booking->schedule->remarks }}
                                         </span>
                                     @endif
+                                    
+                                    <!-- Bookmark Button -->
+                                    <button onclick="toggleHistoryBookmark(this, '{{ $booking->id }}', '{{ addslashes('App\Models\Booking') }}')" 
+                                            class="p-1 px-2 rounded-lg border border-gray-200 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors {{ $booking->isBookmarkedBy(Auth::user()) ? 'text-red-500' : '' }}" 
+                                            title="Simpan ke dalam bookmark">
+                                        <svg class="w-5 h-5" fill="{{ $booking->isBookmarkedBy(Auth::user()) ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
 
@@ -116,3 +125,40 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    async function toggleHistoryBookmark(button, id, type) {
+        const svg = button.querySelector('svg');
+        const isBookmarked = button.classList.contains('text-red-500');
+        
+        // Optimistic UI
+        button.classList.toggle('text-red-500');
+        svg.setAttribute('fill', isBookmarked ? 'none' : 'currentColor');
+
+        try {
+            const res = await fetch('{{ route("bookmarks.toggle") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    bookmarkable_id: id,
+                    bookmarkable_type: type
+                })
+            });
+
+            if (!res.ok) throw new Error('Failed to toggle bookmark');
+            
+        } catch (e) {
+            console.error(e);
+            // Revert on failure
+            button.classList.toggle('text-red-500');
+            svg.setAttribute('fill', isBookmarked ? 'currentColor' : 'none');
+            alert('Gagal mengubah bookmark.');
+        }
+    }
+</script>
+@endpush

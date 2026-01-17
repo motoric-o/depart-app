@@ -215,6 +215,13 @@
                                         </div>
                                     </div>
 
+                                    {{-- Bookmark Button --}}
+                                    <button @click="toggleBookmark(schedule)" class="absolute top-4 right-4 md:static md:top-auto md:right-auto text-gray-400 hover:text-red-500 transition-colors focus:outline-none" :class="{'text-red-500': schedule.is_bookmarked}">
+                                        <svg class="w-6 h-6" :fill="schedule.is_bookmarked ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                                        </svg>
+                                    </button>
+
                                     {{-- Facilities (Static for now) --}}
                                     <div class="hidden lg:flex gap-2">
                                         <div class="group relative">
@@ -335,6 +342,35 @@
                 if(!dateStr) return 'Semua';
                 const date = new Date(dateStr);
                 return date.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            },
+
+            async toggleBookmark(schedule) {
+                // Optimistic UI Update
+                schedule.is_bookmarked = !schedule.is_bookmarked;
+
+                try {
+                    const res = await fetch('{{ route("bookmarks.toggle") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            bookmarkable_id: schedule.id,
+                            bookmarkable_type: 'App\\Models\\Schedule'
+                        })
+                    });
+
+                    if (!res.ok) throw new Error('Failed to toggle bookmark');
+                    
+                    // Optional: Show toast notification
+                } catch (e) {
+                    console.error(e);
+                    // Revert UI if failed
+                    schedule.is_bookmarked = !schedule.is_bookmarked;
+                    alert('Gagal mengubah status bookmark. Silakan coba lagi.');
+                }
             }
         }
     }

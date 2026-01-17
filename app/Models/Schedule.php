@@ -71,8 +71,14 @@ class Schedule extends Model
         return $this->hasMany(Booking::class);
     }
 
-    public function scheduleDetails()
+    public function bookmarks()
     {
-        return $this->hasMany(ScheduleDetail::class);
+        return $this->morphMany(Bookmark::class, 'bookmarkable');
+    }
+
+    public function isBookmarkedBy($user)
+    {
+        if (!$user) return false;
+        return $this->bookmarks()->where('user_id', $user->id)->exists();
     }
 }

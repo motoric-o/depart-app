@@ -83,7 +83,8 @@ class ScheduleController extends Controller
                 'route' => [
                     'source' => $s->route->sourceDestination->city_name ?? $s->route->source,
                     'destination' => $s->route->destination->city_name ?? $s->route->destination_code,
-                ]
+                ],
+                'is_bookmarked' => $s->isBookmarkedBy(auth()->user())
             ];
         });
 
