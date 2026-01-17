@@ -6,8 +6,8 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">Add New Schedule</h2>
-                    <a href="{{ route('admin.schedules') }}" class="text-gray-600 hover:text-gray-900">Back to List</a>
+                    <h2 class="text-2xl font-bold">Tambah Jadwal Baru</h2>
+                    <a href="{{ route('admin.schedules') }}" class="text-gray-600 hover:text-gray-900">Kembali ke Daftar</a>
                 </div>
 
                 @if ($errors->any())
@@ -25,12 +25,12 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="route_id" class="block text-sm font-medium text-gray-700">Route</label>
+                            <label for="route_id" class="block text-sm font-medium text-gray-700">Rute</label>
                             <select name="route_id" id="route_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
-                                <option value="">Select Route</option>
+                                <option value="">Pilih Rute</option>
                                 @foreach($routes as $route)
                                     <option value="{{ $route->id }}" {{ old('route_id') == $route->id ? 'selected' : '' }}>
-                                        {{ $route->source }} -> {{ $route->destination->city_name }} ({{ $route->estimated_duration }} mins)
+                                        {{ $route->source }} -> {{ $route->destination->city_name }} ({{ $route->estimated_duration }} menit)
                                     </option>
                                 @endforeach
                             </select>
@@ -39,7 +39,7 @@
                         <div>
                             <label for="bus_id" class="block text-sm font-medium text-gray-700">Bus</label>
                             <select name="bus_id" id="bus_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
-                                <option value="">Select Bus</option>
+                                <option value="">Pilih Bus</option>
                                 @foreach($buses as $bus)
                                     <option value="{{ $bus->id }}" {{ old('bus_id') == $bus->id ? 'selected' : '' }}>
                                         {{ $bus->bus_number }} - {{ $bus->bus_type }}
@@ -50,9 +50,9 @@
                     </div>
                     
                     <div>
-                        <label for="driver_id" class="block text-sm font-medium text-gray-700">Driver</label>
+                        <label for="driver_id" class="block text-sm font-medium text-gray-700">Sopir</label>
                         <select name="driver_id" id="driver_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
-                             <option value="">Select Driver</option>
+                             <option value="">Pilih Sopir</option>
                              @foreach($drivers as $driver)
                                  <option value="{{ $driver->id }}" {{ old('driver_id') == $driver->id ? 'selected' : '' }}>
                                      {{ $driver->first_name }} {{ $driver->last_name }}
@@ -63,31 +63,31 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="departure_time" class="block text-sm font-medium text-gray-700">Departure Time</label>
+                            <label for="departure_time" class="block text-sm font-medium text-gray-700">Waktu Keberangkatan</label>
                             <input type="datetime-local" name="departure_time" id="departure_time" value="{{ old('departure_time') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
 
                         <div>
-                            <label for="arrival_time" class="block text-sm font-medium text-gray-700">Arrival Time</label>
+                            <label for="arrival_time" class="block text-sm font-medium text-gray-700">Waktu Kedatangan</label>
                             <input type="datetime-local" name="arrival_time" id="arrival_time" value="{{ old('arrival_time') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="price_per_seat" class="block text-sm font-medium text-gray-700">Price Per Seat (IDR)</label>
+                            <label for="price_per_seat" class="block text-sm font-medium text-gray-700">Harga Per Kursi (IDR)</label>
                             <input type="number" name="price_per_seat" id="price_per_seat" value="{{ old('price_per_seat') }}" required min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
 
                         <div>
-                            <label for="quota" class="block text-sm font-medium text-gray-700">Quota</label>
+                            <label for="quota" class="block text-sm font-medium text-gray-700">Kuota</label>
                             <input type="number" name="quota" id="quota" value="{{ old('quota') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
                     </div>
 
                     <div class="flex justify-end pt-4">
                         <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Create Schedule
+                            Buat Jadwal
                         </button>
                     </div>
                 </form>

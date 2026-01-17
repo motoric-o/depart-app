@@ -6,8 +6,8 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">Add New Bus</h2>
-                    <a href="{{ route('admin.buses') }}" class="text-gray-600 hover:text-gray-900">Back to List</a>
+                    <h2 class="text-2xl font-bold">Tambah Bus Baru</h2>
+                    <a href="{{ route('admin.buses') }}" class="text-gray-600 hover:text-gray-900">Kembali ke Daftar</a>
                 </div>
 
                 @if ($errors->any())
@@ -25,53 +25,53 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="bus_number" class="block text-sm font-medium text-gray-700">Bus Number</label>
-                            <input type="text" name="bus_number" id="bus_number" value="{{ old('bus_number') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="e.g. B-1234-XYZ">
+                            <label for="bus_number" class="block text-sm font-medium text-gray-700">Nomor Bus</label>
+                            <input type="text" name="bus_number" id="bus_number" value="{{ old('bus_number') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="contoh: B-1234-XYZ">
                         </div>
 
                         <div>
-                            <label for="bus_name" class="block text-sm font-medium text-gray-700">Bus Name</label>
-                            <input type="text" name="bus_name" id="bus_name" value="{{ old('bus_name') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="e.g. Sinar Jaya">
+                            <label for="bus_name" class="block text-sm font-medium text-gray-700">Nama Bus</label>
+                            <input type="text" name="bus_name" id="bus_name" value="{{ old('bus_name') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="contoh: Sinar Jaya">
                         </div>
 
                         <div>
-                            <label for="bus_type" class="block text-sm font-medium text-gray-700">Bus Type</label>
-                            <input type="text" name="bus_type" id="bus_type" value="{{ old('bus_type') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="e.g. Executive, Economy">
+                            <label for="bus_type" class="block text-sm font-medium text-gray-700">Tipe Bus</label>
+                            <input type="text" name="bus_type" id="bus_type" value="{{ old('bus_type') }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="contoh: Executive, Economy">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="capacity" class="block text-sm font-medium text-gray-700">Capacity</label>
+                            <label for="capacity" class="block text-sm font-medium text-gray-700">Kapasitas</label>
                             <input type="number" name="capacity" id="capacity" value="{{ old('capacity') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
 
                         <div>
-                            <label for="quota" class="block text-sm font-medium text-gray-700">Quota</label>
+                            <label for="quota" class="block text-sm font-medium text-gray-700">Kuota</label>
                             <input type="number" name="quota" id="quota" value="{{ old('quota') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="seat_rows" class="block text-sm font-medium text-gray-700">Seat Rows</label>
+                            <label for="seat_rows" class="block text-sm font-medium text-gray-700">Jumlah Baris Kursi</label>
                             <input type="number" name="seat_rows" id="seat_rows" value="{{ old('seat_rows') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
 
                         <div>
-                            <label for="seat_columns" class="block text-sm font-medium text-gray-700">Seat Columns</label>
+                            <label for="seat_columns" class="block text-sm font-medium text-gray-700">Jumlah Kolom Kursi</label>
                             <input type="number" name="seat_columns" id="seat_columns" value="{{ old('seat_columns') }}" required min="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
                     </div>
 
                     <div>
-                        <label for="remarks" class="block text-sm font-medium text-gray-700">Remarks</label>
+                        <label for="remarks" class="block text-sm font-medium text-gray-700">Catatan</label>
                         <textarea name="remarks" id="remarks" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">{{ old('remarks') }}</textarea>
                     </div>
 
                     <div class="flex justify-end pt-4">
                         <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Create Bus
+                            Buat Bus
                         </button>
                     </div>
                 </form>

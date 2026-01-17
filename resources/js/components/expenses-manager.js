@@ -79,6 +79,20 @@ export default function expensesManager(config) {
             }
         },
 
+        statusLabel(status) {
+            const labels = {
+                'Pending': 'Menunggu',
+                'In Process': 'Diproses',
+                'Pending Confirmation': 'Menunggu Konfirmasi',
+                'Paid': 'Dibayar',
+                'Payment Issue': 'Masalah Pembayaran',
+                'Rejected': 'Ditolak',
+                'Canceled': 'Dibatalkan',
+                'Failed': 'Gagal'
+            };
+            return labels[status] || status;
+        },
+
         get selectionCommonStatus() {
             if (this.selectedItems.length === 0) return null;
             const selectedExpenses = this.items.filter(item => this.selectedItems.includes(item.id));
@@ -103,8 +117,8 @@ export default function expensesManager(config) {
                 invalidCount = selectedExpenses.filter(e => e.status !== 'Pending').length;
                 if (invalidCount > 0) {
                     Swal.fire({
-                        title: 'Invalid Selection',
-                        text: `You can only approve expenses that are 'Pending'. ${invalidCount} selected items are invalid.`,
+                        title: 'Pilihan Tidak Valid',
+                        text: `Anda hanya dapat menyetujui pengeluaran yang statusnya 'Menunggu'. ${invalidCount} item terpilih tidak valid.`,
                         icon: 'warning',
                         confirmButtonColor: '#2563EB'
                     });
@@ -115,8 +129,8 @@ export default function expensesManager(config) {
                 invalidCount = selectedExpenses.filter(e => e.status !== 'In Process' && e.status !== 'Payment Issue').length;
                 if (invalidCount > 0) {
                     Swal.fire({
-                        title: 'Invalid Selection',
-                        text: `You can only pay expenses that are 'In Process' (Approved) or resolve 'Payment Issue'. ${invalidCount} selected items are invalid.`,
+                        title: 'Pilihan Tidak Valid',
+                        text: `Anda hanya dapat membayar pengeluaran yang 'Diproses' (Disetujui) atau menyelesaikan 'Masalah Pembayaran'. ${invalidCount} item terpilih tidak valid.`,
                         icon: 'warning',
                         confirmButtonColor: '#2563EB'
                     });
@@ -125,16 +139,17 @@ export default function expensesManager(config) {
             }
             // Add other status checks if needed (e.g. Reject allowed from Pending/In Process)
 
-            let actionVerb = status === 'In Process' ? 'Approve' : (status === 'Pending Confirmation' ? 'Pay' : (status === 'Rejected' ? 'Reject' : 'Update'));
+            let actionVerb = status === 'In Process' ? 'Setujui' : (status === 'Pending Confirmation' ? 'Bayar' : (status === 'Rejected' ? 'Tolak' : 'Perbarui'));
 
             Swal.fire({
-                title: 'Are you sure?',
-                text: `You are about to ${actionVerb} ${this.selectedItems.length} expenses.`,
+                title: 'Apakah Anda yakin?',
+                text: `Anda akan me-${actionVerb.toLowerCase()} ${this.selectedItems.length} pengeluaran.`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#2563EB',
                 cancelButtonColor: '#4B5563',
-                confirmButtonText: `Yes, ${actionVerb} them!`
+                confirmButtonText: `Ya, ${actionVerb}!`,
+                cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
                     const promises = this.selectedItems.map(id => {
@@ -156,16 +171,16 @@ export default function expensesManager(config) {
                         this.fetchData(this.pagination.current_page);
                         this.selectedItems = [];
                         Swal.fire({
-                            title: 'Success!',
-                            text: 'Selected expenses have been updated.',
+                            title: 'Berhasil!',
+                            text: 'Pengeluaran terpilih telah diperbarui.',
                             icon: 'success',
                             confirmButtonColor: '#2563EB'
                         });
                     }).catch(err => {
                         console.error(err);
                         Swal.fire({
-                            title: 'Error!',
-                            text: 'An error occurred during bulk update.',
+                            title: 'Gagal!',
+                            text: 'Terjadi kesalahan saat pembaruan massal.',
                             icon: 'error',
                             confirmButtonColor: '#2563EB'
                         });
@@ -176,13 +191,14 @@ export default function expensesManager(config) {
 
         verifyExpense(id, status) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: `Update status to ${status}?`,
+                title: 'Apakah Anda yakin?',
+                text: `Perbarui status ke ${this.statusLabel(status)}?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#2563EB',
                 cancelButtonColor: '#4B5563',
-                confirmButtonText: 'Yes, update it!'
+                confirmButtonText: 'Ya, perbarui!',
+                cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch(`/api/admin/expenses/${id}/verify`, {
@@ -202,15 +218,15 @@ export default function expensesManager(config) {
                             if (data.id) {
                                 this.fetchData(this.pagination.current_page);
                                 Swal.fire({
-                                    title: 'Updated!',
-                                    text: 'Expense status updated successfully.',
+                                    title: 'Diperbarui!',
+                                    text: 'Status pengeluaran berhasil diperbarui.',
                                     icon: 'success',
                                     confirmButtonColor: '#2563EB'
                                 });
                             } else {
                                 Swal.fire({
-                                    title: 'Error!',
-                                    text: 'Failed to update status.',
+                                    title: 'Gagal!',
+                                    text: 'Gagal memperbarui status.',
                                     icon: 'error',
                                     confirmButtonColor: '#2563EB'
                                 });
@@ -219,8 +235,8 @@ export default function expensesManager(config) {
                         .catch(error => {
                             console.error('Error:', error);
                             Swal.fire({
-                                title: 'Error!',
-                                text: 'An error occurred.',
+                                title: 'Gagal!',
+                                text: 'Terjadi kesalahan.',
                                 icon: 'error',
                                 confirmButtonColor: '#2563EB'
                             });
@@ -231,13 +247,14 @@ export default function expensesManager(config) {
 
         confirmExpense(id) {
             Swal.fire({
-                title: 'Confirm Receipt?',
-                text: "Have you received the funds for this request?",
+                title: 'Konfirmasi Penerimaan?',
+                text: "Apakah Anda sudah menerima dana untuk permintaan ini?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#10B981', // Green
                 cancelButtonColor: '#4B5563',
-                confirmButtonText: 'Yes, I received it!'
+                confirmButtonText: 'Ya, saya menerimanya!',
+                cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch(`/api/admin/expenses/${id}/confirm`, {
@@ -255,8 +272,8 @@ export default function expensesManager(config) {
                         .then(data => {
                             this.fetchData(this.pagination.current_page);
                             Swal.fire({
-                                title: 'Confirmed!',
-                                text: 'Receipt confirmed successfully.',
+                                title: 'Dikonfirmasi!',
+                                text: 'Penerimaan berhasil dikonfirmasi.',
                                 icon: 'success',
                                 confirmButtonColor: '#10B981'
                             });
@@ -264,8 +281,8 @@ export default function expensesManager(config) {
                         .catch(error => {
                             console.error('Error:', error);
                             Swal.fire({
-                                title: 'Error!',
-                                text: error.message || 'An error occurred.',
+                                title: 'Gagal!',
+                                text: error.message || 'Terjadi kesalahan.',
                                 icon: 'error',
                                 confirmButtonColor: '#2563EB'
                             });

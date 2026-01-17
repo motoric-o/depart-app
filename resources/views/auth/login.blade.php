@@ -36,7 +36,7 @@
                 <!-- Email Field -->
                 <div>
                     <label for="email" class="block text-gray-700 text-sm font-medium mb-2">
-                        Email Address
+                        Alamat Email
                     </label>
                     <input 
                         type="email" 

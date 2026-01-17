@@ -31,13 +31,14 @@ export default function usersManager(config) {
 
         deleteItem(id, url) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: 'You won\'t be able to revert this!',
+                title: 'Apakah Anda yakin?',
+                text: 'Anda tidak akan dapat mengembalikannya!',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#2563EB', // blue-600 to match theme
                 cancelButtonColor: '#4B5563',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
                     this.performDelete([id], url);
@@ -49,13 +50,14 @@ export default function usersManager(config) {
             if (this.selectedItems.length === 0) return;
 
             Swal.fire({
-                title: 'Are you sure?',
-                text: `You are about to delete ${this.selectedItems.length} users. This cannot be undone!`,
+                title: 'Apakah Anda yakin?',
+                text: `Anda akan menghapus ${this.selectedItems.length} pengguna. Tindakan ini tidak dapat dibatalkan!`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#2563EB',
                 cancelButtonColor: '#4B5563',
-                confirmButtonText: 'Yes, delete them!'
+                confirmButtonText: 'Ya, hapus mereka!',
+                cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
                     const promises = this.selectedItems.map(id => {
@@ -75,15 +77,15 @@ export default function usersManager(config) {
                             this.items = this.items.filter(item => !this.selectedItems.includes(item.id));
                             this.selectedItems = [];
                             Swal.fire({
-                                title: 'Deleted!',
-                                text: 'Selected users have been deleted.',
+                                title: 'Terhapus!',
+                                text: 'Pengguna terpilih telah dihapus.',
                                 icon: 'success',
                                 confirmButtonColor: '#2563EB'
                             });
                         } else {
                             Swal.fire({
-                                title: 'Error!',
-                                text: `${failed.length} items failed to delete.`,
+                                title: 'Gagal!',
+                                text: `${failed.length} item gagal dihapus.`,
                                 icon: 'error',
                                 confirmButtonColor: '#2563EB'
                             });
@@ -91,8 +93,8 @@ export default function usersManager(config) {
                     }).catch(err => {
                         console.error(err);
                         Swal.fire({
-                            title: 'Error!',
-                            text: 'An error occurred during bulk deletion.',
+                            title: 'Gagal!',
+                            text: 'Terjadi kesalahan saat penghapusan massal.',
                             icon: 'error',
                             confirmButtonColor: '#2563EB'
                         });
@@ -114,15 +116,15 @@ export default function usersManager(config) {
                     if (data.success) {
                         this.items = this.items.filter(item => item.id !== ids[0]);
                         Swal.fire({
-                            title: 'Deleted!',
+                            title: 'Terhapus!',
                             text: data.message,
                             icon: 'success',
                             confirmButtonColor: '#2563EB'
                         });
                     } else {
                         Swal.fire({
-                            title: 'Error!',
-                            text: 'Failed to delete item.',
+                            title: 'Gagal!',
+                            text: 'Gagal menghapus item.',
                             icon: 'error',
                             confirmButtonColor: '#2563EB'
                         });
@@ -131,8 +133,8 @@ export default function usersManager(config) {
                 .catch(err => {
                     console.error(err);
                     Swal.fire({
-                        title: 'Error!',
-                        text: 'An error occurred.',
+                        title: 'Gagal!',
+                        text: 'Terjadi kesalahan.',
                         icon: 'error',
                         confirmButtonColor: '#2563EB'
                     });
@@ -141,7 +143,7 @@ export default function usersManager(config) {
 
         formatDate(dateString) {
             const options = { month: 'short', day: 'numeric', year: 'numeric' };
-            return new Date(dateString).toLocaleDateString('en-US', options);
+            return new Date(dateString).toLocaleDateString('id-ID', options);
         },
 
         roleClass(roleName) {

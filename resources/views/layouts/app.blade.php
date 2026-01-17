@@ -37,7 +37,7 @@
                             <div id="user-menu-dropdown" class="absolute right-0 top-full pt-1 w-80 z-[100] hidden">
                                 <div class="bg-white rounded-md shadow-lg py-1 border border-gray-100">
                                     <div class="px-4 py-2 border-b border-gray-100">
-                                        <p class="text-xs text-gray-500">Signed in as</p>
+                                        <p class="text-xs text-gray-500">Masuk sebagai</p>
                                         <p class="text-sm font-semibold truncate">{{ Auth::user()->first_name }}</p>
                                     </div>
                                     
@@ -58,7 +58,7 @@
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
                                         <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                            {{ __('Log Out') }}
+                                            {{ __('Keluar') }}
                                         </button>
                                     </form>
                                 </div>
@@ -93,7 +93,7 @@
                         </script>
                     @else
                         <a href="{{ route('login') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 mr-4 transition duration-150 ease-in-out">
-                            Log in
+                            Masuk
                         </a>
                         <a href="{{ route('signup') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                             Daftar
@@ -110,7 +110,7 @@
 
         <footer class="bg-white border-t border-gray-200 mt-auto">
             <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
-                &copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. All rights reserved.
+                &copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. Hak Cipta Dilindungi.
             </div>
         </footer>
     </div>
@@ -133,7 +133,7 @@
                         <svg class="w-5 h-5 text-white" style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
                     <div>
-                        <h3 class="font-bold text-sm" style="font-weight: 700; font-size: 14px;">Travel Assistant</h3>
+                        <h3 class="font-bold text-sm" style="font-weight: 700; font-size: 14px;">Asisten Perjalanan</h3>
                         <p class="text-xs text-blue-100" style="font-size: 12px; color: #DBEAFE;">Online</p>
                     </div>
                 </div>
@@ -158,7 +158,7 @@
             <!-- Input Area -->
             <div class="bg-white border-t border-gray-100" style="padding: 16px; background-color: white; border-top: 1px solid #F3F4F6;">
                 <form id="chatbot-form" class="flex items-center" style="display: flex; align-items: center;">
-                    <input type="text" id="chatbot-input" class="border-gray-300 focus:border-blue-500 focus:ring-blue-500" style="flex: 1; border: 1px solid #D1D5DB; border-radius: 9999px; padding: 8px 16px; font-size: 14px; outline: none;" placeholder="Type a message..." required autocomplete="off">
+                    <input type="text" id="chatbot-input" class="border-gray-300 focus:border-blue-500 focus:ring-blue-500" style="flex: 1; border: 1px solid #D1D5DB; border-radius: 9999px; padding: 8px 16px; font-size: 14px; outline: none;" placeholder="Ketik pesan..." required autocomplete="off">
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white" style="margin-left: 8px; background-color: #2563EB; color: white; border-radius: 9999px; padding: 8px; border: none; cursor: pointer; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); display: flex; align-items: center; justify-content: center;">
                         <svg class="w-5 h-5" style="width: 20px; height: 20px; transform: rotate(90deg);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                     </button>
