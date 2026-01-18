@@ -3,6 +3,7 @@ import datatable from './datatable';
 export default function transactionsManager(config) {
     return {
         ...datatable(config),
+        canEditAny: config.canEditAny || false,
         showProofModal: false,
         selectedProofs: [],
         selectedTransactionId: null,

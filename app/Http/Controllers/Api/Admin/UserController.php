@@ -78,15 +78,17 @@ class UserController extends Controller
             throw ValidationException::withMessages(['account_type_id' => 'You do not have permission to create a user with this role.']);
         }
 
-        DB::statement("CALL sp_create_customer(?, ?, ?, ?, ?, ?, ?)", [
-            $request->first_name,
-            $request->last_name,
-            $request->email,
-            $request->phone,
-            $request->birthdate,
-            Hash::make($request->password),
-            $role->id
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $role) {
+            DB::statement("CALL sp_create_customer(?, ?, ?, ?, ?, ?, ?)", [
+                $request->first_name,
+                $request->last_name,
+                $request->email,
+                $request->phone,
+                $request->birthdate,
+                Hash::make($request->password),
+                $role->id
+            ]);
+        });
 
         return response()->json(['message' => 'User created successfully'], 201);
     }
@@ -123,15 +125,17 @@ class UserController extends Controller
             throw ValidationException::withMessages(['account_type_id' => 'Invalid role selected.']);
         }
 
-        DB::statement("CALL sp_update_customer(?, ?, ?, ?, ?, ?, ?)", [
-            $user->id,
-            $request->first_name,
-            $request->last_name,
-            $request->email,
-            $request->phone,
-            $request->birthdate,
-            $role->id
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($user, $request, $role) {
+            DB::statement("CALL sp_update_customer(?, ?, ?, ?, ?, ?, ?)", [
+                $user->id,
+                $request->first_name,
+                $request->last_name,
+                $request->email,
+                $request->phone,
+                $request->birthdate,
+                $role->id
+            ]);
+        });
 
         if ($request->filled('password')) {
              $request->validate(['password' => 'string|min:8|confirmed']);

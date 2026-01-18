@@ -7,7 +7,7 @@
             <div class="p-6 text-gray-900" 
                  x-data="{ 
                     ...datatable({ 
-                        url: '/api/admin/bookings',
+                        url: '{{ route('admin.bookings') }}',
                         sort_by: '{{ request('sort_by', 'created_at') }}',
                         sort_order: '{{ request('sort_order', 'desc') }}'
                     }),
@@ -21,10 +21,10 @@
                     },
                     statusLabel(status) {
                         const labels = {
-                            'Confirmed': 'Dikonfirmasi',
-                            'Pending': 'Menunggu',
-                            'Pending Payment': 'Menunggu Pembayaran',
-                            'Cancelled': 'Dibatalkan'
+                            'Booked': 'Dipesan',
+                            'Pending': 'Menunggu Pembayaran',
+                            'Cancelled': 'Dibatalkan',
+                            'Expired': 'Kedaluwarsa'
                         };
                         return labels[status] || status;
                     },
@@ -248,9 +248,10 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" 
                                               :class="{
-                                                'bg-green-100 text-green-800': booking.status === 'Confirmed',
-                                                'bg-yellow-100 text-yellow-800': booking.status === 'Pending' || booking.status === 'Pending Payment',
-                                                'bg-red-100 text-red-800': booking.status === 'Cancelled'
+                                                'bg-green-100 text-green-800': booking.status === 'Booked',
+                                                'bg-yellow-100 text-yellow-800': booking.status === 'Pending',
+                                                'bg-red-100 text-red-800': booking.status === 'Cancelled',
+                                                'bg-gray-100 text-gray-800': booking.status === 'Expired'
                                               }" 
                                               x-text="statusLabel(booking.status)">
                                         </span>

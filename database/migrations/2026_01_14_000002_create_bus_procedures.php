@@ -37,7 +37,13 @@ return new class extends Migration
                         remarks = p_remarks, updated_at = NOW()
                     WHERE id = p_id;
                 END IF;
-                COMMIT;
+            END;
+            $$;
+
+            CREATE OR REPLACE PROCEDURE sp_delete_bus(p_id TEXT)
+            LANGUAGE plpgsql AS $$
+            BEGIN
+                DELETE FROM buses WHERE id = p_id;
             END;
             $$;
         ");

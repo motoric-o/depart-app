@@ -40,14 +40,14 @@ class BookingController extends Controller
             
             // Robust Status Check
             $s = trim($b->status);
-            $statusMatch = in_array($s, ['Booked', 'Pending Payment', 'Confirmed', 'Pending']);
+            $statusMatch = in_array($s, [\App\Models\Booking::STATUS_BOOKED, \App\Models\Booking::STATUS_PENDING]);
 
             return $dateMatch && $statusMatch;
         })->pluck('id');
 
         // 3. Fetch Tickets for these bookings
         $occupiedSeats = Ticket::whereIn('booking_id', $validBookingIds)
-                               ->where('status', '!=', 'Cancelled')
+                               ->where('status', '!=', \App\Models\Booking::STATUS_CANCELLED)
                                ->pluck('seat_number')
                                ->map(function($seat) { return trim($seat); })
                                ->toArray();
@@ -79,7 +79,7 @@ class BookingController extends Controller
                 'booking_date' => now(),
                 'travel_date' => $request->travel_date ?? now()->toDateString(),
                 'total_amount' => $schedule->price_per_seat * $totalSeats, 
-                'status' => 'Pending Payment'
+                'status' => Booking::STATUS_PENDING
             ]);
 
             // 1b. Refetch Booking ID
@@ -92,10 +92,6 @@ class BookingController extends Controller
             $groups = [];
             if ($request->has('split_bill')) {
                 foreach ($request->seats as $seat) {
-                    // split_bill is keyed by seat number or index? 
-                    // Let's assume UI sends seat_number -> group_id
-                    // But checking valid seat might be tricky if input name is dynamic.
-                    // Let's assume input name="split_bill[SEAT_NUMBER]" value="GROUP_ID"
                     $groupId = $request->split_bill[$seat] ?? 'main';
                     $groups[$groupId][] = $seat;
                 }
@@ -103,7 +99,6 @@ class BookingController extends Controller
                 $groups['main'] = $request->seats;
             }
              // Fallback if loop missed something (redundancy check)
-             // Actually better:
              foreach ($request->seats as $seat) {
                  $groupId = $request->split_bill[$seat] ?? 'main';
                  if (!isset($groups[$groupId])) {
@@ -134,12 +129,9 @@ class BookingController extends Controller
                 ]);
 
                 // Retrieve the just-created transaction
-                // Since we are inside a transaction, and timestamps might be identical, relies on ID sequence if possible.
-                // Or we can rely on `latest('id')` if IDs are roughly sequential (custom ID might not be).
-                // But generally latest created_at + highest ID is safe bet for same-microsecond inserts.
                 $transaction = \App\Models\Transaction::where('booking_id', $booking->id)
                                 ->orderBy('created_at', 'desc')
-                                ->orderBy('id', 'desc') // Custom ID usually has numeric part
+                                ->orderBy('id', 'desc') 
                                 ->first();
 
                 // Create Tickets
@@ -150,7 +142,7 @@ class BookingController extends Controller
                         'transaction_id' => $transaction->id,
                         'passenger_name' => $passengerName,
                         'seat_number' => $seat,
-                        'status' => 'Booked'
+                        'status' => Booking::STATUS_BOOKED // Or Pending? Traditionally tickets are 'Booked' immediately or 'Valid'? Let's use Booked.
                     ]);
                 }
             }
@@ -176,27 +168,20 @@ class BookingController extends Controller
 
         return view('customer.booking.payment', compact('booking'));
     }
-    public function completePayment($transaction_id)
+    public function completePayment(Request $request, $transaction_id)
     {
         // This is now effectively "completeTransaction"
-        // In routes file, we might need to check if parameters changed.
-        // Assuming route is /booking/payment/{id}/complete or similar.
-        // If route passes booking_id, we need to find transactions.
-        // But for Split Bill, we need to pay specific TRANSACTION.
-        // The View will link to route('payment.complete', ['transaction_id' => $trx->id]) 
-        // We'll assume the route parameter stays same name or we check context.
-        
         $transaction = Transaction::findOrFail($transaction_id);
         
+        // Update Payment Method if provided (from View selection)
+        if ($request->has('payment_method')) {
+            $transaction->update(['payment_method' => $request->payment_method]);
+        }
+
         // 1. Mark Transaction as Success
         $transaction->update(['status' => 'Success']);
         
-        // 2. Mark related tickets as Valid? Or wait for full booking?
-        // Requirement: "Once all of them are paid, the booking status will be set to Booked"
-        // But individual tickets are paid. Should they be valid?
-        // "Booking will be put to 'pending' status... 2 tickets user will pay... other 1 shown as 100k".
-        // It implies partial validity is possible or at least tracked.
-        // Let's mark tickets linked to THIS transaction as Valid.
+        // 2. Mark related tickets as Valid
         if ($transaction->tickets()->exists()) {
              $transaction->tickets()->update(['status' => 'Valid']);
         }
@@ -211,10 +196,9 @@ class BookingController extends Controller
                         ->count();
                         
         if ($pendingCount === 0) {
-            $booking->update(['status' => 'Booked']);
+            $booking->update(['status' => Booking::STATUS_BOOKED]);
             
             // If any tickets were not linked to transaction (legacy), update them? 
-            // New logic links all.
             return view('customer.booking.success', compact('booking'));
         }
 

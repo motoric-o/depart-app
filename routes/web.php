@@ -137,6 +137,7 @@ Route::middleware('auth')->group(function () {
 
         // Bookings CRUD
         Route::get('/bookings', [AdminController::class, 'bookings'])->name('bookings');
+        Route::get('/bookings/check-customer', [AdminController::class, 'checkCustomer'])->name('bookings.check-customer');
         Route::get('/bookings/search-schedules', [AdminController::class, 'getAvailableSchedules'])->name('bookings.search-schedules');
         Route::get('/bookings/create', [AdminController::class, 'createBooking'])->name('bookings.create');
         Route::post('/bookings', [AdminController::class, 'storeBooking'])->name('bookings.store');
@@ -165,10 +166,20 @@ Route::middleware('auth')->group(function () {
 
         // Transactions
         Route::get('/transactions', [AdminController::class, 'transactions'])->name('transactions');
+        Route::get('/transactions/{id}/edit', [AdminController::class, 'editTransaction'])->name('transactions.edit');
+        Route::put('/transactions/{id}', [AdminController::class, 'updateTransaction'])->name('transactions.update');
         Route::post('/transactions/{id}/resolve', [AdminController::class, 'resolveTransactionIssue'])->name('transactions.resolve');
         Route::get('/transactions/export', [AdminController::class, 'exportTransactions'])->name('transactions.export');
 
         // Financial Reports
         Route::get('/financial-reports', [AdminController::class, 'financialReports'])->name('financial.reports');
+
+        // Destinations CRUD
+        Route::get('/destinations', [\App\Http\Controllers\Web\DestinationController::class, 'index'])->name('destinations');
+        Route::get('/destinations/create', [\App\Http\Controllers\Web\DestinationController::class, 'create'])->name('destinations.create');
+        Route::post('/destinations', [\App\Http\Controllers\Web\DestinationController::class, 'store'])->name('destinations.store');
+        Route::get('/destinations/{code}/edit', [\App\Http\Controllers\Web\DestinationController::class, 'edit'])->name('destinations.edit');
+        Route::put('/destinations/{code}', [\App\Http\Controllers\Web\DestinationController::class, 'update'])->name('destinations.update');
+        Route::post('/destinations/{code}/delete', [\App\Http\Controllers\Web\DestinationController::class, 'destroy'])->name('destinations.destroy'); // Using POST for deletion via simple form in index
     });
 });

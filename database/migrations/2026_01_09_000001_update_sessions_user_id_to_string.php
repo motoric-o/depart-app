@@ -22,10 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('sessions', function (Blueprint $table) {
-            // Reverting back to foreignId (unsignedBigInteger) might be tricky if there's string data.
-            // But for correctness of down method:
-             $table->unsignedBigInteger('user_id')->nullable()->change();
-        });
+         // Truncate to avoid casting errors on non-numeric IDs
+         DB::table('sessions')->truncate();
+         // Use raw statement to handle casting
+         DB::statement('ALTER TABLE sessions ALTER COLUMN user_id TYPE bigint USING user_id::bigint');
     }
 };

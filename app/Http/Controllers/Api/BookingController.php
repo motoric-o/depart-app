@@ -37,13 +37,15 @@ class BookingController extends Controller
             // Postgres array syntax for seats: needs to be formatted as {seat1, seat2}
             $seatsArray = '{' . implode(',', $request->seats) . '}';
             
-            $results = DB::select("CALL sp_create_booking_atomic(?, ?, ?, ?::text[], ?, NULL)", [
-                $request->user()->id,
-                $request->schedule_id,
-                $request->travel_date,
-                $seatsArray,
-                $totalPrice
-            ]);
+            $results = DB::transaction(function () use ($request, $seatsArray, $totalPrice) {
+                return DB::select("CALL sp_create_booking_atomic(?, ?, ?, ?::text[], ?, NULL)", [
+                    $request->user()->id,
+                    $request->schedule_id,
+                    $request->travel_date,
+                    $seatsArray,
+                    $totalPrice
+                ]);
+            });
             
             $bookingId = $results[0]->p_booking_id;
             
@@ -111,7 +113,9 @@ class BookingController extends Controller
         }
 
         // 4. Atomic Booking Cancellation via Stored Procedure
-        DB::statement("CALL sp_cancel_booking_atomic(?)", [$booking->id]);
+        DB::transaction(function () use ($booking) {
+            DB::statement("CALL sp_cancel_booking_atomic(?)", [$booking->id]);
+        });
 
         return response()->json(['message' => 'Booking cancelled successfully. Refund processing started.']);
     }

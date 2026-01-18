@@ -134,6 +134,7 @@
                                  <div class="p-4 border-t border-gray-100 bg-gray-50 mt-auto shrink-0">
                                     <form action="{{ route('booking.complete', $transaction->id) }}" method="POST">
                                         @csrf
+                                        <input type="hidden" name="payment_method" id="payment_method-{{ $transaction->id }}" value="Transfer">
                                         <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg shadow-sm transition duration-200 text-sm flex justify-center items-center">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                             Sudah Bayar
@@ -146,56 +147,7 @@
                 </div>
 
             <!-- Right: Booking Summary -->
-            <div class="w-full lg:w-1/3">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-24">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Rincian Booking</h3>
-                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-md uppercase">{{ $booking->status }}</span>
-                    </div>
-                    
-                    <div class="text-sm text-gray-500 mb-6">
-                        Kode Booking: <span class="font-mono font-bold text-gray-900 text-base block mt-1">{{ $booking->id }}</span>
-                    </div>
-
-                    <!-- Route -->
-                    <div class="border-t border-gray-100 py-4">
-                        <div class="flex flex-col gap-2">
-                             <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                                <span class="text-sm font-semibold text-gray-900">
-                                    {{ $booking->schedule->route->sourceDestination->city_name ?? $booking->schedule->route->source }}
-                                </span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
-                                <span class="text-sm font-semibold text-gray-900">
-                                    {{ $booking->schedule->route->destination->city_name ?? $booking->schedule->route->destination_code }}
-                                </span>
-                            </div>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-2">
-                            {{ \Carbon\Carbon::parse($booking->travel_date)->translatedFormat('l, d F Y') }} • {{ \Carbon\Carbon::parse($booking->schedule->departure_time)->format('H:i') }}
-                        </p>
-                    </div>
-
-                    <!-- Passenger -->
-                    <div class="border-t border-gray-100 py-4">
-                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Penumpang</h4>
-                        @foreach($booking->tickets as $ticket)
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-sm text-gray-900">{{ $ticket->passenger_name }}</span>
-                                <span class="text-sm font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">Kursi {{ $ticket->seat_number }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div class="border-t border-gray-100 pt-4 mt-2">
-                        <div class="flex justify-between items-center">
-                            <span class="text-base font-bold text-gray-900">Total Tagihan</span>
-                            <span class="text-xl font-bold text-orange-500">Rp {{ number_format($booking->total_amount, 0, ',', '.') }}</span>
-                        </div>
-                    </div>
-                </div>
+            {{-- ... --}}
             </div>
         </div>
     </div>
@@ -206,14 +158,9 @@
 <script>
     function switchTab(tabId) {
         // tabId e.g. 'va-TRX123' or 'qris-TRX123'
-        // Extract prefix and suffix? Or just toggle based on ID?
-        // Actually we need to toggle between VA and QRIS for the SAME transaction.
-        // Input: 'va-TRX123'
         
-        const parts = tabId.split('-'); // ['va', 'TRX', '123'] (if id has dashes)
-        // Helper: split by first dash
         const type = tabId.substring(0, tabId.indexOf('-')); // 'va' or 'qris'
-        const suffix = tabId.substring(tabId.indexOf('-') + 1); // 'TRX-123'
+        const suffix = tabId.substring(tabId.indexOf('-') + 1); // 'TRX-123' (Transaction ID)
         
         const otherType = (type === 'va') ? 'qris' : 'va';
         const otherTabId = otherType + '-' + suffix;
@@ -233,6 +180,12 @@
         otherBtn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600', 'bg-blue-50');
         otherBtn.classList.add('text-gray-500', 'hover:text-gray-700');
         otherContent.classList.add('hidden');
+
+        // Update Payment Method Input
+        const methodInput = document.getElementById('payment_method-' + suffix);
+        if (methodInput) {
+            methodInput.value = (type === 'va') ? 'Transfer' : 'QRIS';
+        }
     }
 
     function copyToClipboard(text) {

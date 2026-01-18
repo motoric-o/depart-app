@@ -98,5 +98,17 @@ class AppServiceProvider extends ServiceProvider
             // Sched (Manage), Ops (View)
             return $user->accountType && in_array($user->accountType->name, ['Owner', 'Super Admin', 'Operations Admin', 'Scheduling Admin']);
         });
+
+        // Destination Gates
+        \Illuminate\Support\Facades\Gate::define('manage-destinations', function ($user) {
+            $user->loadMissing('accountType');
+            return $user->accountType && in_array($user->accountType->name, ['Owner', 'Super Admin', 'Scheduling Admin']);
+        });
+
+        \Illuminate\Support\Facades\Gate::define('view-destinations', function ($user) {
+            $user->loadMissing('accountType');
+            // Same as routes/schedules + Financial?
+            return $user->accountType && in_array($user->accountType->name, ['Owner', 'Super Admin', 'Scheduling Admin', 'Operations Admin', 'Financial Admin']);
+        });
     }
 }

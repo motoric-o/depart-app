@@ -61,10 +61,10 @@
                                     selected: '{{ $booking->status }}', 
                                     label: '',
                                     options: {
-                                        'Confirmed': 'Confirmed (Dikonfirmasi)',
-                                        'Pending': 'Pending (Menunggu)',
-                                        'Pending Payment': 'Pending Payment (Menunggu Bayar)',
-                                        'Cancelled': 'Cancelled (Dibatalkan)'
+                                        'Booked': 'Booked (Dipesan)',
+                                        'Pending': 'Pending (Menunggu Pembayaran)',
+                                        'Cancelled': 'Cancelled (Dibatalkan)',
+                                        'Expired': 'Expired (Kedaluwarsa)'
                                     },
                                     init() { this.label = this.options[this.selected] || this.selected; }
                                 }" class="relative">
@@ -106,6 +106,7 @@
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Tiket</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kursi</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Penumpang</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status Tiket</th>
@@ -114,6 +115,9 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach ($booking->tickets as $ticket)
                                     <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
+                                            {{ $ticket->id }}
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                             {{ $ticket->seat_number }}
                                         </td>

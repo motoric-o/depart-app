@@ -13,7 +13,8 @@
                         date: '{{ request('date') }}',
                         status: '{{ request('status') }}',
                         search: ''
-                    }
+                    },
+                    canEditAny: {{ in_array(Auth::user()->accountType->name, ['Super Admin', 'Owner']) ? 'true' : 'false' }} 
                  })"
                  x-init="fetchData(1)"
             >
@@ -158,6 +159,9 @@
                                               x-text="transaction.status">
                                         </span>
                                         <span x-show="transaction.status === 'Payment Issue'" class="ml-2 text-xs text-blue-600 hover:underline cursor-pointer" @click="viewProofs(transaction)">(Lihat Bukti)</span>
+                                        <template x-if="transaction.status === 'Pending' || canEditAny">
+                                            <a :href="'/admin/transactions/' + transaction.id + '/edit'" class="ml-2 text-xs text-blue-600 hover:underline cursor-pointer">Edit</a>
+                                        </template>
                                     </td>
                                 </tr>
                             </template>

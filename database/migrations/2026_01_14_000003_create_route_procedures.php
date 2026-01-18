@@ -37,7 +37,13 @@ return new class extends Migration
                         distance = p_distance, estimated_duration = p_estimated_duration, updated_at = NOW()
                     WHERE id = p_id;
                 END IF;
-                COMMIT;
+            END;
+            $$;
+
+            CREATE OR REPLACE PROCEDURE sp_delete_route(p_id TEXT)
+            LANGUAGE plpgsql AS $$
+            BEGIN
+                DELETE FROM routes WHERE id = p_id;
             END;
             $$;
         ");

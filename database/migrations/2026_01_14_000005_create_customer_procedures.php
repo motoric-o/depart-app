@@ -26,7 +26,6 @@ return new class extends Migration
             BEGIN
                 INSERT INTO accounts (account_type_id, first_name, last_name, email, phone, birthdate, password_hash, created_at, updated_at)
                 VALUES (p_account_type_id, p_first_name, p_last_name, p_email, p_phone, p_birthdate, p_password_hash, NOW(), NOW());
-                COMMIT;
             END;
             $$;
 
@@ -42,7 +41,6 @@ return new class extends Migration
                     first_name = p_first_name, last_name = p_last_name, email = p_email, 
                     phone = p_phone, birthdate = p_birthdate, account_type_id = p_account_type_id, updated_at = NOW()
                 WHERE id = p_id;
-                COMMIT;
             END;
             $$;
 
@@ -59,7 +57,14 @@ return new class extends Migration
                 
                 INSERT INTO accounts (account_type_id, first_name, last_name, email, phone, birthdate, password_hash, created_at, updated_at)
                 VALUES (v_cust_type_id, p_first_name, p_last_name, p_email, p_phone, p_birthdate, p_password_hash, NOW(), NOW());
-                COMMIT;
+            END;
+            $$;
+
+            -- 4.3 DELETE USER (Procedure)
+            CREATE OR REPLACE PROCEDURE sp_delete_user(p_id TEXT)
+            LANGUAGE plpgsql AS $$
+            BEGIN
+                DELETE FROM accounts WHERE id = p_id;
             END;
             $$;
 
@@ -87,6 +92,7 @@ return new class extends Migration
             DROP FUNCTION IF EXISTS sp_login_user(TEXT);
             DROP PROCEDURE IF EXISTS sp_register_user(TEXT, TEXT, TEXT, TEXT, DATE, TEXT);
             DROP PROCEDURE IF EXISTS sp_update_customer(TEXT, TEXT, TEXT, TEXT, DATE, TEXT, TEXT);
+            DROP PROCEDURE IF EXISTS sp_delete_user(TEXT);
             DROP PROCEDURE IF EXISTS sp_create_customer(TEXT, TEXT, TEXT, TEXT, DATE, TEXT, TEXT);
         ");
     }

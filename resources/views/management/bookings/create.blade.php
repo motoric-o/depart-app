@@ -33,12 +33,30 @@
                         <h3 class="text-lg font-medium text-gray-900 mb-4">1. Data Pelanggan</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-                                <input type="text" name="customer_name" x-model="form.customer_name" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="Nama Pelanggan" required>
-                            </div>
-                            <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                <input type="email" name="customer_email" x-model="form.customer_email" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="email@contoh.com" required>
+                                <div class="flex gap-2">
+                                    <input type="email" name="customer_email" x-model="form.customer_email" 
+                                           @blur="checkEmail"
+                                           @keydown.enter.prevent="checkEmail"
+                                           class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" 
+                                           placeholder="email@contoh.com" required>
+                                    <button type="button" @click="checkEmail" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-md text-sm">
+                                        Cek
+                                    </button>
+                                </div>
+                                <p x-show="emailCheckStatus === 'checking'" class="text-xs text-gray-500 mt-1">Mencari...</p>
+                                <p x-show="emailCheckStatus === 'found'" class="text-xs text-green-600 mt-1">Pelanggan ditemukan!</p>
+                                <p x-show="emailCheckStatus === 'not_found'" class="text-xs text-blue-600 mt-1">Email baru. Silakan isi nama.</p>
+                            </div>
+                            
+                            <div x-show="showNameField" x-transition>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                                <input type="text" name="customer_name" x-model="form.customer_name" 
+                                       :readonly="emailCheckStatus === 'found'"
+                                       :class="emailCheckStatus === 'found' ? 'bg-gray-100 cursor-not-allowed' : ''"
+                                       class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" 
+                                       placeholder="Nama Pelanggan" required>
+                                <p x-show="emailCheckStatus === 'found'" class="text-xs text-gray-500 mt-1">Nama diambil dari akun terdaftar.</p>
                             </div>
                         </div>
                     </div>
@@ -249,6 +267,9 @@
             selectedSchedule: null,
             bookedSeats: [], // Array of booked seat numbers for selected schedule
             
+            emailCheckStatus: 'idle', // idle, checking, found, not_found
+            showNameField: false,
+
             form: {
                 customer_name: '',
                 customer_email: '',
@@ -259,6 +280,31 @@
                 passengers: [],
                 payment_method: '',
                 payment_status: ''
+            },
+
+            checkEmail() {
+                if (!this.form.customer_email) return;
+                
+                this.emailCheckStatus = 'checking';
+                
+                fetch(`/admin/bookings/check-customer?email=${this.form.customer_email}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.found) {
+                            this.emailCheckStatus = 'found';
+                            this.form.customer_name = data.name;
+                            this.showNameField = true; // Show it but readonly
+                        } else {
+                            this.emailCheckStatus = 'not_found';
+                            this.form.customer_name = ''; // Clear for new input
+                            this.showNameField = true;
+                        }
+                    })
+                    .catch(() => {
+                        this.emailCheckStatus = 'idle'; // Reset on error
+                        // Fallback to showing field allow manual entry
+                        this.showNameField = true;
+                    });
             },
 
             searchSchedules() {

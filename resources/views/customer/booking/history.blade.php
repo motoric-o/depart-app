@@ -44,9 +44,10 @@
                                 <div class="flex flex-col items-end gap-2">
                                     @php
                                         $statusClasses = match($booking->status) {
-                                            'Pending Payment' => 'bg-yellow-100 text-yellow-800',
-                                            'Booked' => 'bg-green-100 text-green-800', 
-                                            'Cancelled' => 'bg-red-100 text-red-800',
+                                            \App\Models\Booking::STATUS_PENDING => 'bg-yellow-100 text-yellow-800',
+                                            \App\Models\Booking::STATUS_BOOKED => 'bg-green-100 text-green-800', 
+                                            \App\Models\Booking::STATUS_CANCELLED => 'bg-red-100 text-red-800',
+                                            \App\Models\Booking::STATUS_EXPIRED => 'bg-gray-100 text-gray-800',
                                             default => 'bg-gray-100 text-gray-800'
                                         };
                                     @endphp
@@ -107,11 +108,11 @@
                                     <p class="text-lg font-bold text-orange-500">Rp {{ number_format($booking->total_amount, 0, ',', '.') }}</p>
                                 </div>
 
-                                @if($booking->status === 'Pending Payment')
+                                @if($booking->status === \App\Models\Booking::STATUS_PENDING)
                                     <a href="{{ route('booking.payment', $booking->id) }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
                                         Lanjut Bayar
                                     </a>
-                                @elseif($booking->status === 'Booked')
+                                @elseif($booking->status === \App\Models\Booking::STATUS_BOOKED)
                                     <a href="{{ route('booking.ticket', $booking->id) }}" class="px-4 py-2 border border-blue-600 text-blue-600 hover:bg-blue-50 text-sm font-medium rounded-lg transition-colors">
                                         Lihat E-Tiket
                                     </a>

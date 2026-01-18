@@ -30,13 +30,15 @@ class AuthController extends Controller
         }
 
         // 2. Create Account via SP (Procedure)
-        \Illuminate\Support\Facades\DB::statement("CALL sp_register_user(?, ?, ?, ?, NULL, ?)", [
-            $request->first_name,
-            $request->last_name,
-            $request->email,
-            $request->phone,
-            Illuminate\Support\Facades\Hash::make($request->password)
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_register_user(?, ?, ?, ?, NULL, ?)", [
+                $request->first_name,
+                $request->last_name,
+                $request->email,
+                $request->phone,
+                \Illuminate\Support\Facades\Hash::make($request->password)
+            ]);
+        });
 
         // 3. Refresh to get the DB-generated ID (Implicitly needed since SP procedure doesn't return ID directly in simple CALL without INOUT, 
         // but wait, sp_register_user definition doesn't use INOUT for ID. So we fetch by email.)

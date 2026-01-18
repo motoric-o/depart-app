@@ -56,7 +56,8 @@ Route::middleware(['web', 'auth', 'role:Owner,Super Admin,Financial Admin,Schedu
     Route::delete('/schedules/details/{detail_id}', [ScheduleDetailController::class, 'destroy']);
 
     // Phase 5: Expense Management
-    Route::get('/admin/expenses', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'index']);
+    Route::apiResource('/admin/expenses', \App\Http\Controllers\Api\Admin\ExpenseController::class);
+    Route::apiResource('/admin/destinations', \App\Http\Controllers\Api\Admin\DestinationController::class);
     Route::post('/admin/expenses', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'store']);
     Route::put('/admin/expenses/{id}', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'update']);
     Route::put('/admin/expenses/{id}/verify', [\App\Http\Controllers\Api\Admin\ExpenseController::class, 'verify']);

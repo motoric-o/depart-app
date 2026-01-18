@@ -48,12 +48,14 @@ class RouteController extends Controller
             'estimated_duration' => 'nullable|integer|min:0',
         ]);
 
-        DB::statement("CALL sp_manage_route('CREATE', NULL, ?, ?, ?, ?)", [
-            $request->source,
-            $request->destination_code,
-            $request->distance ?? 0,
-            $request->estimated_duration ?? 0
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            DB::statement("CALL sp_manage_route('CREATE', NULL, ?, ?, ?, ?)", [
+                $request->source,
+                $request->destination_code,
+                $request->distance ?? 0,
+                $request->estimated_duration ?? 0
+            ]);
+        });
 
         // Return latest compatible route as approximation or success status
         return response()->json(['message' => 'Route created successfully'], 201);
@@ -71,13 +73,15 @@ class RouteController extends Controller
             'estimated_duration' => 'nullable|integer|min:0',
         ]);
 
-        DB::statement("CALL sp_manage_route('UPDATE', ?, ?, ?, ?, ?)", [
-            $route->id,
-            $request->source,
-            $request->destination_code,
-            $request->distance ?? 0,
-            $request->estimated_duration ?? 0
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($route, $request) {
+            DB::statement("CALL sp_manage_route('UPDATE', ?, ?, ?, ?, ?)", [
+                $route->id,
+                $request->source,
+                $request->destination_code,
+                $request->distance ?? 0,
+                $request->estimated_duration ?? 0
+            ]);
+        });
 
         return response()->json($route->fresh('destination'));
     }

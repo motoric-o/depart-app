@@ -9,6 +9,11 @@ class Booking extends Model
 {
     use HasFactory;
 
+    const STATUS_PENDING = 'Pending';
+    const STATUS_BOOKED = 'Booked';
+    const STATUS_CANCELLED = 'Cancelled';
+    const STATUS_EXPIRED = 'Expired';
+
 
     public $incrementing = false;
     protected $keyType = 'string';

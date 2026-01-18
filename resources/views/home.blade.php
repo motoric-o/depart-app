@@ -310,5 +310,3 @@
     </div>
 </div>
 @endsection
-
-    // Handled by AlpineJS

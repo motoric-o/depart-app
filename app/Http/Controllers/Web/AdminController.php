@@ -95,15 +95,17 @@ class AdminController extends Controller
              return back()->withErrors(['account_type_id' => 'Invalid role selected.']);
         }
 
-        \Illuminate\Support\Facades\DB::statement("CALL sp_create_customer(?, ?, ?, ?, ?, ?, ?)", [
-            $request->first_name,
-            $request->last_name,
-            $request->email,
-            $request->phone,
-            $request->birthdate,
-            Hash::make($request->password),
-            $role->id
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $role) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_create_customer(?, ?, ?, ?, ?, ?, ?)", [
+                $request->first_name,
+                $request->last_name,
+                $request->email,
+                $request->phone,
+                $request->birthdate,
+                Hash::make($request->password),
+                $role->id
+            ]);
+        });
 
         return redirect()->route('admin.users')->with('success', 'Customer created successfully.');
     }
@@ -171,15 +173,17 @@ class AdminController extends Controller
              $passwordHash = Hash::make($request->password);
         }
 
-        \Illuminate\Support\Facades\DB::statement("CALL sp_update_customer(?, ?, ?, ?, ?, ?, ?)", [
-            $user->id,
-            $request->first_name,
-            $request->last_name,
-            $request->email,
-            $request->phone,
-            $request->birthdate,
-            $role->id
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($user, $request, $role) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_update_customer(?, ?, ?, ?, ?, ?, ?)", [
+                $user->id,
+                $request->first_name,
+                $request->last_name,
+                $request->email,
+                $request->phone,
+                $request->birthdate,
+                $role->id
+            ]);
+        });
         
         // Handling password update logic inside SP would be cleaner but current SP doesn't support conditional password update easily without passing all fields.
         // Actually sp_update_customer doesn't take password! I missed that in the SP definition!
@@ -215,7 +219,10 @@ class AdminController extends Controller
             return redirect()->route('admin.users')->with('error', 'You do not have permission to delete this account.');
         }
 
-        $user->delete();
+        // $user->delete();
+        \Illuminate\Support\Facades\DB::transaction(function () use ($id) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_delete_user(?)", [$id]);
+        });
 
         if (request()->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'User deleted successfully.']);
@@ -303,15 +310,27 @@ class AdminController extends Controller
              $status = 'In Process'; // Auto-approve for Approvers (Fin Admin/Owner)
         }
 
-        \App\Models\Expense::create([
-            'description' => $request->description,
-            'amount' => $request->amount,
-            'type' => $request->type,
-            'status' => $status,
-            'date' => $request->date,
-            'account_id' => Auth::id(),
-            'proof_file' => $path
-        ]);
+        // \App\Models\Expense::create([
+        //     'description' => $request->description,
+        //     'amount' => $request->amount,
+        //     'type' => $request->type,
+        //     'status' => $status,
+        //     'date' => $request->date,
+        //     'account_id' => Auth::id(),
+        //     'proof_file' => $path
+        // ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $path, $status) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_create_expense(?, ?, ?, ?, ?, ?, ?, ?)", [
+                $request->description,
+                $request->amount,
+                $request->type,
+                $request->date,
+                \Illuminate\Support\Facades\Auth::id(),
+                $path,
+                null,
+                $status
+            ]);
+        });
         
         // Redirect back (works for both Management View and Request View as they submit here)
         return back()->with('success', 'Request submitted successfully.');
@@ -363,14 +382,16 @@ class AdminController extends Controller
             'remarks' => 'nullable|string',
         ]);
 
-        \Illuminate\Support\Facades\DB::statement("CALL sp_manage_bus('CREATE', NULL, ?, ?, ?, ?, ?, ?, ?)", [
-            $request->bus_number,
-            $request->bus_type,
-            $request->capacity,
-            $request->seat_rows,
-            $request->seat_columns,
-            $request->remarks
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_manage_bus('CREATE', NULL, ?, ?, ?, ?, ?, ?, ?)", [
+                $request->bus_number,
+                $request->bus_type,
+                $request->capacity,
+                $request->seat_rows,
+                $request->seat_columns,
+                $request->remarks
+            ]);
+        });
 
         return redirect()->route('admin.buses')->with('success', 'Bus created successfully.');
     }
@@ -394,15 +415,17 @@ class AdminController extends Controller
             'remarks' => 'nullable|string',
         ]);
 
-        \Illuminate\Support\Facades\DB::statement("CALL sp_manage_bus('UPDATE', ?, ?, ?, ?, ?, ?, ?, ?)", [
-            $bus->id,
-            $request->bus_number,
-            $request->bus_type,
-            $request->capacity,
-            $request->seat_rows,
-            $request->seat_columns,
-            $request->remarks
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($bus, $request) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_manage_bus('UPDATE', ?, ?, ?, ?, ?, ?, ?, ?)", [
+                $bus->id,
+                $request->bus_number,
+                $request->bus_type,
+                $request->capacity,
+                $request->seat_rows,
+                $request->seat_columns,
+                $request->remarks
+            ]);
+        });
 
         return redirect()->route('admin.buses')->with('success', 'Bus updated successfully.');
     }
@@ -411,7 +434,10 @@ class AdminController extends Controller
     {
         // Deletion procedure not implemented in plan, using Eloquent
         $bus = Bus::findOrFail($id);
-        $bus->delete();
+        // $bus->delete();
+        \Illuminate\Support\Facades\DB::transaction(function () use ($id) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_delete_bus(?)", [$id]);
+        });
 
         if (request()->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'Bus deleted successfully.']);
@@ -467,12 +493,14 @@ class AdminController extends Controller
             'estimated_duration' => 'nullable|integer|min:0',
         ]);
 
-        \Illuminate\Support\Facades\DB::statement("CALL sp_manage_route('CREATE', NULL, ?, ?, ?, ?)", [
-            $request->source,
-            $request->destination_code,
-            $request->distance ?? 0,
-            $request->estimated_duration ?? 0
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_manage_route('CREATE', NULL, ?, ?, ?, ?)", [
+                $request->source,
+                $request->destination_code,
+                $request->distance ?? 0,
+                $request->estimated_duration ?? 0
+            ]);
+        });
 
         return redirect()->route('admin.routes')->with('success', 'Route created successfully.');
     }
@@ -495,13 +523,15 @@ class AdminController extends Controller
             'estimated_duration' => 'nullable|integer|min:0',
         ]);
 
-        \Illuminate\Support\Facades\DB::statement("CALL sp_manage_route('UPDATE', ?, ?, ?, ?, ?)", [
-            $route->id,
-            $request->source,
-            $request->destination_code,
-            $request->distance ?? 0,
-            $request->estimated_duration ?? 0
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($route, $request) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_manage_route('UPDATE', ?, ?, ?, ?, ?)", [
+                $route->id,
+                $request->source,
+                $request->destination_code,
+                $request->distance ?? 0,
+                $request->estimated_duration ?? 0
+            ]);
+        });
 
         return redirect()->route('admin.routes')->with('success', 'Route updated successfully.');
     }
@@ -509,7 +539,10 @@ class AdminController extends Controller
     public function deleteRoute($id)
     {
         $route = BusRoute::findOrFail($id);
-        $route->delete();
+        // $route->delete();
+        \Illuminate\Support\Facades\DB::transaction(function () use ($id) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_delete_route(?)", [$id]);
+        });
 
         if (request()->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'Route deleted successfully.']);
@@ -521,7 +554,64 @@ class AdminController extends Controller
 
     public function bookings(Request $request)
     {
+        // Auto-expire pending bookings
+        \App\Models\Booking::where('status', \App\Models\Booking::STATUS_PENDING)
+            ->where('travel_date', '<', now())
+            ->update(['status' => \App\Models\Booking::STATUS_EXPIRED]);
+
+        if ($request->wantsJson()) {
+            $query = \App\Models\Booking::with(['account', 'schedule.route.destination']);
+
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('id', 'like', "%{$search}%")
+                      ->orWhereHas('account', function($sq) use ($search) {
+                          $sq->where('first_name', 'like', "%{$search}%")
+                             ->orWhere('last_name', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            // Filtering
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            // Sorting
+            $sort_by = $request->get('sort_by', 'created_at');
+            $sort_order = $request->get('sort_order', 'desc');
+            $allowed_sorts = ['id', 'created_at', 'booking_date', 'travel_date', 'total_amount', 'status'];
+
+            if (in_array($sort_by, $allowed_sorts)) {
+                $query->orderBy($sort_by, $sort_order);
+            } else {
+                $query->orderBy('created_at', 'desc');
+            }
+
+            $bookings = $query->paginate($request->get('per_page', 10));
+            return response()->json($bookings);
+        }
+
         return view('management.bookings.index');
+    }
+
+    public function checkCustomer(Request $request)
+    {
+        $email = trim($request->query('email'));
+        if (!$email) return response()->json(['found' => false]);
+
+        $customer = \App\Models\Account::where('email', $email)->first();
+
+        if ($customer) {
+            return response()->json([
+                'found' => true,
+                'name' => $customer->first_name . ' ' . $customer->last_name,
+                'id' => $customer->id
+            ]);
+        }
+        
+        return response()->json(['found' => false]);
     }
 
     public function createBooking()
@@ -538,96 +628,61 @@ class AdminController extends Controller
         \Illuminate\Support\Facades\Gate::authorize('manage-bookings');
 
         $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'customer_email' => 'required|email', // We allow existing emails
+            'customer_name' => 'nullable|string|max:255',
+            'customer_email' => 'required|email',
             'schedule_id' => 'required|exists:schedules,id',
-            'seats' => 'required|array|min:1',
-            'seats.*' => 'string', // Seat numbers
-            'passengers' => 'required|array|min:1', // Names corresponding to seats
-            'payment_status' => 'required|in:Paid,Pending,Pending Payment',
-            'payment_method' => 'required|in:Cash,Transfer,Other',
+            'seats' => 'required|array',
+            'passengers' => 'required|array',
+            'payment_method' => 'required|string',
+            'payment_status' => 'required|string|in:Paid,Pending,Pending Payment',
         ]);
 
-        // Find or Create Customer
-        $customer = \App\Models\Account::firstOrCreate(
-            ['email' => $request->customer_email],
-            [
-                'first_name' => $request->customer_name,
-                'last_name' => '', // Optional or split name
-                'password_hash' => \Illuminate\Support\Facades\Hash::make('password'), // Default password
-                'phone' => '',
-                'role' => 'Customer', // Default role? Check logic
-                'account_type_id' => \App\Models\AccountType::where('name', 'Customer')->value('id')
-            ]
-        );
-        
-        // If existing user, update name if empty? No, keep existing.
-
-        $schedule = \App\Models\Schedule::with(['route', 'bus'])->findOrFail($request->schedule_id);
-        $totalAmount = $schedule->price_per_seat * count($request->seats);
-        
-        // Manual ID Generation for Booking: BK-YYYY-XXXXX
-        $year = date('Y');
-        // Count existing bookings for this year to generate sequence
-        $currentBookingCount = \App\Models\Booking::whereYear('created_at', $year)->count();
-        $bookingId = 'BK-' . $year . '-' . str_pad($currentBookingCount + 1, 5, '0', STR_PAD_LEFT);
-
-        // Create Booking
-        $booking = \App\Models\Booking::create([
-            'id' => $bookingId,
-            'account_id' => $customer->id,
-            'schedule_id' => $schedule->id,
-            'booking_date' => now(),
-            'travel_date' => $schedule->departure_time,
-            'total_amount' => $totalAmount,
-            'status' => ($request->payment_status === 'Paid') ? 'Confirmed' : 'Pending', 
-        ]);
-
-        // Manual ID Generation for Transaction: TRX-XXXXXX
-        // Simple random unique string or sequence? Let's use sequence + random to be safe or just sequence.
-        // Or Date-Sequence? `trg_set_transaction_id` used `TRX-` + sequence.
-        // Let's use TRX-Timestamp-Random for simplicity and uniqueness without locking table.
-        $transactionId = 'TRX-' . time() . '-' . rand(100, 999);
-
-        // Create Transaction
-        $transaction = \App\Models\Transaction::create([
-            'id' => $transactionId,
-            'booking_id' => $booking->id,
-            'account_id' => $customer->id,
-            'sub_total' => $totalAmount,
-            'admin_fee' => 0,
-            'total_amount' => $totalAmount,
-            'transaction_date' => now(),
-            'payment_method' => $request->payment_method,
-            'type' => 'Full',
-            'status' => ($request->payment_status === 'Paid') ? 'Success' : 'Pending',
-        ]);
-
-        // Create Tickets
-        // Count existing tickets for this schedule to generate sequence
-        $currentTicketCount = \App\Models\Ticket::whereHas('booking', function ($query) use ($schedule) {
-            $query->where('schedule_id', $schedule->id);
-        })->count();
-
-        foreach ($request->seats as $index => $seatNumber) {
-            $passengerName = $request->passengers[$index] ?? 'Passenger ' . ($index + 1);
-            $currentTicketCount++;
+        try {
+            // Arrays for PostgreSQL
+            $seatsArray = '{' . implode(',', array_values($request->seats)) . '}';
             
-            // Manual ID Generation: SCH-BUS-SEQ
-            // Ensure ID fits column length (255)
-            $ticketId = $schedule->id . '-' . ($schedule->bus->id ?? 'BUS') . '-' . str_pad($currentTicketCount, 3, '0', STR_PAD_LEFT);
+            $passengers = [];
+            $seatValues = array_values($request->seats);
+            $passengerValues = array_values($request->passengers);
+            
+            foreach ($seatValues as $index => $seat) {
+                $pName = trim($passengerValues[$index] ?? '');
+                if (empty($pName)) $pName = 'Passenger ' . ($index + 1);
+                $pName = str_replace('"', '\"', $pName); 
+                $passengers[] = '"' . $pName . '"';
+            }
+            $passengersArray = '{' . implode(',', $passengers) . '}';
 
-            \App\Models\Ticket::create([
-                'id' => $ticketId,
-                'booking_id' => $booking->id,
-                'seat_number' => $seatNumber,
-                'passenger_name' => $passengerName,
-                'status' => ($request->payment_status === 'Paid') ? 'Paid' : 'Booked',
-                'transaction_id' => $transaction->id
-            ]);
+            $customerRoleId = \App\Models\AccountType::where('name', 'Customer')->value('id');
+            $defaultPassword = \Illuminate\Support\Facades\Hash::make('password');
+
+            \Illuminate\Support\Facades\DB::transaction(function () use ($request, $seatsArray, $passengersArray, $customerRoleId, $defaultPassword) {
+                \Illuminate\Support\Facades\DB::statement("CALL sp_create_booking_admin(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+                    $request->customer_name ?? '', 
+                    trim($request->customer_email), 
+                    $request->schedule_id,
+                    $request->date ?? now(),
+                    $seatsArray, 
+                    $passengersArray, 
+                    $request->payment_method,
+                    $request->payment_status === 'Paid' ? 'Paid' : 'Pending',
+                    $defaultPassword,
+                    $customerRoleId,
+                    null 
+                ]);
+            });
+
+            $latestBooking = \App\Models\Booking::whereHas('account', function($q) use ($request) {
+                $q->where('email', trim($request->customer_email));
+            })->latest()->first();
+            
+            return redirect()->route('admin.bookings.edit', $latestBooking->id)
+                ->with('success', 'Booking created successfully via SP!');
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Booking Create Error: ' . $e->getMessage());
+            return back()->with('error', 'Failed to create booking: ' . $e->getMessage())->withInput();
         }
-
-        return redirect()->route('admin.bookings')->with('success', 'Booking created successfully.');
     }
     
     public function getAvailableSchedules(Request $request)
@@ -684,7 +739,7 @@ class AdminController extends Controller
         $booking = \App\Models\Booking::findOrFail($id);
 
         $request->validate([
-            'status' => 'required|in:Confirmed,Pending,Cancelled,Pending Payment',
+            'status' => 'required|in:' . \App\Models\Booking::STATUS_BOOKED . ',' . \App\Models\Booking::STATUS_PENDING . ',' . \App\Models\Booking::STATUS_CANCELLED . ',' . \App\Models\Booking::STATUS_EXPIRED,
             'passengers' => 'nullable|array' // [ticket_id => name]
         ]);
 
@@ -1009,6 +1064,64 @@ class AdminController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    public function editTransaction($id)
+    {
+        $transaction = \App\Models\Transaction::findOrFail($id);
+        
+        // Allow Super Admin and Owner to edit regardless of status
+        $userRole = \Illuminate\Support\Facades\Auth::user()->accountType->name;
+        $canEditAny = in_array($userRole, ['Super Admin', 'Owner']);
+
+        if (!$canEditAny) {
+            if ($transaction->status !== 'Pending' && $transaction->status !== 'Pending Payment' && $transaction->status !== 'Payment Issue') {
+                 if ($transaction->status === 'Success') {
+                     return redirect()->route('admin.transactions')->with('error', 'Cannot edit completed transactions.');
+                 }
+            }
+        }
+
+        return view('management.transactions.edit', compact('transaction'));
+    }
+
+    public function updateTransaction(Request $request, $id)
+    {
+        $transaction = \App\Models\Transaction::findOrFail($id);
+
+        $request->validate([
+            'payment_method' => 'required|in:Cash,Transfer,QRIS,Other',
+            'status' => 'required|in:Pending,Success,Failed',
+        ]);
+
+        $previousStatus = $transaction->status;
+        $transaction->update([
+            'payment_method' => $request->payment_method,
+            'status' => $request->status
+        ]);
+
+        // If status changed TO Success, update tickets, booking etc (similar to BookingController logic)
+        if ($previousStatus !== 'Success' && $request->status === 'Success') {
+             // 1. Update Tickets
+             if ($transaction->tickets()->exists()) {
+                 $transaction->tickets()->update(['status' => 'Valid']); 
+             }
+
+             // 2. Check Booking Status
+             $booking = $transaction->booking;
+             if ($booking) {
+                 $pendingCount = $booking->transactions()
+                                ->where('type', 'Payment')
+                                ->where('status', '!=', 'Success')
+                                ->count();
+                
+                 if ($pendingCount === 0) {
+                     $booking->update(['status' => \App\Models\Booking::STATUS_BOOKED]);
+                 }
+             }
+        }
+
+        return redirect()->route('admin.transactions')->with('success', 'Transaction updated successfully.');
     }
     public function resolveTransactionIssue($id)
     {

@@ -30,6 +30,13 @@
                         <div class="text-sm opacity-80 mt-2">{{ Auth::user()->can('manage-routes') ? 'Configure travel routes.' : 'View available routes.' }}</div>
                     </a>
                     @endcan
+
+                    @can('view-destinations')
+                    <a href="{{ route('admin.destinations') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
+                        <div class="text-3xl font-bold">Destinations</div>
+                        <div class="text-sm opacity-80 mt-2">{{ Auth::user()->can('manage-destinations') ? 'Add or remove cities.' : 'View destinations.' }}</div>
+                    </a>
+                    @endcan
                     
                     @can('view-schedules')
                     <a href="{{ route('admin.schedules') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">

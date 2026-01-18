@@ -32,7 +32,16 @@ return new class extends Migration
                 seq_num int;
             BEGIN
                 SELECT name INTO type_name FROM account_types WHERE id = NEW.account_type_id;
-                IF type_name = 'Admin' THEN prefix := 'A-'; ELSE prefix := 'C-'; END IF;
+                
+                CASE type_name
+                    WHEN 'Financial Admin' THEN prefix := 'FA-';
+                    WHEN 'Operations Admin' THEN prefix := 'OA-';
+                    WHEN 'Scheduling Admin' THEN prefix := 'SA-';
+                    WHEN 'Super Admin' THEN prefix := 'SU-';
+                    WHEN 'Owner' THEN prefix := 'OW-';
+                    WHEN 'Driver' THEN prefix := 'D-';
+                    ELSE prefix := 'C-'; -- Customer
+                END CASE;
                 
                 period_key := to_char(NOW(), 'YYYYMM');
                 

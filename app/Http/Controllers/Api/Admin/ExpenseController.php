@@ -57,14 +57,8 @@ class ExpenseController extends Controller
             'proof_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048'
         ]);
 
-        // Auto-approve if user can approve expenses (Wait, typically Admins verify requests, even from other admins. Let's keep it Pending unless specified otherwise)
-        // For now, let's stick to Pending for everyone to enable the flow.
-        // Or if Ops Admin creates it, it's 'Pending'.
         $status = 'Pending';
         if (Gate::allows('approve-expense') && $request->type !== 'operational') {
-            // If it's a simple expense by an admin, maybe auto-approved?
-            // But if it's an 'operational' request flow, it typically needs approval.
-            // Let's force Pending for 'operational' to ensure flow.
              $status = 'Approved';
         }
         if ($request->type === 'operational') {
@@ -76,15 +70,21 @@ class ExpenseController extends Controller
              $path = $request->file('proof_file')->store('expenses', 'public');
         }
 
-        $expense = Expense::create([
-            'description' => $request->description,
-            'amount' => $request->amount,
-            'type' => $request->type,
-            'status' => $status,
-            'date' => $request->date,
-            'account_id' => Auth::id(),
-            'proof_file' => $path
-        ]);
+        // $expense = Expense::create([...]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $status, $path) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_create_expense(?, ?, ?, ?, ?, ?, ?, ?)", [
+                $request->description,
+                $request->amount,
+                $request->type,
+                $request->date,
+                Auth::id(),
+                $path,
+                null, // transaction_id
+                $status
+            ]);
+        });
+
+        $expense = Expense::where('account_id', Auth::id())->latest()->first();
 
         return response()->json($expense, 201);
     }
@@ -106,11 +106,14 @@ class ExpenseController extends Controller
         Gate::authorize('approve-expense');
         
         $expense = Expense::findOrFail($id);
-        // Added 'Confirmed' to valid statuses
         $request->validate(['status' => 'required|in:Approved,In Process,Pending Confirmation,Paid,Payment Issue,Rejected,Processed,Canceled,Failed,Confirmed']);
         
-        $expense->update(['status' => $request->status]);
+        // $expense->update(['status' => $request->status]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($id, $request) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_verify_expense(?, ?)", [$id, $request->status]);
+        });
         
+        $expense->refresh();
         return response()->json($expense);
     }
 
@@ -118,7 +121,6 @@ class ExpenseController extends Controller
     {
         $expense = Expense::findOrFail($id);
         
-        // Only the creator can confirm receipt
         if ($expense->account_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized. Only the creator can confirm receipt.'], 403);
         }
@@ -127,8 +129,12 @@ class ExpenseController extends Controller
              return response()->json(['message' => 'Expense must be Paid before confirmation.'], 400);
         }
 
-        $expense->update(['status' => 'Confirmed']);
+        // $expense->update(['status' => 'Confirmed']);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($id) {
+            \Illuminate\Support\Facades\DB::statement("CALL sp_verify_expense(?, ?)", [$id, 'Confirmed']);
+        });
         
+        $expense->refresh();
         return response()->json($expense);
     }
 
