@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreign('booking_id')->references('id')->on('bookings');
             $table->string('passenger_name');
             $table->string('seat_number');
+            $table->string('transaction_id')->nullable(); 
+            $table->foreign('transaction_id')->references('id')->on('transactions')->onDelete('set null');
             $table->string('status')->default('Valid');
             $table->timestamps();
         });

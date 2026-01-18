@@ -11,10 +11,15 @@ class Ticket extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
-    protected $fillable = ['id', 'booking_id', 'passenger_name', 'seat_number', 'status'];
+    protected $fillable = ['id', 'booking_id', 'transaction_id', 'passenger_name', 'seat_number', 'status'];
 
     public function booking()
     {
         return $this->belongsTo(Booking::class);
+    }
+
+    public function transaction()
+    {
+        return $this->belongsTo(Transaction::class);
     }
 }

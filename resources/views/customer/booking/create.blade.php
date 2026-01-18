@@ -65,17 +65,17 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-                                <input type="text" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" value="{{ auth()->user()->first_name ?? '' }} {{ auth()->user()->last_name ?? '' }}">
+                                <input type="text" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" value="{{ auth()->user()->first_name ?? '' }} {{ auth()->user()->last_name ?? '' }}">
                                 <span class="text-xs text-gray-500 mt-1">Sesuai KTP/SIM/Paspor</span>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Handphone</label>
-                                <input type="tel" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Contoh: 08123456789">
+                                <input type="tel" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" placeholder="Contoh: 08123456789">
                                 <span class="text-xs text-gray-500 mt-1">E-ticket akan dikirim via WhatsApp</span>
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                <input type="email" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" value="{{ auth()->user()->email ?? '' }}">
+                                <input type="email" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" value="{{ auth()->user()->email ?? '' }}">
                                 <span class="text-xs text-gray-500 mt-1">E-ticket akan dikirim ke alamat email ini</span>
                             </div>
                         </div>
@@ -123,7 +123,7 @@
                                             </div>
                                         @else
                                             <label class="relative group cursor-pointer group">
-                                                <input type="radio" name="seat_number" value="{{ $seatNo }}" class="peer sr-only">
+                                                <input type="checkbox" name="seats[]" value="{{ $seatNo }}" class="peer sr-only seat-checkbox">
                                                 <div class="w-12 h-12 rounded-lg border-2 flex flex-col items-center justify-center transition-all bg-white
                                                     peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white peer-checked:shadow-md
                                                     border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:shadow-sm">
@@ -155,7 +155,7 @@
                                             </div>
                                         @else
                                             <label class="relative group cursor-pointer group">
-                                                <input type="radio" name="seat_number" value="{{ $seatNo }}" class="peer sr-only">
+                                                <input type="checkbox" name="seats[]" value="{{ $seatNo }}" class="peer sr-only seat-checkbox">
                                                 <div class="w-12 h-12 rounded-lg border-2 flex flex-col items-center justify-center transition-all bg-white
                                                     peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white peer-checked:shadow-md
                                                     border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:shadow-sm">
@@ -190,7 +190,153 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Passenger Details Section -->
+                    <div id="passengerSection" class="mb-6 hidden">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            Data Penumpang
+                        </h3>
+                        <div id="passengerRows" class="space-y-4"></div>
+                    </div>
+
+                    <!-- Split Bill Section -->
+                    <div class="mt-8 border-t border-gray-100 pt-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h4 class="text-base font-semibold text-gray-900">Pembayaran Terpisah (Split Bill)</h4>
+                                <p class="text-sm text-gray-500">Bayar tiket secara terpisah untuk setiap penumpang</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="splitBillToggle" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+
+                        <div id="splitBillContainer" class="hidden space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                             <!-- Dynamic Rows -->
+                             <p class="text-sm text-gray-500 italic" id="emptySplitMsg">Pilih kursi terlebih dahulu untuk mengatur pembayaran.</p>
+                             <div id="splitRows" class="space-y-3"></div>
+                        </div>
+                    </div>
                 </div>
+
+                @push('scripts')
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const seatCheckboxes = document.querySelectorAll('.seat-checkbox');
+                        const splitBillToggle = document.getElementById('splitBillToggle');
+                        const splitBillContainer = document.getElementById('splitBillContainer');
+                        const splitRows = document.getElementById('splitRows');
+                        const emptySplitMsg = document.getElementById('emptySplitMsg');
+                        
+                        const passengerSection = document.getElementById('passengerSection');
+                        const passengerRows = document.getElementById('passengerRows');
+
+                        // Data Pemesan for default value
+                        const defaultName = "{{ auth()->user()->first_name ?? '' }} {{ auth()->user()->last_name ?? '' }}".trim();
+
+                        function updateRows() {
+                            const selectedSeats = Array.from(seatCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+                            
+                            // ---- Passenger Rows ----
+                            const currentPassengerNames = {};
+                            document.querySelectorAll('.passenger-input').forEach(input => {
+                                currentPassengerNames[input.dataset.seat] = input.value;
+                            });
+
+                            passengerRows.innerHTML = '';
+                            if (selectedSeats.length > 0) {
+                                passengerSection.classList.remove('hidden');
+                                selectedSeats.forEach((seat, index) => {
+                                    // Default logic: First seat gets Booker Name if empty, others empty
+                                    let val = currentPassengerNames[seat] || '';
+                                    if (!val && index === 0 && !currentPassengerNames[seat]) {
+                                         val = defaultName;
+                                    }
+
+                                    const pRow = document.createElement('div');
+                                    pRow.className = 'bg-gray-50 p-4 rounded-xl border border-gray-200';
+                                    pRow.innerHTML = `
+                                        <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                                            <div class="flex items-center gap-3 w-32 shrink-0">
+                                                <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                                                    ${seat}
+                                                </div>
+                                                <span class="text-sm font-bold text-gray-700">Kursi ${seat}</span>
+                                            </div>
+                                            <div class="flex-1 w-full">
+                                                <label class="block text-xs font-semibold text-gray-500 mb-1">Nama Penumpang</label>
+                                                <input type="text" name="passengers[${seat}]" data-seat="${seat}" class="passenger-input w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" placeholder="Nama Lengkap Penumpang" value="${val}" required>
+                                            </div>
+                                        </div>
+                                    `;
+                                    passengerRows.appendChild(pRow);
+                                });
+                            } else {
+                                passengerSection.classList.add('hidden');
+                            }
+
+
+                            // ---- Split Bill Rows ----
+                            // Capture current split values
+                            const currentSplitValues = {};
+                            document.querySelectorAll('.split-select').forEach(sel => {
+                                currentSplitValues[sel.dataset.seat] = sel.value;
+                            });
+
+                            splitRows.innerHTML = '';
+
+                            if (selectedSeats.length === 0) {
+                                emptySplitMsg.classList.remove('hidden');
+                            } else {
+                                emptySplitMsg.classList.add('hidden');
+                                selectedSeats.forEach(seat => {
+                                    const val = currentSplitValues[seat] || 'main';
+                                    
+                                    let options = `<option value="main" ${val === 'main' ? 'selected' : ''}>Tagihan Saya (Utama)</option>`;
+                                    for (let i = 1; i <= selectedSeats.length; i++) {
+                                        const billId = `bill_${i}`;
+                                        const selected = val === billId ? 'selected' : '';
+                                        options += `<option value="${billId}" ${selected}>Tagihan Baru #${i}</option>`;
+                                    }
+
+                                    const row = document.createElement('div');
+                                    row.className = 'flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200 shadow-sm';
+                                    row.innerHTML = `
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                                                ${seat}
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-700">Kursi ${seat}</span>
+                                        </div>
+                                        <select name="split_bill[${seat}]" data-seat="${seat}" class="split-select text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2">
+                                            ${options}
+                                        </select>
+                                    `;
+                                    splitRows.appendChild(row);
+                                });
+                            }
+                        }
+
+                        splitBillToggle.addEventListener('change', function() {
+                            if (this.checked) {
+                                splitBillContainer.classList.remove('hidden');
+                                updateRows(); 
+                                document.querySelectorAll('.split-select').forEach(el => el.disabled = false);
+                            } else {
+                                splitBillContainer.classList.add('hidden');
+                                document.querySelectorAll('.split-select').forEach(el => el.disabled = true);
+                            }
+                        });
+
+
+                        seatCheckboxes.forEach(cb => {
+                            cb.addEventListener('change', updateRows);
+                        });
+                    });
+                </script>
+                @endpush
 
                 <!-- Proceed Button -->
                 <button class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition duration-200 text-lg flex justify-between items-center">

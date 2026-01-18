@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('booking_id')->nullable();
             $table->foreign('booking_id')->references('id')->on('bookings')->onDelete('set null');
             $table->string('ticket_id')->nullable();
-            $table->foreign('ticket_id')->references('id')->on('tickets')->onUpdate('cascade')->onDelete('set null');
+            // $table->foreign('ticket_id')->references('id')->on('tickets')->onUpdate('cascade')->onDelete('set null'); // Circular Dependency Fix
             $table->dateTime('transaction_date');
             $table->string('payment_method');
             $table->decimal('sub_total', 10, 2);

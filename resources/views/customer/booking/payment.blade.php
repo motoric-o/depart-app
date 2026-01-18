@@ -35,91 +35,115 @@
 
         <div class="flex flex-col lg:flex-row gap-8">
             <!-- Left: Payment Instructions -->
-            <div class="flex-1">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                    <!-- Tabs -->
-                    <div class="flex border-b border-gray-200">
-                        <button onclick="switchTab('va')" id="tab-va" class="flex-1 py-4 text-center text-sm font-semibold text-blue-600 border-b-2 border-blue-600 bg-blue-50 transition-colors">
-                            Virtual Account
-                        </button>
-                        <button onclick="switchTab('qris')" id="tab-qris" class="flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
-                            QRIS
-                        </button>
-                    </div>
+                <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    @foreach($booking->transactions as $transaction)
+                        @if($transaction->status == 'Success')
+                            <!-- Paid State -->
+                            <div class="bg-green-50 rounded-xl shadow-sm border border-green-200 overflow-hidden flex flex-col h-full">
+                                <div class="bg-green-100 px-6 py-4 border-b border-green-200 flex justify-between items-center shrink-0">
+                                    <div>
+                                        <h3 class="font-bold text-green-800">Tagihan #{{ $loop->iteration }}</h3>
+                                        <p class="text-xs text-green-600 mt-1">Kursi: {{ $transaction->tickets->pluck('seat_number')->implode(', ') }}</p>
+                                    </div>
+                                    <span class="px-2 py-1 bg-green-200 text-green-800 text-xs font-bold rounded uppercase">Lunas</span>
+                                </div>
+                                
+                                <div class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+                                    <div class="bg-white p-3 rounded-full shadow-sm mb-4">
+                                        <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <h4 class="text-lg font-bold text-green-900 mb-1">Pembayaran Berhasil</h4>
+                                    <p class="text-sm text-green-700 mb-4">Terima kasih atas pembayaran Anda.</p>
+                                    <p class="text-2xl font-bold text-gray-900">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</p>
+                                </div>
 
-                    <!-- VA Content -->
-                    <div id="content-va" class="p-6">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-lg font-semibold text-gray-900">BCA Virtual Account</h3>
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/1200px-Bank_Central_Asia.svg.png" alt="BCA" class="h-8">
-                        </div>
-
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 mb-6">
-                            <p class="text-sm text-gray-500 mb-1">Nomor Virtual Account</p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-2xl font-mono font-bold text-gray-900 tracking-wider">8800 1234 5678 9012</span>
-                                <button onclick="copyToClipboard('8800123456789012')" class="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                                    Salin
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div class="bg-blue-50 p-4 rounded-lg flex items-start">
-                                <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <p class="text-sm text-blue-700">Silakan lakukan pembayaran sebelum <b>{{ \Carbon\Carbon::parse($booking->created_at)->addMinutes(30)->timezone('Asia/Jakarta')->format('d M Y, H:i') }}</b> atau pesanan Anda akan dibatalkan otomatis.</p>
-                            </div>
-                            
-                            <div class="text-sm text-gray-600">
-                                <p class="font-medium mb-2">Petunjuk Pembayaran:</p>
-                                <ol class="list-decimal list-inside space-y-1 pl-2">
-                                    <li>Buka aplikasi MCA Mobile atau ATM BCA.</li>
-                                    <li>Pilih menu <b>m-Transfer</b> > <b>BCA Virtual Account</b>.</li>
-                                    <li>Masukkan nomor Virtual Account: <b>8800 1234 5678 9012</b>.</li>
-                                    <li>Periksa detail tagihan Anda, lalu masukkan PIN.</li>
-                                    <li>Pembayaran selesai. Tiket akan dikirimkan otomatis.</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- QRIS Content -->
-                    <div id="content-qris" class="p-6 hidden">
-                         <div class="flex flex-col items-center justify-center py-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Scan QRIS</h3>
-                            <p class="text-sm text-gray-500 mb-6">Support GoPay, OVO, Dana, ShopeePay, BCA, dll.</p>
-                            
-                            <div class="w-full max-w-sm mb-6">
-                            <div class="bg-blue-50 p-4 rounded-lg flex items-start text-left">
-                                    <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <p class="text-sm text-blue-700">Silakan lakukan pembayaran sebelum <b>{{ \Carbon\Carbon::parse($booking->created_at)->addMinutes(30)->timezone('Asia/Jakarta')->format('d M Y, H:i') }}</b> atau pesanan Anda akan dibatalkan otomatis.</p>
+                                <div class="p-4 border-t border-green-200 bg-green-50 mt-auto shrink-0">
+                                    <button disabled class="w-full bg-green-200 text-green-800 font-bold py-2.5 px-4 rounded-lg shadow-sm cursor-default text-sm flex justify-center items-center">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        Sudah Dibayar
+                                    </button>
                                 </div>
                             </div>
+                        @else
+                            <!-- Pending State -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow">
+                                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center shrink-0">
+                                    <div>
+                                        <h3 class="font-bold text-gray-700">Tagihan #{{ $loop->iteration }}</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Kursi: {{ $transaction->tickets->pluck('seat_number')->implode(', ') }}</p>
+                                    </div>
+                                    <span class="text-orange-600 font-bold">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</span>
+                                </div>
 
-                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-6">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PAY-DEPART-{{ $booking->id }}" alt="QR Code" class="w-48 h-48 mx-auto">
+                                <!-- Tabs -->
+                                <div class="flex border-b border-gray-200 shrink-0">
+                                    <button onclick="switchTab('va-{{ $transaction->id }}')" id="tab-va-{{ $transaction->id }}" class="flex-1 py-3 text-center text-xs font-bold text-blue-600 border-b-2 border-blue-600 bg-blue-50 transition-colors uppercase tracking-wide">
+                                        Virtual Account
+                                    </button>
+                                    <button onclick="switchTab('qris-{{ $transaction->id }}')" id="tab-qris-{{ $transaction->id }}" class="flex-1 py-3 text-center text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors uppercase tracking-wide">
+                                        QRIS
+                                    </button>
+                                </div>
+
+                                <div class="flex-1 flex flex-col h-[420px]">
+                                    <!-- VA Content -->
+                                    <div id="content-va-{{ $transaction->id }}" class="p-6 flex-1">
+                                        <div class="flex items-center justify-between mb-6">
+                                            <h3 class="text-base font-semibold text-gray-900">BCA Virtual Account</h3>
+                                            <div class="flex flex-col items-end">
+                                                @php $vaNumber = '8800' . rand(1000000000, 9999999999); @endphp
+                                                <p class="text-lg font-mono font-bold text-gray-900 tracking-wider">{{ $vaNumber }}</p>
+                                                <button onclick="copyToClipboard('{{ $vaNumber }}')" class="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center mt-1">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                                    Salin
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="space-y-4">
+                                            <div class="bg-blue-50 p-3 rounded-lg flex items-start">
+                                                <svg class="w-4 h-4 text-blue-600 mt-0.5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                <p class="text-xs text-blue-800 leading-relaxed">Bayar sebelum <span class="font-bold">{{ \Carbon\Carbon::parse($booking->created_at)->addHours(24)->timezone('Asia/Jakarta')->format('d M Y, H:i') }}</span>.</p>
+                                            </div>
+                                            
+                                            <div class="text-xs text-gray-600">
+                                                <ol class="list-decimal list-inside space-y-1 pl-1">
+                                                    <li>Menu <strong>m-Transfer > BCA Virtual Account</strong>.</li>
+                                                    <li>Masukkan nomor VA.</li>
+                                                    <li>Masukkan PIN.</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- QRIS Content -->
+                                    <div id="content-qris-{{ $transaction->id }}" class="p-6 hidden flex-1 flex flex-col items-center justify-center">
+                                         <h3 class="text-base font-semibold text-gray-900 mb-1">Scan QRIS</h3>
+                                         <p class="text-xs text-gray-500 mb-4">GoPay, OVO, Dana, BCA, dll.</p>
+                                            
+                                        <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100 mb-4">
+                                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=PAY-{{ $transaction->id }}" alt="QRIS Code" class="w-32 h-32">
+                                        </div>
+
+                                        <p class="text-xs text-gray-500 mb-1">Total</p>
+                                        <p class="text-xl font-bold text-gray-900 mb-0">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Payment Action -->
+                                 <div class="p-4 border-t border-gray-100 bg-gray-50 mt-auto shrink-0">
+                                    <form action="{{ route('booking.complete', $transaction->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg shadow-sm transition duration-200 text-sm flex justify-center items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                            Sudah Bayar
+                                        </button>
+                                    </form>
+                                 </div>
                             </div>
-
-                            <p class="text-sm text-gray-500 mb-2">Total Pembayaran</p>
-                            <p class="text-2xl font-bold text-gray-900 mb-6">Rp {{ number_format($booking->total_amount, 0, ',', '.') }}</p>
-
-                             <button class="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                Unduh QR Code
-                            </button>
-                        </div>
-                    </div>
+                        @endif
+                    @endforeach
                 </div>
-
-                <form action="{{ route('booking.complete', $booking->id) }}" method="POST">
-                    @csrf
-                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition duration-200 text-lg flex justify-center items-center mb-6">
-                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Saya Sudah Membayar
-                    </button>
-                </form>
-            </div>
 
             <!-- Right: Booking Summary -->
             <div class="w-full lg:w-1/3">
@@ -180,25 +204,35 @@
 
 @push('scripts')
 <script>
-    function switchTab(tab) {
-        const tabs = ['va', 'qris'];
+    function switchTab(tabId) {
+        // tabId e.g. 'va-TRX123' or 'qris-TRX123'
+        // Extract prefix and suffix? Or just toggle based on ID?
+        // Actually we need to toggle between VA and QRIS for the SAME transaction.
+        // Input: 'va-TRX123'
         
-        tabs.forEach(t => {
-            const btn = document.getElementById('tab-' + t);
-            const content = document.getElementById('content-' + t);
-            
-            if (t === tab) {
-                // Active State
-                btn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600', 'bg-blue-50');
-                btn.classList.remove('text-gray-500', 'hover:text-gray-700');
-                content.classList.remove('hidden');
-            } else {
-                // Inactive State
-                btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600', 'bg-blue-50');
-                btn.classList.add('text-gray-500', 'hover:text-gray-700');
-                content.classList.add('hidden');
-            }
-        });
+        const parts = tabId.split('-'); // ['va', 'TRX', '123'] (if id has dashes)
+        // Helper: split by first dash
+        const type = tabId.substring(0, tabId.indexOf('-')); // 'va' or 'qris'
+        const suffix = tabId.substring(tabId.indexOf('-') + 1); // 'TRX-123'
+        
+        const otherType = (type === 'va') ? 'qris' : 'va';
+        const otherTabId = otherType + '-' + suffix;
+
+        const btn = document.getElementById('tab-' + tabId);
+        const content = document.getElementById('content-' + tabId);
+        
+        const otherBtn = document.getElementById('tab-' + otherTabId);
+        const otherContent = document.getElementById('content-' + otherTabId);
+
+        // Active State
+        btn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600', 'bg-blue-50');
+        btn.classList.remove('text-gray-500', 'hover:text-gray-700');
+        content.classList.remove('hidden');
+
+        // Inactive State
+        otherBtn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600', 'bg-blue-50');
+        otherBtn.classList.add('text-gray-500', 'hover:text-gray-700');
+        otherContent.classList.add('hidden');
     }
 
     function copyToClipboard(text) {

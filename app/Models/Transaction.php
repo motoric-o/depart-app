@@ -30,7 +30,12 @@ class Transaction extends Model
 
     public function ticket()
     {
-        return $this->belongsTo(Ticket::class);
+        return $this->belongsTo(Ticket::class); // Optional: Keep for backward compat if needed, or remove if unused.
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
     }
 
     public function paymentIssueProofs()
