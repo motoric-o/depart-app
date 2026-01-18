@@ -38,6 +38,13 @@
                     </a>
                     @endcan
 
+                    @can('view-bookings')
+                    <a href="{{ route('admin.bookings') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
+                        <div class="text-3xl font-bold">Bookings</div>
+                        <div class="text-sm opacity-80 mt-2">{{ Auth::user()->can('manage-bookings') ? 'Manage customer bookings.' : 'View bookings.' }}</div>
+                    </a>
+                    @endcan
+
                     <!-- Financial & Operations -->
                     @can('view-financial-reports')
                     <a href="{{ route('admin.financial.reports') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">

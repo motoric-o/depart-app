@@ -41,7 +41,9 @@ return new class extends Migration
             CREATE SEQUENCE transactions_seq;
             CREATE FUNCTION set_transaction_id() RETURNS TRIGGER AS $$
             BEGIN
-                NEW.id := generate_custom_id('transactions_seq', 'TRX-', 6);
+                IF NEW.id IS NULL THEN
+                    NEW.id := generate_custom_id('transactions_seq', 'TRX-', 6);
+                END IF;
                 RETURN NEW;
             END;
             $$ LANGUAGE plpgsql;

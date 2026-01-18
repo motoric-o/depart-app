@@ -30,16 +30,18 @@ return new class extends Migration
                 sch_id text;
                 b_id text;
             BEGIN
-                SELECT b.schedule_id, s.bus_id INTO sch_id, b_id 
-                FROM bookings b JOIN schedules s ON b.schedule_id = s.id 
-                WHERE b.id = NEW.booking_id;
-                
-                -- Count existing tickets for this specific schedule
-                SELECT COALESCE(COUNT(*), 0) + 1 INTO next_seq 
-                FROM tickets t JOIN bookings b ON t.booking_id = b.id 
-                WHERE b.schedule_id = sch_id;
-                
-                NEW.id := sch_id || '-' || b_id || '-' || LPAD(next_seq::text, 2, '0');
+                IF NEW.id IS NULL THEN
+                    SELECT b.schedule_id, s.bus_id INTO sch_id, b_id 
+                    FROM bookings b JOIN schedules s ON b.schedule_id = s.id 
+                    WHERE b.id = NEW.booking_id;
+                    
+                    -- Count existing tickets for this specific schedule
+                    SELECT COALESCE(COUNT(*), 0) + 1 INTO next_seq 
+                    FROM tickets t JOIN bookings b ON t.booking_id = b.id 
+                    WHERE b.schedule_id = sch_id;
+                    
+                    NEW.id := sch_id || '-' || b_id || '-' || LPAD(next_seq::text, 2, '0');
+                END IF;
                 RETURN NEW;
             END;
             $$ LANGUAGE plpgsql;

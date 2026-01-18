@@ -281,8 +281,8 @@
                             // ---- Split Bill Rows ----
                             // Capture current split values
                             const currentSplitValues = {};
-                            document.querySelectorAll('.split-select').forEach(sel => {
-                                currentSplitValues[sel.dataset.seat] = sel.value;
+                            document.querySelectorAll('.split-bill-input').forEach(input => {
+                                currentSplitValues[input.dataset.seat] = input.value;
                             });
 
                             splitRows.innerHTML = '';
@@ -294,11 +294,19 @@
                                 selectedSeats.forEach(seat => {
                                     const val = currentSplitValues[seat] || 'main';
                                     
-                                    let options = `<option value="main" ${val === 'main' ? 'selected' : ''}>Tagihan Saya (Utama)</option>`;
+                                    let optionsHtml = '';
+                                    let selectedText = 'Tagihan Saya (Utama)'; // Default
+
+                                    // Main Option
+                                    optionsHtml += `<div class="custom-dropdown-item px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" data-value="main">Tagihan Saya (Utama)</div>`;
+                                    if(val === 'main') selectedText = 'Tagihan Saya (Utama)';
+
+                                    // Dynamic Options
                                     for (let i = 1; i <= selectedSeats.length; i++) {
                                         const billId = `bill_${i}`;
-                                        const selected = val === billId ? 'selected' : '';
-                                        options += `<option value="${billId}" ${selected}>Tagihan Baru #${i}</option>`;
+                                        const label = `Tagihan Baru #${i}`;
+                                        optionsHtml += `<div class="custom-dropdown-item px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" data-value="${billId}">${label}</div>`;
+                                        if(val === billId) selectedText = label;
                                     }
 
                                     const row = document.createElement('div');
@@ -310,23 +318,68 @@
                                             </div>
                                             <span class="text-sm font-medium text-gray-700">Kursi ${seat}</span>
                                         </div>
-                                        <select name="split_bill[${seat}]" data-seat="${seat}" class="split-select text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2">
-                                            ${options}
-                                        </select>
+                                        <div class="relative custom-dropdown w-1/2">
+                                            <input type="hidden" name="split_bill[${seat}]" data-seat="${seat}" value="${val}" class="split-bill-input p-2">
+                                            <button type="button" class="custom-dropdown-btn w-full bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg flex items-center justify-between shadow-sm text-sm p-2 transition-colors hover:bg-gray-50">
+                                                <span class="dropdown-text truncate">${selectedText}</span>
+                                                <svg class="w-4 h-4 ml-2 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                            </button>
+                                            <div class="custom-dropdown-menu hidden absolute right-0 mt-2 w-full bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200 overflow-y-auto max-h-60">
+                                                ${optionsHtml}
+                                            </div>
+                                        </div>
                                     `;
                                     splitRows.appendChild(row);
                                 });
                             }
                         }
 
+                        // --- Dropdown Event Listeners ---
+                        document.addEventListener('click', function(e) {
+                            const isBtn = e.target.closest('.custom-dropdown-btn');
+                            const isItem = e.target.closest('.custom-dropdown-item');
+                            const isMenu = e.target.closest('.custom-dropdown-menu');
+
+                            // Close all if clicking outside (not on btn, not on menu, not on item)
+                            // But if clicking Item, we handle it separately.
+                            if (!isBtn && !isMenu && !isItem) {
+                                document.querySelectorAll('.custom-dropdown-menu').forEach(m => m.classList.add('hidden'));
+                            }
+
+                            // Toggle
+                            if (isBtn) {
+                                const menu = isBtn.nextElementSibling; // div.custom-dropdown-menu
+                                // Close others
+                                document.querySelectorAll('.custom-dropdown-menu').forEach(m => {
+                                    if (m !== menu) m.classList.add('hidden');
+                                });
+                                menu.classList.toggle('hidden');
+                            }
+
+                            // Select
+                            if (isItem) {
+                                const container = isItem.closest('.custom-dropdown');
+                                const hiddenInput = container.querySelector('.split-bill-input');
+                                const btnText = container.querySelector('.dropdown-text');
+                                
+                                hiddenInput.value = isItem.dataset.value;
+                                btnText.textContent = isItem.textContent.trim();
+                                
+                                // Close menu
+                                isItem.closest('.custom-dropdown-menu').classList.add('hidden');
+                            }
+                        });
+
+
                         splitBillToggle.addEventListener('change', function() {
                             if (this.checked) {
                                 splitBillContainer.classList.remove('hidden');
                                 updateRows(); 
-                                document.querySelectorAll('.split-select').forEach(el => el.disabled = false);
+                                // Enable? Inputs are text/hidden, explicit disable not strictly needed for hidden but good for hygiene
+                                document.querySelectorAll('.split-bill-input').forEach(el => el.disabled = false);
                             } else {
                                 splitBillContainer.classList.add('hidden');
-                                document.querySelectorAll('.split-select').forEach(el => el.disabled = true);
+                                document.querySelectorAll('.split-bill-input').forEach(el => el.disabled = true);
                             }
                         });
 

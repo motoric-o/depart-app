@@ -32,12 +32,14 @@ return new class extends Migration
                 period_key text;
                 seq_num int;
             BEGIN
-                period_key := to_char(NOW(), 'YYYY');
-                
-                -- Key example: BK_2025
-                seq_num := get_next_date_sequence('BK_' || period_key);
-                
-                NEW.id := 'BK-' || period_key || '-' || LPAD(seq_num::text, 5, '0');
+                IF NEW.id IS NULL THEN
+                    period_key := to_char(NOW(), 'YYYY');
+                    
+                    -- Key example: BK_2025
+                    seq_num := get_next_date_sequence('BK_' || period_key);
+                    
+                    NEW.id := 'BK-' || period_key || '-' || LPAD(seq_num::text, 5, '0');
+                END IF;
                 RETURN NEW;
             END;
             $$ LANGUAGE plpgsql;

@@ -524,6 +524,184 @@ class AdminController extends Controller
         return view('management.bookings.index');
     }
 
+    public function createBooking()
+    {
+        \Illuminate\Support\Facades\Gate::authorize('manage-bookings');
+        // Routes for Dropdown
+        $routes = \App\Models\Route::with('destination')->get();
+        
+        return view('management.bookings.create', compact('routes'));
+    }
+
+    public function storeBooking(Request $request)
+    {
+        \Illuminate\Support\Facades\Gate::authorize('manage-bookings');
+
+        $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'customer_email' => 'required|email', // We allow existing emails
+            'schedule_id' => 'required|exists:schedules,id',
+            'seats' => 'required|array|min:1',
+            'seats.*' => 'string', // Seat numbers
+            'passengers' => 'required|array|min:1', // Names corresponding to seats
+            'payment_status' => 'required|in:Paid,Pending,Pending Payment',
+            'payment_method' => 'required|in:Cash,Transfer,Other',
+        ]);
+
+        // Find or Create Customer
+        $customer = \App\Models\Account::firstOrCreate(
+            ['email' => $request->customer_email],
+            [
+                'first_name' => $request->customer_name,
+                'last_name' => '', // Optional or split name
+                'password_hash' => \Illuminate\Support\Facades\Hash::make('password'), // Default password
+                'phone' => '',
+                'role' => 'Customer', // Default role? Check logic
+                'account_type_id' => \App\Models\AccountType::where('name', 'Customer')->value('id')
+            ]
+        );
+        
+        // If existing user, update name if empty? No, keep existing.
+
+        $schedule = \App\Models\Schedule::with(['route', 'bus'])->findOrFail($request->schedule_id);
+        $totalAmount = $schedule->price_per_seat * count($request->seats);
+        
+        // Manual ID Generation for Booking: BK-YYYY-XXXXX
+        $year = date('Y');
+        // Count existing bookings for this year to generate sequence
+        $currentBookingCount = \App\Models\Booking::whereYear('created_at', $year)->count();
+        $bookingId = 'BK-' . $year . '-' . str_pad($currentBookingCount + 1, 5, '0', STR_PAD_LEFT);
+
+        // Create Booking
+        $booking = \App\Models\Booking::create([
+            'id' => $bookingId,
+            'account_id' => $customer->id,
+            'schedule_id' => $schedule->id,
+            'booking_date' => now(),
+            'travel_date' => $schedule->departure_time,
+            'total_amount' => $totalAmount,
+            'status' => ($request->payment_status === 'Paid') ? 'Confirmed' : 'Pending', 
+        ]);
+
+        // Manual ID Generation for Transaction: TRX-XXXXXX
+        // Simple random unique string or sequence? Let's use sequence + random to be safe or just sequence.
+        // Or Date-Sequence? `trg_set_transaction_id` used `TRX-` + sequence.
+        // Let's use TRX-Timestamp-Random for simplicity and uniqueness without locking table.
+        $transactionId = 'TRX-' . time() . '-' . rand(100, 999);
+
+        // Create Transaction
+        $transaction = \App\Models\Transaction::create([
+            'id' => $transactionId,
+            'booking_id' => $booking->id,
+            'account_id' => $customer->id,
+            'sub_total' => $totalAmount,
+            'admin_fee' => 0,
+            'total_amount' => $totalAmount,
+            'transaction_date' => now(),
+            'payment_method' => $request->payment_method,
+            'type' => 'Full',
+            'status' => ($request->payment_status === 'Paid') ? 'Success' : 'Pending',
+        ]);
+
+        // Create Tickets
+        // Count existing tickets for this schedule to generate sequence
+        $currentTicketCount = \App\Models\Ticket::whereHas('booking', function ($query) use ($schedule) {
+            $query->where('schedule_id', $schedule->id);
+        })->count();
+
+        foreach ($request->seats as $index => $seatNumber) {
+            $passengerName = $request->passengers[$index] ?? 'Passenger ' . ($index + 1);
+            $currentTicketCount++;
+            
+            // Manual ID Generation: SCH-BUS-SEQ
+            // Ensure ID fits column length (255)
+            $ticketId = $schedule->id . '-' . ($schedule->bus->id ?? 'BUS') . '-' . str_pad($currentTicketCount, 3, '0', STR_PAD_LEFT);
+
+            \App\Models\Ticket::create([
+                'id' => $ticketId,
+                'booking_id' => $booking->id,
+                'seat_number' => $seatNumber,
+                'passenger_name' => $passengerName,
+                'status' => ($request->payment_status === 'Paid') ? 'Paid' : 'Booked',
+                'transaction_id' => $transaction->id
+            ]);
+        }
+
+        return redirect()->route('admin.bookings')->with('success', 'Booking created successfully.');
+    }
+    
+    public function getAvailableSchedules(Request $request)
+    {
+        $request->validate([
+            'route_id' => 'nullable|exists:routes,id',
+            'date' => 'nullable|date'
+        ]);
+
+        $query = \App\Models\Schedule::with(['bus', 'route'])
+            ->withCount('bookings');
+
+        if ($request->route_id) {
+            $query->where('route_id', $request->route_id);
+        }
+        
+        if ($request->date) {
+            $query->whereDate('departure_time', $request->date);
+        } else {
+            // Optional: Filter for future dates if date is not specified?
+            // For now, let's just return all distinct future schedules or keep generic.
+            // Maybe limit to today onwards?
+            $query->whereDate('departure_time', '>=', now());
+        }
+
+        $schedules = $query->orderBy('departure_time')->get();
+            
+        $schedules->map(function($schedule) {
+            // Count booked seats
+            // This is heavy but accurate.
+            $bookedSeatsCount = \App\Models\Ticket::whereHas('booking', function($q) use ($schedule) {
+                $q->where('schedule_id', $schedule->id)
+                  ->where('status', '!=', 'Cancelled')
+                  ->where('status', '!=', 'Failed');
+            })->where('status', '!=', 'Cancelled')->count();
+            
+            $schedule->available_seats = $schedule->quota - $bookedSeatsCount;
+            return $schedule;
+        });
+
+        return response()->json($schedules);
+    }
+
+    public function editBooking($id)
+    {
+        \Illuminate\Support\Facades\Gate::authorize('manage-bookings');
+        $booking = \App\Models\Booking::with(['tickets', 'payment', 'account', 'schedule.route'])->findOrFail($id);
+        return view('management.bookings.edit', compact('booking'));
+    }
+
+    public function updateBooking(Request $request, $id)
+    {
+        \Illuminate\Support\Facades\Gate::authorize('manage-bookings');
+        $booking = \App\Models\Booking::findOrFail($id);
+
+        $request->validate([
+            'status' => 'required|in:Confirmed,Pending,Cancelled,Pending Payment',
+            'passengers' => 'nullable|array' // [ticket_id => name]
+        ]);
+
+        $booking->update([
+            'status' => $request->status
+        ]);
+
+        // Update Passenger Names
+        if ($request->has('passengers')) {
+            foreach ($request->passengers as $ticketId => $name) {
+                \App\Models\Ticket::where('id', $ticketId)->where('booking_id', $booking->id)->update(['passenger_name' => $name]);
+            }
+        }
+
+        return redirect()->route('admin.bookings')->with('success', 'Booking updated successfully.');
+    }
+
     public function deleteBooking($id)
     {
         $booking = \App\Models\Booking::findOrFail($id);
@@ -663,6 +841,20 @@ class AdminController extends Controller
         ]);   
 
         return redirect()->route('admin.schedules')->with('success', 'Schedule updated successfully.');
+    }
+
+    public function getScheduleBookedSeats($id)
+    {
+        $schedule = \App\Models\Schedule::findOrFail($id);
+        
+        $bookedSeats = \App\Models\Ticket::whereHas('booking', function($q) use ($schedule) {
+            $q->where('schedule_id', $schedule->id)
+              ->where('status', '!=', 'Cancelled')
+              ->where('status', '!=', 'Failed'); // Also exclude failed if applicable
+        })->where('status', '!=', 'Cancelled') // Ticket status check too
+          ->pluck('seat_number');
+
+        return response()->json($bookedSeats);
     }
 
     public function deleteSchedule($id)

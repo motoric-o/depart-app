@@ -22,48 +22,73 @@
 
 <!-- Search Widget Section -->
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24">
-        <form action="{{ route('schedules.index') }}" method="GET" class="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-gray-200">
+        <form action="{{ route('schedules.index') }}" method="GET" class="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-gray-200"
+              x-data="{ 
+                  from: '', 
+                  to: '', 
+                  openFrom: false, 
+                  openTo: false, 
+                  dests: {{ json_encode($destinations) }}, 
+                  getFromLabel() { let d = this.dests.find(x => x.code == this.from); return d ? d.city_name + ' (' + d.code + ')' : 'Semua Lokasi'; },
+                  getToLabel() { let d = this.dests.find(x => x.code == this.to); return d ? d.city_name + ' (' + d.code + ')' : 'Semua Tujuan'; }
+              }">
             <div class="mb-6 border-b border-gray-100 pb-4">
                 <h2 class="text-2xl font-bold text-gray-800">Cari Jadwal & Pesan Tiket</h2>
                 <p class="text-gray-500 mt-1">Temukan perjalanan bus terbaik antar kota dengan harga resmi.</p>
             </div>
             <div class="flex flex-col md:flex-row gap-6 md:items-end">
                 <!-- From -->
-                <div class="flex-1 w-full">
+                <div class="flex-1 w-full relative" @click.outside="openFrom = false">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Dari</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <input type="hidden" name="from" x-model="from">
+                    
+                    <button type="button" @click="openFrom = !openFrom" class="w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-base shadow-sm h-[42px] flex items-center justify-between">
+                        <span class="block truncate" x-text="getFromLabel()"></span>
+                        <span class="flex items-center pointer-events-none ml-2 shrink-0">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+
+                    <div x-show="openFrom" x-transition.opacity x-cloak class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                         <div @click="from = ''; openFrom = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">
+                            <span class="font-normal block truncate">Semua Lokasi</span>
                         </div>
-                        <select name="from" id="from" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 text-base">
-                            <option value="">Semua Lokasi</option>
-                            @foreach($destinations as $destination)
-                                <option value="{{ $destination->code }}">{{ $destination->city_name }} ({{ $destination->code }})</option>
-                            @endforeach
-                        </select>
+                        <template x-for="dest in dests" :key="dest.code">
+                            <div @click="from = dest.code; openFrom = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">
+                                <span class="font-normal block truncate" x-text="dest.city_name + ' (' + dest.code + ')'"></span>
+                            </div>
+                        </template>
                     </div>
                 </div>
 
                 <!-- Swap Button -->
                 <div class="hidden md:flex items-center justify-center mb-1">
-                    <button type="button" id="swapButton" class="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors" title="Tukar Lokasi">
+                    <button type="button" @click="let t = from; from = to; to = t;" class="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors transform active:rotate-180 duration-300" title="Tukar Lokasi">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
                     </button>
                 </div>
 
                 <!-- To -->
-                <div class="flex-1 w-full">
+                <div class="flex-1 w-full relative" @click.outside="openTo = false">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Ke</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <input type="hidden" name="to" x-model="to">
+                    
+                    <button type="button" @click="openTo = !openTo" class="w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-base shadow-sm h-[42px] flex items-center justify-between">
+                        <span class="block truncate" x-text="getToLabel()"></span>
+                        <span class="flex items-center pointer-events-none ml-2 shrink-0">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+
+                    <div x-show="openTo" x-transition.opacity x-cloak class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                         <div @click="to = ''; openTo = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">
+                            <span class="font-normal block truncate">Semua Tujuan</span>
                         </div>
-                        <select name="to" id="to" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 text-base">
-                            <option value="">Semua Tujuan</option>
-                            @foreach($destinations as $destination)
-                                <option value="{{ $destination->code }}">{{ $destination->city_name }} ({{ $destination->code }})</option>
-                            @endforeach
-                        </select>
+                        <template x-for="dest in dests" :key="dest.code">
+                            <div @click="to = dest.code; openTo = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">
+                                <span class="font-normal block truncate" x-text="dest.city_name + ' (' + dest.code + ')'"></span>
+                            </div>
+                        </template>
                     </div>
                 </div>
 
@@ -74,7 +99,7 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         </div>
-                        <input type="date" name="date" min="{{ date('Y-m-d') }}" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 text-base">
+                        <input type="date" name="date" min="{{ date('Y-m-d') }}" class="pl-10 pr-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 text-base">
                     </div>
                 </div>
 
@@ -286,25 +311,4 @@
 </div>
 @endsection
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const swapBtn = document.getElementById('swapButton');
-        const fromSelect = document.getElementById('from');
-        const toSelect = document.getElementById('to');
-
-        if (swapBtn && fromSelect && toSelect) {
-            swapBtn.addEventListener('click', function() {
-                const temp = fromSelect.value;
-                fromSelect.value = toSelect.value;
-                toSelect.value = temp;
-                
-                // Add a small animation effect
-                swapBtn.querySelector('svg').style.transform = 'rotate(180deg)';
-                setTimeout(() => {
-                    swapBtn.querySelector('svg').style.transform = 'rotate(0deg)';
-                }, 300);
-            });
-            swapBtn.querySelector('svg').style.transition = 'transform 0.3s ease';
-        }
-    });
-</script>
+    // Handled by AlpineJS

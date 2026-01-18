@@ -137,7 +137,11 @@ Route::middleware('auth')->group(function () {
 
         // Bookings CRUD
         Route::get('/bookings', [AdminController::class, 'bookings'])->name('bookings');
-        // Route::get('/bookings/{id}/details', ...); // If we add details page later
+        Route::get('/bookings/search-schedules', [AdminController::class, 'getAvailableSchedules'])->name('bookings.search-schedules');
+        Route::get('/bookings/create', [AdminController::class, 'createBooking'])->name('bookings.create');
+        Route::post('/bookings', [AdminController::class, 'storeBooking'])->name('bookings.store');
+        Route::get('/bookings/{id}/edit', [AdminController::class, 'editBooking'])->name('bookings.edit');
+        Route::put('/bookings/{id}', [AdminController::class, 'updateBooking'])->name('bookings.update');
         Route::delete('/bookings/{id}', [AdminController::class, 'deleteBooking'])->name('bookings.delete');
 
         // Schedules CRUD (Maybe linked from Route, but global list is also fine)
@@ -150,6 +154,7 @@ Route::middleware('auth')->group(function () {
         
         // Schedule Details (View Shell)
         Route::get('/schedules/{id}/details', [AdminController::class, 'scheduleDetails'])->name('schedules.details');
+        Route::get('/schedules/{id}/booked-seats', [AdminController::class, 'getScheduleBookedSeats'])->name('schedules.booked-seats');
 
         // Expenses
         Route::get('/expenses', [AdminController::class, 'expenses'])->name('expenses');

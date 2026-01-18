@@ -11,7 +11,7 @@
                         sort_by: '{{ request('sort_by', 'created_at') }}',
                         sort_order: '{{ request('sort_order', 'desc') }}'
                     }),
-                     canManageBookings: {{ Auth::user()->can('manage-bookings') ? 'true' : 'true' }}, {{-- Assuming all admins can manage bookings for now --}}
+                     canManageBookings: {{ Auth::user()->can('manage-bookings') ? 'true' : 'false' }},
                     formatDate(dateString) {
                          const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
                          return new Date(dateString).toLocaleDateString('id-ID', options);
@@ -131,14 +131,19 @@
                             <button type="button" @click="fetchData(1)" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 border border-transparent h-[42px] font-medium transition-colors">Cari</button>
 
                             <!-- Actions Dropdown -->
-                            <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                            <div class="relative" x-data="{ open: false }" @click.outside="open = false" x-show="canManageBookings">
                                 <button type="button" @click="open = !open" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 flex items-center h-[42px] transition-colors shadow-sm font-medium">
                                     Aksi
                                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </button>
                                 <div x-show="open" x-cloak class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200">
                                     <template x-if="selectedItems.length === 1">
-                                        {{-- Add Details link if needed --}}
+                                         <a href="#" 
+                                           @click.prevent="if(selectedItems.length === 1) window.location.href = '/admin/bookings/' + selectedItems[0] + '/edit'"
+                                           :class="{'text-gray-400 cursor-not-allowed': selectedItems.length !== 1, 'text-gray-700 hover:bg-gray-100': selectedItems.length === 1}"
+                                           class="block px-4 py-2 text-sm w-full text-left">
+                                            Edit
+                                        </a>
                                     </template>
                                     <button type="button" 
                                             @click="bulkDelete()"
@@ -156,6 +161,12 @@
                                     style="display: none;">
                                 Clear
                             </button>
+
+                            @can('manage-bookings')
+                            <a href="{{ route('admin.bookings.create') }}" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 border border-transparent flex items-center justify-center h-[42px] whitespace-nowrap font-medium transition-colors ml-auto">
+                                Tambah Pemesanan
+                            </a>
+                            @endcan
                         </div>
 
                         <div x-show="showFilters" x-collapse x-cloak class="overflow-hidden">
@@ -188,7 +199,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left w-10">
+                                <th class="px-6 py-3 text-left w-10" x-show="canManageBookings">
                                     <input type="checkbox" 
                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                            @change="toggleSelectAll()"
@@ -220,7 +231,7 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             <template x-for="booking in items" :key="booking.id">
                                 <tr :class="{'bg-blue-50': selectedItems.includes(booking.id)}">
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-6 py-4 whitespace-nowrap" x-show="canManageBookings">
                                         <input type="checkbox" 
                                                class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                                :value="booking.id"

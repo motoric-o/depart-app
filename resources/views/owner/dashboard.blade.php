@@ -23,6 +23,11 @@
                         <div class="text-sm opacity-80 mt-2">Manajemen Rute Terpadu.</div>
                     </a>
 
+                    <a href="{{ route('admin.bookings') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
+                        <div class="text-3xl font-bold">Pemesanan</div>
+                        <div class="text-sm opacity-80 mt-2">Kelola pemesanan tiket.</div>
+                    </a>
+
                     <!-- Owner Specific -->
                     <a href="{{ route('admin.users') }}" class="block bg-blue-600 rounded-lg shadow p-6 text-white hover:bg-blue-700 transition">
                         <div class="text-3xl font-bold">Pengguna</div>

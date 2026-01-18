@@ -118,7 +118,7 @@
                             <button type="button" @click="fetchData(1)" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 border border-transparent h-[42px] font-medium transition-colors">Cari</button>
 
                             <!-- Actions Dropdown -->
-                            <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                            <div class="relative" x-data="{ open: false }" @click.outside="open = false" x-show="canManageRoutes">
                                 <button type="button" @click="open = !open" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 flex items-center h-[42px] transition-colors shadow-sm font-medium">
                                     Aksi
                                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -187,7 +187,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left w-10">
+                                <th class="px-6 py-3 text-left w-10" x-show="canManageRoutes">
                                     <input type="checkbox" 
                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                            @change="toggleSelectAll()"
@@ -228,7 +228,7 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             <template x-for="route in items" :key="route.id">
                                 <tr :class="{'bg-blue-50': selectedItems.includes(route.id)}">
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-6 py-4 whitespace-nowrap" x-show="canManageRoutes">
                                         <input type="checkbox" 
                                                class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                                :value="route.id"

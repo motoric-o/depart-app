@@ -45,6 +45,18 @@ class AppServiceProvider extends ServiceProvider
             return $user->accountType && in_array($user->accountType->name, ['Owner', 'Super Admin', 'Operations Admin']);
         });
 
+        // Booking Management
+        \Illuminate\Support\Facades\Gate::define('manage-bookings', function ($user) {
+            $user->loadMissing('accountType');
+            return $user->accountType && in_array($user->accountType->name, ['Owner', 'Super Admin', 'Scheduling Admin']);
+        });
+
+        \Illuminate\Support\Facades\Gate::define('view-bookings', function ($user) {
+            $user->loadMissing('accountType');
+            // Fin (View), CS (Manage), Ops (View)
+            return $user->accountType && in_array($user->accountType->name, ['Owner', 'Super Admin', 'Scheduling Admin', 'Financial Admin', 'Operations Admin']);
+        });
+
         // Expense Management
         \Illuminate\Support\Facades\Gate::define('create-expense', function ($user) {
             $user->loadMissing('accountType');

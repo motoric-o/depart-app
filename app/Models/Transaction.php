@@ -13,7 +13,7 @@ class Transaction extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'account_id', 'booking_id', 'ticket_id', 
+        'id', 'account_id', 'booking_id', 'ticket_id', 
         'transaction_date', 'payment_method', 'sub_total', 
         'total_amount', 'type', 'status'
     ];

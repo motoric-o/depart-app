@@ -5,32 +5,17 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900" 
-                 x-data="{ 
-                    ...datatable({ 
-                        url: '{{ route('admin.transactions') }}',
-                        sort_by: 'transaction_date',
-                        sort_order: 'desc',
-                        filters: {
-                            date: '{{ request('date') }}',
-                            status: '{{ request('status') }}'
-                        }
-                    }),
-                    showProofModal: false,
-                    selectedProofs: [],
-                    selectedTransactionId: null,
-                    formatDate(dateString) {
-                         const options = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false };
-                         return new Date(dateString).toLocaleDateString('id-ID', options);
-                    },
-                    formatPrice(price) {
-                        return 'Rp ' + new Intl.NumberFormat('id-ID').format(price);
-                    },
-                    viewProofs(transaction) {
-                        this.selectedProofs = transaction.payment_issue_proofs || [];
-                        this.selectedTransactionId = transaction.id;
-                        this.showProofModal = true;
+                 x-data="transactionsManager({ 
+                    url: '{{ route('admin.transactions') }}',
+                    sort_by: 'transaction_date',
+                    sort_order: 'desc',
+                    filters: {
+                        date: '{{ request('date') }}',
+                        status: '{{ request('status') }}',
+                        search: ''
                     }
-                 }"
+                 })"
+                 x-init="fetchData(1)"
             >
                 <div class="mb-4">
                     <a href="{{ route('admin.financial.reports') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali ke Laporan</a>
@@ -43,31 +28,6 @@
                 
                     <!-- Toolbar -->
                     <div class="w-full" x-data="{ showFilters: false, openExport: false }">
-                        <!-- ... (Keep toolbar existing code implicitly or explicitly if replace covers it. I am replacing from line 7, effectively re-writing x-data. I should check if I need to copy Toolbar content.) -->
-                        <!-- Actually, replace_file_content replaces the RANGE only. -->
-                        <!-- The previous content for toolbar is HUGE. I better not replace the whole block if I can avoid it. -->
-                        <!-- But x-data defines the scope. I need to modify x-data which is at the top div. -->
-                        <!-- I will target the top div x-data definition specifically. -->
-                    </div>
-                    <!-- ... -->
-                </div>
-                <!-- ... -->
-                <!-- I'll use multi-replace to target x-data AND the table row AND add the modal at the end. -->
-                <!-- Wait, I cannot use comments in replacement content for instructions. -->
-                <!-- I will use multi_replace. -->
-            </div>
-
-                <div class="mb-4">
-                    <a href="{{ route('admin.financial.reports') }}" class="text-gray-600 hover:text-gray-900">&larr; Back to Reports</a>
-                </div>
-
-                <div class="mb-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-bold">Transactions</h2>
-                    </div>
-                
-                    <!-- Toolbar -->
-                     <div class="w-full" x-data="{ showFilters: false, openExport: false }">
                         <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-2">
                              <input type="text" x-model="filters.search" @keydown.enter="fetchData(1)" placeholder="Cari ID atau Pelanggan..." class="grow border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 h-[42px]">
                              
@@ -128,6 +88,7 @@
                                     <option value="Success">Sukses</option>
                                     <option value="Pending">Menunggu</option>
                                     <option value="Failed">Gagal</option>
+                                    <option value="Payment Issue">Masalah Pembayaran</option>
                                 </select>
                             </div>
                             <div>
@@ -212,7 +173,6 @@
                     <div class="text-sm text-gray-700">
                         Menampilkan <span x-text="pagination.from"></span> sampai <span x-text="pagination.to"></span> dari <span x-text="pagination.total"></span> hasil
                     </div>
-                    <div class="flex space-x-2">
                     <div class="flex space-x-1">
                         <button 
                             @click="fetchData(pagination.current_page - 1)" 
@@ -245,49 +205,49 @@
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Proof Modal -->
-    <div x-show="showProofModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div x-show="showProofModal" @click="showProofModal = false" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="showProofModal" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Bukti Masalah Pembayaran</h3>
-                            <div class="mt-4">
-                                <template x-if="selectedProofs.length === 0">
-                                    <p class="text-sm text-gray-500">Tidak ada bukti ditemukan.</p>
-                                </template>
-                                <template x-for="proof in selectedProofs" :key="proof.id">
-                                    <div class="mb-4 border-b border-gray-200 pb-4">
-                                        <p class="text-sm font-medium text-gray-800 mb-1" x-text="proof.sender_type === 'driver' ? 'Pesan Sopir:' : 'Pesan Admin:'"></p>
-                                        <p class="text-sm text-gray-600 italic mb-2" x-text='proof.message'></p>
-                                        <template x-if="proof.file_path">
-                                            <a :href="'/storage/' + proof.file_path" target="_blank" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                Lihat Berkas
-                                            </a>
-                                        </template>
+                <!-- Proof Modal -->
+                <div x-show="showProofModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                        <div x-show="showProofModal" @click="showProofModal = false" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                        <div x-show="showProofModal" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                <div class="sm:flex sm:items-start">
+                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Bukti Masalah Pembayaran</h3>
+                                        <div class="mt-4">
+                                            <template x-if="selectedProofs.length === 0">
+                                                <p class="text-sm text-gray-500">Tidak ada bukti ditemukan.</p>
+                                            </template>
+                                            <template x-for="proof in selectedProofs" :key="proof.id">
+                                                <div class="mb-4 border-b border-gray-200 pb-4">
+                                                    <p class="text-sm font-medium text-gray-800 mb-1" x-text="proof.sender_type === 'driver' ? 'Pesan Sopir:' : 'Pesan Admin:'"></p>
+                                                    <p class="text-sm text-gray-600 italic mb-2" x-text='proof.message'></p>
+                                                    <template x-if="proof.file_path">
+                                                        <a :href="'/storage/' + proof.file_path" target="_blank" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                            Lihat Berkas
+                                                        </a>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </div>
-                                </template>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                <form :action="'/admin/transactions/' + selectedTransactionId + '/resolve'" method="POST" class="w-full sm:w-auto sm:ml-3">
+                                    @csrf
+                                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm">
+                                        Selesaikan Pembayaran
+                                    </button>
+                                </form>
+                                <button type="button" @click="showProofModal = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                    Tutup
+                                </button>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <form :action="'/admin/transactions/' + selectedTransactionId + '/resolve'" method="POST" class="w-full sm:w-auto sm:ml-3">
-                        @csrf
-                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm">
-                            Selesaikan Pembayaran
-                        </button>
-                    </form>
-                    <button type="button" @click="showProofModal = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Tutup
-                    </button>
                 </div>
             </div>
         </div>
