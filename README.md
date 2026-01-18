@@ -10,6 +10,15 @@
 
 Aplikasi operasional perusahaan otobus (PO). Menghubungkan pelanggan, supir, dan manajemen dalam satu lingkungan yang terintegrasi. Benefit yang dirasakan tidak hanya untuk customer saja tetapi juga untuk supir dan manajemen.
 
+## Latar Belakang
+
+Sebuah projek tugas besar untuk mata kuliah Paradigma Pemrograman, Basis Data Lanjut, dan Rekayasa Perangkat Lunak. Dibuat oleh tim dari program studi Teknik Informatika, Universitas Kristen Maranatha.
+
+Tim:
+*   **Rico Dharmawan - 2472041 (Ketua Tim)**
+*   **Jonathan Valent Waluya - 2472010**
+*   **Jason - 2472012**
+
 ## Fitur Utama
 
 ### 👤 Portal Pelanggan
