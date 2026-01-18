@@ -166,6 +166,11 @@ class BookingController extends Controller
             abort(404, 'Booking ID ' . $booking_id . ' not found in database.');
         }
 
+        // If booking is already fully paid/booked, redirect to history
+        if ($booking->status === Booking::STATUS_BOOKED) {
+            return redirect()->route('booking.history')->with('success', 'Pembayaran sudah lunas. Terima kasih!');
+        }
+
         return view('customer.booking.payment', compact('booking'));
     }
     public function completePayment(Request $request, $transaction_id)

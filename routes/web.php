@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 Route::get('/', function () {
     $destinations = Destination::orderBy('city_name', 'asc')->get();
     return view('home', compact('destinations'));
-});
+})->name('landing');
 
 Route::get('/schedules', [App\Http\Controllers\Web\SearchController::class, 'index'])->name('schedules.index');
 

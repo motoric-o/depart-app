@@ -23,7 +23,7 @@ class Route extends Model
 
     public function sourceDestination()
     {
-        return $this->belongsTo(Destination::class, 'source', 'code');
+        return $this->belongsTo(Destination::class, 'source_code', 'code');
     }
 
     public function schedules()

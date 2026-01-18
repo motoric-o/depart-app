@@ -5,7 +5,13 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header Steps -->
         <div class="mb-8">
-            <h1 class="text-2xl font-bold text-gray-900 mb-6">Pemesanan Tiket</h1>
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">Pemesanan Tiket</h1>
+                <a href="{{ route('schedules.index') }}" class="text-sm font-medium text-gray-500 hover:text-blue-600 flex items-center transition-colors">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Ganti Jadwal / Cari Lagi
+                </a>
+            </div>
             <div class="flex items-center justify-center">
                 <div class="flex items-start w-full max-w-3xl">
                     <div class="flex flex-col items-center">
@@ -233,48 +239,59 @@
                         const passengerSection = document.getElementById('passengerSection');
                         const passengerRows = document.getElementById('passengerRows');
 
+                        const totalEstimateDisplay = document.getElementById('totalEstimateDisplay');
+                        const pricePerSeat = {{ $schedule->price_per_seat }};
+
                         // Data Pemesan for default value
                         const defaultName = "{{ auth()->user()->first_name ?? '' }} {{ auth()->user()->last_name ?? '' }}".trim();
 
                         function updateRows() {
                             const selectedSeats = Array.from(seatCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
                             
+                            // Update Estimate
+                            const total = selectedSeats.length * pricePerSeat;
+                            if(totalEstimateDisplay) {
+                                totalEstimateDisplay.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(total);
+                            }
+
                             // ---- Passenger Rows ----
                             const currentPassengerNames = {};
                             document.querySelectorAll('.passenger-input').forEach(input => {
                                 currentPassengerNames[input.dataset.seat] = input.value;
                             });
 
-                            passengerRows.innerHTML = '';
-                            if (selectedSeats.length > 0) {
-                                passengerSection.classList.remove('hidden');
-                                selectedSeats.forEach((seat, index) => {
-                                    // Default logic: First seat gets Booker Name if empty, others empty
-                                    let val = currentPassengerNames[seat] || '';
-                                    if (!val && index === 0 && !currentPassengerNames[seat]) {
-                                         val = defaultName;
-                                    }
+                            if(passengerRows) {
+                                passengerRows.innerHTML = '';
+                                if (selectedSeats.length > 0) {
+                                    passengerSection.classList.remove('hidden');
+                                    selectedSeats.forEach((seat, index) => {
+                                        // Default logic: First seat gets Booker Name if empty, others empty
+                                        let val = currentPassengerNames[seat] || '';
+                                        if (!val && index === 0 && !currentPassengerNames[seat]) {
+                                            val = defaultName;
+                                        }
 
-                                    const pRow = document.createElement('div');
-                                    pRow.className = 'bg-gray-50 p-4 rounded-xl border border-gray-200';
-                                    pRow.innerHTML = `
-                                        <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
-                                            <div class="flex items-center gap-3 w-32 shrink-0">
-                                                <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
-                                                    ${seat}
+                                        const pRow = document.createElement('div');
+                                        pRow.className = 'bg-gray-50 p-4 rounded-xl border border-gray-200';
+                                        pRow.innerHTML = `
+                                            <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                                                <div class="flex items-center gap-3 w-32 shrink-0">
+                                                    <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                                                        ${seat}
+                                                    </div>
+                                                    <span class="text-sm font-bold text-gray-700">Kursi ${seat}</span>
                                                 </div>
-                                                <span class="text-sm font-bold text-gray-700">Kursi ${seat}</span>
+                                                <div class="flex-1 w-full">
+                                                    <label class="block text-xs font-semibold text-gray-500 mb-1">Nama Penumpang</label>
+                                                    <input type="text" name="passengers[${seat}]" data-seat="${seat}" class="passenger-input w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" placeholder="Nama Lengkap Penumpang" value="${val}" required>
+                                                </div>
                                             </div>
-                                            <div class="flex-1 w-full">
-                                                <label class="block text-xs font-semibold text-gray-500 mb-1">Nama Penumpang</label>
-                                                <input type="text" name="passengers[${seat}]" data-seat="${seat}" class="passenger-input w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" placeholder="Nama Lengkap Penumpang" value="${val}" required>
-                                            </div>
-                                        </div>
-                                    `;
-                                    passengerRows.appendChild(pRow);
-                                });
-                            } else {
-                                passengerSection.classList.add('hidden');
+                                        `;
+                                        passengerRows.appendChild(pRow);
+                                    });
+                                } else {
+                                    passengerSection.classList.add('hidden');
+                                }
                             }
 
 
@@ -285,52 +302,54 @@
                                 currentSplitValues[input.dataset.seat] = input.value;
                             });
 
-                            splitRows.innerHTML = '';
+                            if(splitRows) {
+                                splitRows.innerHTML = '';
 
-                            if (selectedSeats.length === 0) {
-                                emptySplitMsg.classList.remove('hidden');
-                            } else {
-                                emptySplitMsg.classList.add('hidden');
-                                selectedSeats.forEach(seat => {
-                                    const val = currentSplitValues[seat] || 'main';
-                                    
-                                    let optionsHtml = '';
-                                    let selectedText = 'Tagihan Saya (Utama)'; // Default
+                                if (selectedSeats.length === 0) {
+                                    emptySplitMsg.classList.remove('hidden');
+                                } else {
+                                    emptySplitMsg.classList.add('hidden');
+                                    selectedSeats.forEach(seat => {
+                                        const val = currentSplitValues[seat] || 'main';
+                                        
+                                        let optionsHtml = '';
+                                        let selectedText = 'Tagihan Saya (Utama)'; // Default
 
-                                    // Main Option
-                                    optionsHtml += `<div class="custom-dropdown-item px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" data-value="main">Tagihan Saya (Utama)</div>`;
-                                    if(val === 'main') selectedText = 'Tagihan Saya (Utama)';
+                                        // Main Option
+                                        optionsHtml += `<div class="custom-dropdown-item px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" data-value="main">Tagihan Saya (Utama)</div>`;
+                                        if(val === 'main') selectedText = 'Tagihan Saya (Utama)';
 
-                                    // Dynamic Options
-                                    for (let i = 1; i <= selectedSeats.length; i++) {
-                                        const billId = `bill_${i}`;
-                                        const label = `Tagihan Baru #${i}`;
-                                        optionsHtml += `<div class="custom-dropdown-item px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" data-value="${billId}">${label}</div>`;
-                                        if(val === billId) selectedText = label;
-                                    }
+                                        // Dynamic Options
+                                        for (let i = 1; i <= selectedSeats.length; i++) {
+                                            const billId = `bill_${i}`;
+                                            const label = `Tagihan Baru #${i}`;
+                                            optionsHtml += `<div class="custom-dropdown-item px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" data-value="${billId}">${label}</div>`;
+                                            if(val === billId) selectedText = label;
+                                        }
 
-                                    const row = document.createElement('div');
-                                    row.className = 'flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200 shadow-sm';
-                                    row.innerHTML = `
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
-                                                ${seat}
+                                        const row = document.createElement('div');
+                                        row.className = 'flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200 shadow-sm';
+                                        row.innerHTML = `
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                                                    ${seat}
+                                                </div>
+                                                <span class="text-sm font-medium text-gray-700">Kursi ${seat}</span>
                                             </div>
-                                            <span class="text-sm font-medium text-gray-700">Kursi ${seat}</span>
-                                        </div>
-                                        <div class="relative custom-dropdown w-1/2">
-                                            <input type="hidden" name="split_bill[${seat}]" data-seat="${seat}" value="${val}" class="split-bill-input p-2">
-                                            <button type="button" class="custom-dropdown-btn w-full bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg flex items-center justify-between shadow-sm text-sm p-2 transition-colors hover:bg-gray-50">
-                                                <span class="dropdown-text truncate">${selectedText}</span>
-                                                <svg class="w-4 h-4 ml-2 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                            </button>
-                                            <div class="custom-dropdown-menu hidden absolute right-0 mt-2 w-full bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200 overflow-y-auto max-h-60">
-                                                ${optionsHtml}
+                                            <div class="relative custom-dropdown w-1/2">
+                                                <input type="hidden" name="split_bill[${seat}]" data-seat="${seat}" value="${val}" class="split-bill-input p-2">
+                                                <button type="button" class="custom-dropdown-btn w-full bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg flex items-center justify-between shadow-sm text-sm p-2 transition-colors hover:bg-gray-50">
+                                                    <span class="dropdown-text truncate">${selectedText}</span>
+                                                    <svg class="w-4 h-4 ml-2 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                </button>
+                                                <div class="custom-dropdown-menu hidden absolute right-0 mt-2 w-full bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200 overflow-y-auto max-h-60">
+                                                    ${optionsHtml}
+                                                </div>
                                             </div>
-                                        </div>
-                                    `;
-                                    splitRows.appendChild(row);
-                                });
+                                        `;
+                                        splitRows.appendChild(row);
+                                    });
+                                }
                             }
                         }
 
@@ -371,17 +390,19 @@
                         });
 
 
-                        splitBillToggle.addEventListener('change', function() {
-                            if (this.checked) {
-                                splitBillContainer.classList.remove('hidden');
-                                updateRows(); 
-                                // Enable? Inputs are text/hidden, explicit disable not strictly needed for hidden but good for hygiene
-                                document.querySelectorAll('.split-bill-input').forEach(el => el.disabled = false);
-                            } else {
-                                splitBillContainer.classList.add('hidden');
-                                document.querySelectorAll('.split-bill-input').forEach(el => el.disabled = true);
-                            }
-                        });
+                        if(splitBillToggle) {
+                            splitBillToggle.addEventListener('change', function() {
+                                if (this.checked) {
+                                    splitBillContainer.classList.remove('hidden');
+                                    updateRows(); 
+                                    // Enable? Inputs are text/hidden, explicit disable not strictly needed for hidden but good for hygiene
+                                    document.querySelectorAll('.split-bill-input').forEach(el => el.disabled = false);
+                                } else {
+                                    splitBillContainer.classList.add('hidden');
+                                    document.querySelectorAll('.split-bill-input').forEach(el => el.disabled = true);
+                                }
+                            });
+                        }
 
 
                         seatCheckboxes.forEach(cb => {
@@ -400,53 +421,69 @@
 
             <!-- Right: Trip Summary -->
             <div class="w-full lg:w-1/3">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Rincian Perjalanan</h3>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-8">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-900">Rincian Perjalanan</h3>
+                    </div>
                     
-                        <div class="flex flex-col items-center mr-3 pt-1">
-                            <div class="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
-                            <div class="w-0.5 h-10 bg-gray-200 my-1"></div>
-                            <div class="w-2.5 h-2.5 bg-indigo-500 rounded-full"></div>
-                        </div>
-                        <div class="flex-1">
-                            <div class="mb-4">
-                                <p class="text-xs text-gray-500 mb-0.5">Berangkat</p>
-                                <p class="text-sm font-bold text-gray-900">{{ $schedule->route->sourceDestination->city_name ?? $schedule->route->source }}</p>
-                                <p class="text-xs text-gray-600">{{ \Carbon\Carbon::parse($schedule->departure_time)->format('H:i') }} • {{ \Carbon\Carbon::parse($travelDate)->format('d M Y') }}</p>
+                    <div class="p-6">
+                        <!-- Route Timeline -->
+                        <div class="relative pl-4 border-l-2 border-gray-200 ml-2 space-y-8 mb-6">
+                            <!-- Departure -->
+                            <div class="relative">
+                                <div class="absolute -left-[21px] top-1.5 w-3.5 h-3.5 bg-white border-4 border-blue-500 rounded-full"></div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-900">{{ $schedule->route->sourceDestination->city_name ?? $schedule->route->source }}</h4>
+                                    <p class="text-xs text-gray-500 mt-1">{{ \Carbon\Carbon::parse($schedule->departure_time)->format('d M Y, H:i') }}</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">Terminal {{ $schedule->route->source_code }}</p>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-xs text-gray-500 mb-0.5">Tujuan</p>
-                                <p class="text-sm font-bold text-gray-900">{{ $schedule->route->destination->city_name ?? $schedule->route->destination_code }}</p>
-                                <p class="text-xs text-gray-600">{{ \Carbon\Carbon::parse($schedule->arrival_time)->format('H:i') }} • {{ \Carbon\Carbon::parse($travelDate)->format('d M Y') }}</p>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="border-t border-gray-100 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-blue-50 p-2 rounded-lg">
-                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-bold text-gray-900">{{ $schedule->bus->bus_number }}</p>
-                                <p class="text-xs text-gray-500">{{ $schedule->bus->bus_type }}</p>
+                            <!-- Arrival -->
+                            <div class="relative">
+                                <div class="absolute -left-[21px] top-1.5 w-3.5 h-3.5 bg-white border-4 border-indigo-500 rounded-full"></div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-900">{{ $schedule->route->destination->city_name ?? $schedule->route->destination_code }}</h4>
+                                    <p class="text-xs text-gray-500 mt-1">{{ \Carbon\Carbon::parse($schedule->arrival_time)->format('d M Y, H:i') }}</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">Terminal {{ $schedule->route->destination_code }}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="border-t border-gray-100 pt-4 mt-2">
-                        <h4 class="text-sm font-medium text-gray-900 mb-3">Rincian Harga</h4>
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-sm text-gray-600">Tiket Bus (x1)</span>
-                            <span class="text-sm font-medium text-gray-900">Rp {{ number_format($schedule->price_per_seat, 0, ',', '.') }}</span>
+                        <!-- Travel Duration -->
+                         <div class="bg-blue-50 rounded-lg p-3 mb-6 flex items-center justify-between">
+                            <span class="text-xs font-semibold text-blue-800">Durasi Perjalanan</span>
+                             <span class="text-xs font-bold text-blue-900">
+                                {{ \Carbon\Carbon::parse($schedule->departure_time)->diff(\Carbon\Carbon::parse($schedule->arrival_time))->format('%h Jam %i Menit') }}
+                            </span>
                         </div>
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-sm text-gray-600">Biaya Layanan</span>
-                            <span class="text-sm font-medium text-green-600">Gratis</span>
+
+
+                        <!-- Bus Info -->
+                        <div class="border-t border-gray-100 pt-4 mb-2">
+                             <div class="flex items-center gap-3">
+                                <div class="bg-blue-50 p-2 rounded-lg shrink-0">
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900">{{ $schedule->bus->bus_name ?? 'Bus' }}</p>
+                                    <p class="text-xs text-gray-500">{{ $schedule->bus->bus_number ?? '-' }} • {{ $schedule->bus->bus_type ?? 'Standard' }}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="border-t border-dashed border-gray-200 pt-3 mt-3 flex justify-between items-center">
-                            <span class="text-base font-bold text-gray-900">Total Pembayaran</span>
-                            <span class="text-xl font-bold text-orange-500">Rp {{ number_format($schedule->price_per_seat, 0, ',', '.') }}</span>
+
+                        <!-- Price Breakdown -->
+                        <div class="border-t border-gray-100 pt-4 mt-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-gray-600">Harga per Tiket</span>
+                                <span class="text-sm font-bold text-gray-900">Rp {{ number_format($schedule->price_per_seat, 0, ',', '.') }}</span>
+                            </div>
+                           
+                            <div class="border-t border-dashed border-gray-200 pt-3 mt-3 flex justify-between items-center">
+                                <span class="text-base font-bold text-gray-900">Total Estimasi</span>
+                                <span class="text-xl font-bold text-blue-600" id="totalEstimateDisplay">Rp 0</span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1 italic text-right">*Total berdasarkan kursi dipilih</p>
                         </div>
                     </div>
                 </div>

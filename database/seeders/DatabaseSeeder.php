@@ -110,84 +110,78 @@ class DatabaseSeeder extends Seeder
         foreach($selectedSchedules as $schedule) {
             // "Just make 10 for only a few schedules" 
             // We will create exactly 10 Bookings/Tickets/Details for this schedule.
-            // All of them will have a ticket_id (None null).
             $seatsToBook = 10;
             
-            // Track booked seats to avoid collisions if we were randomizing, 
-            // but here we can just iterate 1 to 10 linearly for simplicity 
-            // and guaranteed non-null ticket_id.
-
             for ($i = 1; $i <= $seatsToBook; $i++) {
                 $customer = $customers->random();
                 
-                // 1. Create Booking (1 Seat)
-                // We create 1 booking per seat for simplicity to ensure 1:1 mapping easily
+                // 1. Create Booking
+                // Use STATUS_BOOKED to match "Confirmed/Paid" state
                 $booking = Booking::create([
                     'account_id' => $customer->id,
                     'schedule_id' => $schedule->id,
                     'booking_date' => now(),
                     'travel_date' => $schedule->departure_time,
                     'total_amount' => $schedule->price_per_seat,
-                    'status' => 'Confirmed'
+                    'status' => \App\Models\Booking::STATUS_BOOKED
                 ]);
 
-                // Refetch Booking ID
+                // Refetch Booking to ensure we have the Trigger-generated ID
                 $booking = Booking::where('account_id', $customer->id)
                     ->where('schedule_id', $schedule->id)
                     ->latest()
                     ->first();
 
                 if (!$booking) continue;
-                
-                // Seat logic: A1, A2, B1, B2... (Assuming 2 chars per row or similar?)
-                // Simple logic: Row + Col. Let's assume 4 cols per row.
-                // i starts at 1.
-                // Row 1: 1, 2, 3, 4 -> A1, A2, B1, B2 ? Or A1, B1, C1, D1?
-                // Standard Bus: 
-                // Col A, Col B --aisle-- Col C, Col D
-                // Row 1: 1A, 1B, 1C, 1D?
-                // User asked for "A1". Let's assume Rows are Numbers, Cols are Letters.
-                // Or Rows are Letters (A-Z), Cols are Numbers? "A1" usually means Row A, Seat 1.
-                
-                $rowNum = ceil($i / 4); // 1, 1, 1, 1, 2...
-                $colNum = ($i - 1) % 4; // 0, 1, 2, 3
-                $colLetter = chr(65 + $colNum); // A, B, C, D
-                $seatLabel = $colLetter . $rowNum; // A1, B1, C1, D1...
 
-                // 2. Create Ticket
-                Ticket::create([
+                // 2. Create Transaction (QRIS Payment for example)
+                // Transaction needs Booking ID.
+                $transaction = Transaction::create([
+                    'account_id' => $customer->id,
                     'booking_id' => $booking->id,
-                    'passenger_name' => $customer->first_name,
-                    'seat_number' => $seatLabel,
-                    'status' => 'Valid'
+                    'ticket_id' => null, // Will be linked via Ticket table mainly, or legacy column
+                    'transaction_date' => now(),
+                    'payment_method' => 'QRIS',
+                    'sub_total' => $schedule->price_per_seat,
+                    'total_amount' => $schedule->price_per_seat,
+                    'type' => 'Payment',
+                    'status' => 'Success'
                 ]);
 
-                // Refetch Ticket ID
-                $ticket = Ticket::where('booking_id', $booking->id)
-                                ->where('seat_number', $seatLabel)
-                                ->first();
+                // Refetch Transaction just to be safe (though create returns object, trigger might affect ID if string)
+                // Assuming Transaction ID is auto-increment or UUID. If Trigger, need refetch.
+                // Using latest() based on created_at is safe enough for seeder.
+                $transaction = Transaction::where('booking_id', $booking->id)->latest()->first();
 
+
+                // 3. Create Ticket
+                // Ticket needs Booking ID AND Transaction ID.
+                
+                // Seat Logic: columns A, B, C, D
+                $rowNum = ceil($i / 4); 
+                $colNum = ($i - 1) % 4; 
+                $colLetter = chr(65 + $colNum); // A, B, C, D
+                $seatLabel = $colLetter . $rowNum; // A1, B1, C1, D1... (Or 1A if preferred, utilizing user pref `1A` usually)
+                // Wait, previous code was `$colLetter . $rowNum` -> A1.
+                // User's previous view showed `1A`, `1B`. 
+                // Let's stick to `$rowNum . $colLetter` to match standard `1A`.
+                $seatLabel = $rowNum . $colLetter;
+
+                $ticket = Ticket::create([
+                    'booking_id' => $booking->id,
+                    'transaction_id' => $transaction->id, // Linked!
+                    'passenger_name' => $customer->first_name,
+                    'seat_number' => $seatLabel,
+                    'status' => 'Valid' // Matches 'Valid' logic for Paid tickets
+                ]);
+
+                // 4. Create ScheduleDetail (For Driver App)
                 if ($ticket) {
-                    // 3. Create Transaction
-                    Transaction::create([
-                        'account_id' => $customer->id,
-                        'booking_id' => $booking->id,
-                        'ticket_id' => null, 
-                        'transaction_date' => now(),
-                        'payment_method' => 'Credit Card',
-                        'sub_total' => $schedule->price_per_seat,
-                        'total_amount' => $schedule->price_per_seat,
-                        'type' => 'Payment',
-                        'status' => 'Success'
-                    ]);
-
-                    // 4. Create ScheduleDetail
-                    // Strictly linked to the ticket, so ticket_id is NEVER null.
                     \App\Models\ScheduleDetail::create([
                         'schedule_id' => $schedule->id,
                         'sequence' => $i,
                         'ticket_id' => $ticket->id,
-                        'seat_number' => $seatLabel, // Added
+                        'seat_number' => $seatLabel, 
                         'attendance_status' => 'Pending',
                         'remarks' => null
                     ]);

@@ -5,6 +5,7 @@ export default function expensesManager(config) {
     return {
         ...datatable(config),
         current_user_id: config.current_user_id,
+        canApprove: config.canApprove,
 
         issueModalOpen: false,
         activeIssue: null,

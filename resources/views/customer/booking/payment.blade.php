@@ -147,7 +147,54 @@
                 </div>
 
             <!-- Right: Booking Summary -->
-            {{-- ... --}}
+            <div class="lg:w-1/3">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-8">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-900">Rincian Pesanan</h3>
+                    </div>
+                    
+                    <div class="p-6">
+                        <!-- Route Info -->
+                        <div class="mb-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-gray-900">{{ $booking->schedule->route->sourceDestination->city_name }}</span>
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                <span class="text-sm font-bold text-gray-900">{{ $booking->schedule->route->destination->city_name }}</span>
+                            </div>
+                            <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($booking->schedule->departure_time)->format('d M Y, H:i') }}</p>
+                        </div>
+
+                        <!-- Bus Info -->
+                        <div class="mb-6">
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Bus</h4>
+                            <div class="flex items-center">
+                                <div class="p-2 bg-blue-50 rounded-lg mr-3">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900">{{ $booking->schedule->bus->bus_name }}</p>
+                                    <p class="text-xs text-gray-500">{{ $booking->schedule->bus->bus_number }} • {{ $booking->schedule->bus->bus_type }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Price Breakdown -->
+                        <div class="border-t border-gray-100 pt-4 space-y-2">
+                             <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Tiket (x{{ $booking->tickets->count() }})</span>
+                                <span class="font-medium text-gray-900">Rp {{ number_format($booking->total_amount, 0, ',', '.') }}</span>
+                            </div>
+                            <!-- Add taxes or fees here if applicable -->
+                        </div>
+
+                         <div class="border-t border-gray-100 pt-4 mt-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-base font-bold text-gray-900">Total</span>
+                                <span class="text-xl font-bold text-blue-600">Rp {{ number_format($booking->total_amount, 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
