@@ -19,39 +19,39 @@
                  x-init="fetchData(1)"
             >
                 <div class="mb-4">
-                    <a href="{{ route('admin.financial.reports') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali ke Laporan</a>
+                    <a href="{{ route('admin.financial.reports') }}" class="text-gray-600 hover:text-gray-900">&larr; Back to Reports</a>
                 </div>
 
                 <div class="mb-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-bold">Transaksi</h2>
+                        <h2 class="text-2xl font-bold">Transactions</h2>
                     </div>
                 
                     <!-- Toolbar -->
                     <div class="w-full" x-data="{ showFilters: false, openExport: false }">
                         <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-2">
-                             <input type="text" x-model="filters.search" @keydown.enter="fetchData(1)" placeholder="Cari ID atau Pelanggan..." class="grow border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 h-[42px]">
+                             <input type="text" x-model="filters.search" @keydown.enter="fetchData(1)" placeholder="Search ID or Customer..." class="grow border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 h-[42px]">
                              
                              <button type="button" @click="showFilters = !showFilters" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 flex items-center justify-center border border-transparent h-[42px] whitespace-nowrap transition-colors">
-                                <span>Urutkan & Filter</span>
+                                <span>Sort & Filter</span>
                                 <svg x-show="!showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 <svg x-show="showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
                             </button>
                             
-                            <button type="button" @click="fetchData(1)" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 border border-transparent h-[42px] font-medium transition-colors">Cari</button>
+                            <button type="button" @click="fetchData(1)" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 border border-transparent h-[42px] font-medium transition-colors">Search</button>
 
                             <!-- Export Dropdown -->
                             <div class="relative" @click.outside="openExport = false">
                                 <button type="button" @click="openExport = !openExport" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 flex items-center h-[42px] transition-colors shadow-sm font-medium">
-                                    Ekspor / Cetak
+                                    Export / Print
                                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </button>
                                 <div x-show="openExport" x-cloak class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200">
                                     <a href="{{ route('admin.transactions.export') }}" class="block px-4 py-2 text-sm w-full text-left text-gray-700 hover:bg-gray-100">
-                                        Unduh CSV
+                                        Download CSV
                                     </a>
                                     <button onclick="window.print()" class="block px-4 py-2 text-sm w-full text-left text-gray-700 hover:bg-gray-100">
-                                        Cetak Tabel
+                                        Print Table
                                     </button>
                                 </div>
                             </div>
@@ -60,40 +60,40 @@
                                     @click="filters.search = ''; filters.date = ''; filters.status = ''; filters.sort_by = 'transaction_date'; fetchData(1)" 
                                     class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 flex items-center justify-center border border-transparent h-[42px] transition-colors"
                                     style="display: none;">
-                                Bersihkan
+                                Clear
                             </button>
                         </div>
 
                         <div x-show="showFilters" x-collapse x-cloak class="overflow-hidden">
                             <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-md shadow-inner mb-6 mt-4 border border-gray-200">
                              <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Urutkan Berdasarkan</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
                                 <select x-model="filters.sort_by" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
-                                    <option value="transaction_date">Tanggal</option>
+                                    <option value="transaction_date">Date</option>
                                     <option value="id">ID</option>
-                                    <option value="total_amount">Jumlah</option>
+                                    <option value="total_amount">Amount</option>
                                     <option value="status">Status</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Urutan</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Order</label>
                                 <select x-model="filters.sort_order" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
-                                    <option value="asc">Menaik (Ascending)</option>
-                                    <option value="desc">Menurun (Descending)</option>
+                                    <option value="asc">Ascending</option>
+                                    <option value="desc">Descending</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                                 <select x-model="filters.status" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
-                                    <option value="">Semua Status</option>
-                                    <option value="Success">Sukses</option>
-                                    <option value="Pending">Menunggu</option>
-                                    <option value="Failed">Gagal</option>
-                                    <option value="Payment Issue">Masalah Pembayaran</option>
+                                    <option value="">All Statuses</option>
+                                    <option value="Success">Success</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Failed">Failed</option>
+                                    <option value="Payment Issue">Payment Issue</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
                                 <input type="date" x-model="filters.date" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
                             </div>
                         </div>
@@ -114,17 +114,17 @@
                                         <span x-show="filters.sort_by === 'id'" class="ml-1" x-text="filters.sort_order === 'asc' ? '↑' : '↓'"></span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
                                 <th @click="sortBy('transaction_date')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer group hover:bg-gray-100">
                                     <div class="flex items-center">
-                                        Tanggal
+                                        Date
                                         <span x-show="filters.sort_by === 'transaction_date'" class="ml-1" x-text="filters.sort_order === 'asc' ? '↑' : '↓'"></span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ref Pemesanan</th> 
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Ref</th> 
                                 <th @click="sortBy('total_amount')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer group hover:bg-gray-100">
                                     <div class="flex items-center">
-                                        Jumlah
+                                        Amount
                                         <span x-show="filters.sort_by === 'total_amount'" class="ml-1" x-text="filters.sort_order === 'asc' ? '↑' : '↓'"></span>
                                     </div>
                                 </th>
@@ -141,7 +141,7 @@
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="'#' + transaction.id"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        <span x-text="transaction.account ? transaction.account.first_name + ' ' + (transaction.account.last_name || '') : 'Tamu'"></span>
+                                        <span x-text="transaction.account ? transaction.account.first_name + ' ' + (transaction.account.last_name || '') : 'Guest'"></span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="formatDate(transaction.transaction_date)"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -158,7 +158,7 @@
                                               @click="transaction.status === 'Payment Issue' ? viewProofs(transaction) : null"
                                               x-text="transaction.status">
                                         </span>
-                                        <span x-show="transaction.status === 'Payment Issue'" class="ml-2 text-xs text-blue-600 hover:underline cursor-pointer" @click="viewProofs(transaction)">(Lihat Bukti)</span>
+                                        <span x-show="transaction.status === 'Payment Issue'" class="ml-2 text-xs text-blue-600 hover:underline cursor-pointer" @click="viewProofs(transaction)">(View Proof)</span>
                                         <template x-if="transaction.status === 'Pending' || canEditAny">
                                             <a :href="'/admin/transactions/' + transaction.id + '/edit'" class="ml-2 text-xs text-blue-600 hover:underline cursor-pointer">Edit</a>
                                         </template>
@@ -166,7 +166,7 @@
                                 </tr>
                             </template>
                             <tr x-show="items.length === 0 && !loading">
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada transaksi ditemukan.</td>
+                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">No transactions found.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -175,7 +175,7 @@
                 <!-- Pagination -->
                 <div class="mt-4 flex justify-between items-center" x-show="pagination.total > 0">
                     <div class="text-sm text-gray-700">
-                        Menampilkan <span x-text="pagination.from"></span> sampai <span x-text="pagination.to"></span> dari <span x-text="pagination.total"></span> hasil
+                        Showing <span x-text="pagination.from"></span> to <span x-text="pagination.to"></span> of <span x-text="pagination.total"></span> results
                     </div>
                     <div class="flex space-x-1">
                         <button 
@@ -183,7 +183,7 @@
                             :disabled="pagination.current_page <= 1"
                             :class="{'opacity-50 cursor-not-allowed': pagination.current_page <= 1}"
                             class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            Sebelumnya
+                            Previous
                         </button>
 
                         <template x-for="page in getPages()">
@@ -205,7 +205,7 @@
                             :disabled="pagination.current_page >= pagination.last_page"
                             :class="{'opacity-50 cursor-not-allowed': pagination.current_page >= pagination.last_page}"
                             class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            Selanjutnya
+                            Next
                         </button>
                     </div>
                 </div>
@@ -219,18 +219,18 @@
                             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                                 <div class="sm:flex sm:items-start">
                                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Bukti Masalah Pembayaran</h3>
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Payment Issue Proof</h3>
                                         <div class="mt-4">
                                             <template x-if="selectedProofs.length === 0">
-                                                <p class="text-sm text-gray-500">Tidak ada bukti ditemukan.</p>
+                                                <p class="text-sm text-gray-500">No proof found.</p>
                                             </template>
                                             <template x-for="proof in selectedProofs" :key="proof.id">
                                                 <div class="mb-4 border-b border-gray-200 pb-4">
-                                                    <p class="text-sm font-medium text-gray-800 mb-1" x-text="proof.sender_type === 'driver' ? 'Pesan Sopir:' : 'Pesan Admin:'"></p>
+                                                    <p class="text-sm font-medium text-gray-800 mb-1" x-text="proof.sender_type === 'driver' ? 'Driver Message:' : 'Admin Message:'"></p>
                                                     <p class="text-sm text-gray-600 italic mb-2" x-text='proof.message'></p>
                                                     <template x-if="proof.file_path">
                                                         <a :href="'/storage/' + proof.file_path" target="_blank" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                            Lihat Berkas
+                                                            View File
                                                         </a>
                                                     </template>
                                                 </div>
@@ -243,11 +243,11 @@
                                 <form :action="'/admin/transactions/' + selectedTransactionId + '/resolve'" method="POST" class="w-full sm:w-auto sm:ml-3">
                                     @csrf
                                     <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm">
-                                        Selesaikan Pembayaran
+                                        Resolve Payment
                                     </button>
                                 </form>
                                 <button type="button" @click="showProofModal = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                                    Tutup
+                                    Close
                                 </button>
                             </div>
                         </div>

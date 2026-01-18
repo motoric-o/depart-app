@@ -6,7 +6,7 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">Edit Customer: {{ $user->first_name }}</h2>
+                    <h2 class="text-2xl font-bold">Edit User: {{ $user->first_name }}</h2>
                     <a href="{{ route('admin.users') }}" class="text-gray-600 hover:text-gray-900">Back to List</a>
                 </div>
 
@@ -79,7 +79,7 @@
 
                     <div class="flex justify-end pt-4">
                         <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Update Customer
+                            Update User
                         </button>
                     </div>
                 </form>

@@ -10,8 +10,8 @@
                  })"
             >
                 <div class="mb-6 flex justify-between items-center">
-                    <h2 class="text-2xl font-bold">Buat Pemesanan Baru (Admin)</h2>
-                    <a href="{{ route('admin.bookings') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+                    <h2 class="text-2xl font-bold">Create New Booking (Admin)</h2>
+                    <a href="{{ route('admin.bookings') }}" class="text-gray-600 hover:text-gray-900">&larr; Back</a>
                 </div>
 
                 @if ($errors->any())
@@ -40,35 +40,35 @@
                                            @keydown.enter.prevent="checkEmail"
                                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" 
                                            placeholder="email@contoh.com" required>
-                                    <button type="button" @click="checkEmail" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-md text-sm">
-                                        Cek
-                                    </button>
+                    <!-- 1. Customer Selection -->
+                    <div class="mb-6 border-b pb-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">1. Customer Data</h3>
                                 </div>
-                                <p x-show="emailCheckStatus === 'checking'" class="text-xs text-gray-500 mt-1">Mencari...</p>
-                                <p x-show="emailCheckStatus === 'found'" class="text-xs text-green-600 mt-1">Pelanggan ditemukan!</p>
-                                <p x-show="emailCheckStatus === 'not_found'" class="text-xs text-blue-600 mt-1">Email baru. Silakan isi nama.</p>
+                                <p x-show="emailCheckStatus === 'checking'" class="text-xs text-gray-500 mt-1">Checking...</p>
+                                <p x-show="emailCheckStatus === 'found'" class="text-xs text-green-600 mt-1">Customer found!</p>
+                                <p x-show="emailCheckStatus === 'not_found'" class="text-xs text-blue-600 mt-1">New email. Please fill in name.</p>
                             </div>
                             
                             <div x-show="showNameField" x-transition>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                                 <input type="text" name="customer_name" x-model="form.customer_name" 
                                        :readonly="emailCheckStatus === 'found'"
                                        :class="emailCheckStatus === 'found' ? 'bg-gray-100 cursor-not-allowed' : ''"
                                        class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" 
-                                       placeholder="Nama Pelanggan" required>
-                                <p x-show="emailCheckStatus === 'found'" class="text-xs text-gray-500 mt-1">Nama diambil dari akun terdaftar.</p>
+                                       placeholder="Customer Name" required>
+                                <p x-show="emailCheckStatus === 'found'" class="text-xs text-gray-500 mt-1">Name retrieved from registered account.</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- 2. Find Schedule -->
                     <div class="mb-6 border-b pb-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">2. Cari Jadwal</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">2. Find Schedule</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Rute</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Route</label>
                                 <!-- Custom Dropdown for Route -->
-                                <div x-data="{ open: false, label: '-- Pilih Rute --' }" class="relative">
+                                <div x-data="{ open: false, label: '-- Select Route --' }" class="relative">
                                     <button type="button" @click="open = !open" class="w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm h-[42px]">
                                         <span class="block truncate" x-text="label"></span>
                                         <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
@@ -79,8 +79,8 @@
                                     </button>
                                     <div x-show="open" @click.outside="open = false" x-cloak class="absolute z-50 mt-1 w-full bg-white shadow-lg rounded-md ring-1 ring-black ring-opacity-5 overflow-hidden sm:text-sm">
                                         <div class="max-h-60 overflow-y-auto">
-                                            <div @click="form.route_id = ''; label = '-- Semua Rute --'; open = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 border-b border-gray-100">
-                                                <span class="font-normal block truncate">-- Semua Rute --</span>
+                                            <div @click="form.route_id = ''; label = '-- All Routes --'; open = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 border-b border-gray-100">
+                                                <span class="font-normal block truncate">-- All Routes --</span>
                                             </div>
                                             <template x-for="route in routes" :key="route.id">
                                                 <div @click="form.route_id = route.id; label = route.source + ' -> ' + (route.destination ? route.destination.city_name : route.destination_code); open = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">
@@ -92,12 +92,12 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
                                 <input type="date" x-model="form.date" :min="today" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 h-[42px]">
                             </div>
                             <div class="flex items-end">
                                 <button type="button" @click="searchSchedules" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 w-full" >
-                                    Cari Jadwal
+                                    Search Schedules
                                 </button>
                             </div>
                         </div>
@@ -106,7 +106,7 @@
                         <div x-show="schedules.length > 0" class="mt-4">
                             <!-- List View -->
                             <div x-show="!selectedSchedule">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Jadwal Tersedia:</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Select Available Schedule:</label>
                                 <div class="grid grid-cols-1 gap-4">
                                     <template x-for="schedule in schedules" :key="schedule.id">
                                         <div @click="selectSchedule(schedule)" 
@@ -115,7 +115,7 @@
                                                 <div>
                                                     <div class="font-bold text-lg" x-text="formatTime(schedule.departure_time) + ' - ' + formatTime(schedule.arrival_time)"></div>
                                                     <div class="text-sm text-gray-600" x-text="schedule.bus.bus_name + ' (' + schedule.bus.bus_type + ')'"></div>
-                                                    <div class="text-xs text-gray-500 mt-1" x-text="'Sisa Kursi: ' + (schedule.quota - (schedule.bookings_count || 0))"></div>
+                                                    <div class="text-xs text-gray-500 mt-1" x-text="'Seats Left: ' + (schedule.quota - (schedule.bookings_count || 0))"></div>
                                                 </div>
                                                 <div class="text-right">
                                                     <div class="text-lg font-bold text-blue-600" x-text="formatMoney(schedule.price_per_seat)"></div>
@@ -130,27 +130,27 @@
                             <div x-show="selectedSchedule" class="bg-blue-50 border border-blue-200 rounded-md p-4">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <h4 class="font-bold text-lg text-blue-900">Jadwal Terpilih</h4>
+                                        <h4 class="font-bold text-lg text-blue-900">Selected Schedule</h4>
                                         <div class="mt-2 text-blue-800">
                                             <div x-text="formatTime(selectedSchedule?.departure_time) + ' - ' + formatTime(selectedSchedule?.arrival_time) + ' | ' + selectedSchedule?.bus?.bus_name"></div>
                                             <div class="text-sm" x-text="selectedSchedule?.route?.source + ' -> ' + (selectedSchedule?.route?.destination?.city_name || selectedSchedule?.route?.destination_code)"></div>
                                         </div>
                                     </div>
                                     <button type="button" @click="deselectSchedule" class="text-sm text-blue-600 hover:text-blue-800 underline">
-                                        Ubah Jadwal
+                                        Change Schedule
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <div x-show="searched && schedules.length === 0" class="mt-4 text-gray-500 text-sm italic">
-                            Tidak ada jadwal ditemukan untuk kriteria ini.
+                            No schedules found for these criteria.
                         </div>
                     </div>
 
                     <!-- 3. Seat Selection -->
                     <div class="mb-6 border-b pb-6" x-show="form.schedule_id">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">3. Pilih Kursi</h3>
-                        <p class="text-sm text-gray-500 mb-4">Pilih kursi pada denah di bawah ini.</p>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">3. Select Seats</h3>
+                        <p class="text-sm text-gray-500 mb-4">Select seats on the map below.</p>
                         
                         <div class="bg-gray-100 p-6 rounded-lg overflow-x-auto flex justify-center">
                             <!-- Seat Map -->
@@ -188,12 +188,12 @@
 
                     <!-- 4. Passenger Details -->
                     <div class="mb-6 border-b pb-6" x-show="form.seats.length > 0">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">4. Detail Penumpang</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">4. Passenger Details</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <template x-for="(seat, index) in form.seats" :key="seat">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1" x-text="'Nama Penumpang (Kursi ' + seat + ')'"></label>
-                                    <input type="text" name="passengers[]" x-model="form.passengers[index]" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" required placeholder="Nama Lengkap">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1" x-text="'Passenger Name (Seat ' + seat + ')'"></label>
+                                    <input type="text" name="passengers[]" x-model="form.passengers[index]" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" required placeholder="Full Name">
                                 </div>
                             </template>
                         </div>
@@ -201,15 +201,15 @@
 
                     <!-- 5. Payment Details -->
                     <div class="mb-6" x-show="form.seats.length > 0">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">5. Detail Pembayaran</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">5. Payment Details</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Total Harga</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Total Price</label>
                                 <div class="text-2xl font-bold text-blue-600" x-text="formatMoney(calculateTotal())"></div>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Metode Pembayaran</label>
-                                <div x-data="{ open: false, label: 'Pilih Metode...' }" class="relative mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                                <div x-data="{ open: false, label: 'Select Method...' }" class="relative mb-4">
                                      <input type="hidden" name="payment_method" x-model="form.payment_method">
                                      <button type="button" @click="open = !open" class="w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm h-[42px]">
                                         <span class="block truncate" x-text="label"></span>
@@ -219,15 +219,15 @@
                                     </button>
                                     <div x-show="open" @click.outside="open = false" x-cloak class="absolute z-50 mt-1 w-full bg-white shadow-lg rounded-md ring-1 ring-black ring-opacity-5 overflow-hidden sm:text-sm">
                                         <div class="max-h-60 overflow-y-auto">
-                                            <div @click="form.payment_method = 'Cash'; label = 'Cash (Tunai)'; open = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">Cash (Tunai)</div>
-                                            <div @click="form.payment_method = 'Transfer'; label = 'Transfer Manual'; open = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">Transfer Manual</div>
-                                            <div @click="form.payment_method = 'Other'; label = 'Lainnya'; open = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">Lainnya</div>
+                                            <div @click="form.payment_method = 'Cash'; label = 'Cash'; open = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">Cash</div>
+                                            <div @click="form.payment_method = 'Transfer'; label = 'Manual Transfer'; open = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">Manual Transfer</div>
+                                            <div @click="form.payment_method = 'Other'; label = 'Other'; open = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">Other</div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Status Pembayaran</label>
-                                <div x-data="{ open: false, label: 'Pilih Status...' }" class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
+                                <div x-data="{ open: false, label: 'Select Status...' }" class="relative">
                                      <input type="hidden" name="payment_status" x-model="form.payment_status">
                                      <button type="button" @click="open = !open" class="w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm h-[42px]">
                                         <span class="block truncate" x-text="label"></span>
@@ -248,7 +248,7 @@
 
                     <div class="flex justify-end pt-6">
                         <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 font-medium transition-colors">
-                            Buat Pemesanan
+                            Create Booking
                         </button>
                     </div>
                 </form>
@@ -324,7 +324,7 @@
                         this.searched = true;
                     })
                     .catch(() => {
-                        alert('Gagal mengambil jadwal.');
+                        alert('Failed to retrieve schedules.');
                     });
             },
 
@@ -437,17 +437,17 @@
                 
                 // Custom Validation
                 if (this.form.seats.length === 0) {
-                    alert('Silakan pilih minimal 1 kursi.');
+                    alert('Please select at least 1 seat.');
                     e.preventDefault();
                     return;
                 }
                 if (!this.form.payment_method) {
-                    alert('Silakan pilih metode pembayaran.');
+                    alert('Please select a payment method.');
                     e.preventDefault();
                     return;
                 }
                 if (!this.form.payment_status) {
-                    alert('Silakan pilih status pembayaran.');
+                    alert('Please select a payment status.');
                     e.preventDefault();
                     return;
                 }

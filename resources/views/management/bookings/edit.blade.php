@@ -6,8 +6,8 @@
         <div class="bg-white shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <div class="mb-6 flex justify-between items-center">
-                    <h2 class="text-2xl font-bold">Edit Pemesanan #{{ $booking->id }}</h2>
-                    <a href="{{ route('admin.bookings') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+                    <h2 class="text-2xl font-bold">Edit Booking #{{ $booking->id }}</h2>
+                    <a href="{{ route('admin.bookings') }}" class="text-gray-600 hover:text-gray-900">&larr; Back</a>
                 </div>
 
                 @if ($errors->any())
@@ -27,18 +27,18 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <!-- Info Panel -->
                         <div class="bg-gray-50 p-4 rounded-md border text-sm">
-                            <h3 class="font-bold text-gray-700 mb-2">Informasi Perjalanan</h3>
+                            <h3 class="font-bold text-gray-700 mb-2">Trip Information</h3>
                             <div class="grid grid-cols-2 gap-2">
-                                <span class="text-gray-500">Rute:</span>
+                                <span class="text-gray-500">Route:</span>
                                 <span class="font-medium">{{ $booking->schedule->route->source }} -> {{ $booking->schedule->route->destination->city_name ?? $booking->schedule->route->destination_code }}</span>
                                 
-                                <span class="text-gray-500">Tanggal:</span>
+                                <span class="text-gray-500">Date:</span>
                                 <span class="font-medium">{{ \Carbon\Carbon::parse($booking->travel_date)->translatedFormat('d F Y, H:i') }}</span>
                                 
                                 <span class="text-gray-500">Bus:</span>
                                 <span class="font-medium">{{ $booking->schedule->bus->bus_name }} ({{ $booking->schedule->bus->bus_number }})</span>
                                 
-                                <span class="text-gray-500">Pelanggan:</span>
+                                <span class="text-gray-500">Customer:</span>
                                 <span class="font-medium text-blue-600">
                                     @if($booking->account_id)
                                         <a href="{{ route('admin.users.edit', $booking->account_id) }}" class="hover:underline">
@@ -53,18 +53,18 @@
 
                         <!-- Status Panel -->
                         <div class="bg-gray-50 p-4 rounded-md border text-sm">
-                            <h3 class="font-bold text-gray-700 mb-2">Status Pemesanan</h3>
+                            <h3 class="font-bold text-gray-700 mb-2">Booking Status</h3>
                             <div class="mb-4">
-                                <label class="block text-gray-500 mb-1">Status Utama</label>
+                                <label class="block text-gray-500 mb-1">Main Status</label>
                                 <div x-data="{ 
                                     open: false, 
                                     selected: '{{ $booking->status }}', 
                                     label: '',
                                     options: {
-                                        'Booked': 'Booked (Dipesan)',
-                                        'Pending': 'Pending (Menunggu Pembayaran)',
-                                        'Cancelled': 'Cancelled (Dibatalkan)',
-                                        'Expired': 'Expired (Kedaluwarsa)'
+                                        'Booked': 'Booked',
+                                        'Pending': 'Pending (Pending Payment)',
+                                        'Cancelled': 'Cancelled',
+                                        'Expired': 'Expired'
                                     },
                                     init() { this.label = this.options[this.selected] || this.selected; }
                                 }" class="relative">
@@ -87,7 +87,7 @@
                                 </div>
                             </div>
                             <div>
-                                <span class="text-gray-500">Status Pembayaran:</span>
+                                <span class="text-gray-500">Payment Status:</span>
                                 <span class="ml-2 font-bold {{ ($booking->payment->status ?? '') == 'Success' ? 'text-green-600' : 'text-yellow-600' }}">
                                     {{ $booking->payment->status ?? 'Payment Not Found' }}
                                 </span>
@@ -101,15 +101,15 @@
 
                     <!-- Passenger & Seat Editing -->
                     <div class="mb-6 border-t pt-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Detail Penumpang & Kursi</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Passenger & Seat Details</h3>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Tiket</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kursi</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Penumpang</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status Tiket</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ticket ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seat</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Passenger Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ticket Status</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -136,7 +136,7 @@
                     
                     <div class="flex justify-end pt-6 border-t">
                         <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 font-medium transition-colors">
-                            Simpan Perubahan
+                            Save Changes
                         </button>
                     </div>
                 </form>

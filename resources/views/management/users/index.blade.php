@@ -16,31 +16,31 @@
                  })"
             >
                 <div class="mb-4">
-                    <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali ke Dashboard</a>
+                    <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Back to Dashboard</a>
                 </div>
 
                 <div class="mb-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-bold" x-text="canManageUsers ? 'Kelola Pengguna' : 'Lihat Pengguna'"></h2>
+                        <h2 class="text-2xl font-bold" x-text="canManageUsers ? 'Manage Users' : 'View Users'"></h2>
                     </div>
                     
                     <!-- Toolbar -->
                     <div class="w-full" x-data="{ showFilters: false }">
                         <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-2">
-                            <input type="text" x-model="filters.search" @keydown.enter="fetchData(1)" placeholder="Cari pengguna..." class="grow border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 h-[42px]">
+                            <input type="text" x-model="filters.search" @keydown.enter="fetchData(1)" placeholder="Search users..." class="grow border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 h-[42px]">
                             
                             <button type="button" @click="showFilters = !showFilters" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 flex items-center justify-center border border-transparent h-[42px] whitespace-nowrap transition-colors">
-                                <span>Urutkan & Filter</span>
+                                <span>Sort & Filter</span>
                                 <svg x-show="!showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 <svg x-show="showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
                             </button>
                             
-                            <button type="button" @click="fetchData(1)" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 border border-transparent h-[42px] font-medium transition-colors">Cari</button>
+                            <button type="button" @click="fetchData(1)" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 border border-transparent h-[42px] font-medium transition-colors">Search</button>
 
                             <!-- Actions Dropdown -->
                             <div class="relative" x-data="{ open: false }" @click.outside="open = false" x-show="canManageUsers">
                                 <button type="button" @click="open = !open" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 flex items-center h-[42px] transition-colors shadow-sm font-medium">
-                                    Aksi
+                                    Actions
                                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </button>
                                 <div x-show="open" x-cloak class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200">
@@ -55,7 +55,7 @@
                                             :disabled="selectedItems.length === 0"
                                             :class="{'text-gray-400 cursor-not-allowed': selectedItems.length === 0, 'text-red-700 hover:bg-red-50': selectedItems.length > 0}"
                                             class="block px-4 py-2 text-sm w-full text-left">
-                                        Hapus
+                                        Delete
                                     </button>
                                 </div>
                             </div>
@@ -64,12 +64,12 @@
                                     @click="filters.search = ''; filters.sort_by = 'id'; filters.role = ''; fetchData(1)" 
                                     class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 flex items-center justify-center border border-transparent h-[42px] transition-colors"
                                     style="display: none;">
-                                Bersihkan
+                                Clear
                             </button>
                             
                             @can('manage-users')
                             <a href="{{ route('admin.users.create') }}" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 border border-transparent flex items-center justify-center h-[42px] whitespace-nowrap font-medium transition-colors ml-auto">
-                                Tambah Pengguna
+                                Add User
                             </a>
                             @endcan
                         </div>
@@ -77,28 +77,28 @@
                         <div x-show="showFilters" x-collapse x-cloak class="overflow-hidden">
                             <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-md shadow-inner mb-6 mt-4 border border-gray-200">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Peran</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                                 <select x-model="filters.role" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
-                                    <option value="">Semua Peran</option>
+                                    <option value="">All Roles</option>
                                     <option value="Customer">Customer (Pelanggan)</option>
                                     <option value="Driver">Driver (Pengemudi)</option>
                                     <option value="Admin">Admin</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Urutkan Berdasarkan</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
                                 <select x-model="filters.sort_by" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
                                     <option value="id">ID</option>
-                                    <option value="first_name">Nama</option>
+                                    <option value="first_name">Name</option>
                                     <option value="email">Email</option>
-                                    <option value="created_at">Tanggal Bergabung</option>
+                                    <option value="created_at">Date Joined</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Urutan</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Order</label>
                                 <select x-model="filters.sort_order" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
-                                    <option value="asc">Menaik (Ascending)</option>
-                                    <option value="desc">Menurun (Descending)</option>
+                                    <option value="asc">Ascending</option>
+                                    <option value="desc">Descending</option>
                                 </select>
                             </div>
                         </div>
@@ -129,7 +129,7 @@
                                 </th>
                                 <th @click="sortBy('first_name')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer group hover:bg-gray-100">
                                     <div class="flex items-center">
-                                        Nama
+                                        Name
                                         <span x-show="filters.sort_by === 'first_name'" class="ml-1" x-text="filters.sort_order === 'asc' ? '↑' : '↓'"></span>
                                     </div>
                                 </th>
@@ -139,10 +139,10 @@
                                         <span x-show="filters.sort_by === 'email'" class="ml-1" x-text="filters.sort_order === 'asc' ? '↑' : '↓'"></span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" >Peran</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" >Role</th>
                                 <th @click="sortBy('created_at')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer group hover:bg-gray-100">
                                     <div class="flex items-center">
-                                        Bergabung
+                                        Joined
                                         <span x-show="filters.sort_by === 'created_at'" class="ml-1" x-text="filters.sort_order === 'asc' ? '↑' : '↓'"></span>
                                     </div>
                                 </th>
@@ -171,7 +171,7 @@
                                 </tr>
                             </template>
                              <tr x-show="items.length === 0 && !loading">
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada pengguna ditemukan.</td>
+                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">No users found.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -180,7 +180,7 @@
                 <!-- Pagination -->
                 <div class="mt-4 flex justify-between items-center" x-show="pagination.total > 0">
                     <div class="text-sm text-gray-700">
-                        Menampilkan <span x-text="pagination.from"></span> sampai <span x-text="pagination.to"></span> dari <span x-text="pagination.total"></span> hasil
+                        Showing <span x-text="pagination.from"></span> to <span x-text="pagination.to"></span> of <span x-text="pagination.total"></span> results
                     </div>
                     <div class="flex space-x-1">
                         <button 
@@ -188,7 +188,7 @@
                             :disabled="pagination.current_page <= 1"
                             :class="{'opacity-50 cursor-not-allowed': pagination.current_page <= 1}"
                             class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            Sebelumnya
+                            Previous
                         </button>
                         
                         <template x-for="page in getPages()">
@@ -210,7 +210,7 @@
                             :disabled="pagination.current_page >= pagination.last_page"
                             :class="{'opacity-50 cursor-not-allowed': pagination.current_page >= pagination.last_page}"
                             class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            Selanjutnya
+                            Next
                         </button>
                     </div>
                 </div>

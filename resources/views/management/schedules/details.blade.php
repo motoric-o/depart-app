@@ -8,10 +8,10 @@
                 <!-- Header -->
                 <div class="mb-4 flex flex-col md:flex-row justify-between items-center">
                     <div>
-                        <a href="{{ route('admin.schedules') }}" class="text-gray-600 hover:text-gray-900 mb-2 inline-block">&larr; Kembali ke Jadwal</a>
-                        <h2 class="text-2xl font-bold" x-text="'Detail Jadwal: ' + (schedule ? schedule.id : 'Memuat...')"></h2>
+                        <a href="{{ route('admin.schedules') }}" class="text-gray-600 hover:text-gray-900 mb-2 inline-block">&larr; Back to Schedules</a>
+                        <h2 class="text-2xl font-bold" x-text="'Schedule Details: ' + (schedule ? schedule.id : 'Loading...')"></h2>
                         <p class="text-gray-500" x-show="schedule">
-                            Rute: <span x-text="schedule?.route?.source + ' -> ' + schedule?.route?.destination?.city_name"></span> | 
+                            Route: <span x-text="schedule?.route?.source + ' -> ' + schedule?.route?.destination?.city_name"></span> | 
                             Bus: <span x-text="schedule?.bus?.bus_number"></span>
                         </p>
                     </div>
@@ -28,7 +28,7 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <p class="mt-2 text-gray-500">Memuat detail...</p>
+                    <p class="mt-2 text-gray-500">Loading details...</p>
                 </div>
 
                 <!-- Content -->
@@ -44,12 +44,12 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kursi</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tiket / Pemesanan</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penumpang</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kehadiran</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catatan</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seat</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket / Booking</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Passenger</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attendance</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -68,7 +68,7 @@
                                                       'bg-yellow-100 text-yellow-800': detail.attendance_status === 'Pending',
                                                       'bg-red-100 text-red-800': detail.attendance_status === 'Absent'
                                                   }"
-                                                  x-text="detail.attendance_status === 'Present' ? 'Hadir' : (detail.attendance_status === 'Pending' ? 'Menunggu' : (detail.attendance_status === 'Absent' ? 'Absen' : detail.attendance_status))">
+                                                  x-text="detail.attendance_status === 'Present' ? 'Present' : (detail.attendance_status === 'Pending' ? 'Pending' : (detail.attendance_status === 'Absent' ? 'Absent' : detail.attendance_status))">
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="detail.remarks || '-'"></td>
@@ -76,14 +76,14 @@
                                             <button @click="toggleStatus(detail)" 
                                                 class="mr-3 font-bold"
                                                 :class="detail.attendance_status === 'Present' ? 'text-gray-500 hover:text-gray-700' : 'text-blue-600 hover:text-blue-900'"
-                                                x-text="detail.attendance_status === 'Present' ? 'Batal Check-in' : 'Check In'">
+                                                x-text="detail.attendance_status === 'Present' ? 'Cancel Check-in' : 'Check In'">
                                             </button>
                                             <button @click="openEditModal(detail)" class="text-blue-600 hover:text-blue-900">Edit</button>
                                         </td>
                                     </tr>
                                 </template>
                                 <tr x-show="details.length === 0">
-                                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">Tidak ada detail jadwal ditemukan (Kursi belum dibuat?).</td>
+                                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">No details found (Seats not generated?).</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -111,29 +111,29 @@
                     <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Edit Detail</h3>
                     <div class="mt-4 space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Nomor Kursi</label>
+                            <label class="block text-sm font-medium text-gray-700">Seat Number</label>
                             <input type="text" x-model="editForm.seat_number" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Status Kehadiran</label>
+                            <label class="block text-sm font-medium text-gray-700">Attendance Status</label>
                             <select x-model="editForm.attendance_status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                <option value="Pending">Menunggu</option>
-                                <option value="Present">Hadir</option>
-                                <option value="Absent">Absen</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Present">Present</option>
+                                <option value="Absent">Absent</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Catatan</label>
+                            <label class="block text-sm font-medium text-gray-700">Remarks</label>
                             <textarea x-model="editForm.remarks" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                     <button type="button" @click="updateDetail" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                        Simpan
+                        Save
                     </button>
                     <button type="button" @click="closeEditModal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Batal
+                        Cancel
                     </button>
                 </div>
             </div>
@@ -178,7 +178,7 @@
                     }
                 })
                 .then(response => {
-                    if (!response.ok) throw new Error('Gagal memuat detail');
+                    if (!response.ok) throw new Error('Failed to load details');
                     return response.json();
                 })
                 .then(data => {
@@ -229,9 +229,9 @@
                 })
                 .then(({ status, body }) => {
                     if (status !== 200) {
-                        throw new Error(body.message || 'Pembaruan gagal');
+                        throw new Error(body.message || 'Update failed');
                     }
-                    this.message = 'Detail berhasil diperbarui.';
+                    this.message = 'Detail updated successfully.';
                     this.messageType = 'success';
                     this.closeEditModal();
                     this.fetchDetails(); // Reload
@@ -271,10 +271,10 @@
                     if (status !== 200) {
                          // Revert if failed
                          detail.attendance_status = oldStatus;
-                        throw new Error(body.message || 'Pembaruan gagal');
+                        throw new Error(body.message || 'Update failed');
                     }
                     // Success (maybe show toast?)
-                    this.message = 'Status diperbarui.';
+                    this.message = 'Status updated.';
                     this.messageType = 'success';
                     // No need to reload logic here if optimistic worked, but verification is safer:
                     // this.fetchDetails(); 

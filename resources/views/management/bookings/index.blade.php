@@ -21,23 +21,23 @@
                     },
                     statusLabel(status) {
                         const labels = {
-                            'Booked': 'Dipesan',
-                            'Pending': 'Menunggu Pembayaran',
-                            'Cancelled': 'Dibatalkan',
-                            'Expired': 'Kedaluwarsa'
+                            'Booked': 'Booked',
+                            'Pending': 'Pending Payment',
+                            'Cancelled': 'Cancelled',
+                            'Expired': 'Expired'
                         };
                         return labels[status] || status;
                     },
                     deleteItem(id, url) {
                         Swal.fire({
-                            title: 'Apakah Anda yakin?',
-                            text: 'Anda tidak akan dapat mengembalikannya!',
+                            title: 'Are you sure?',
+                            text: 'You won\'t be able to revert this!',
                             icon: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#2563EB',
                             cancelButtonColor: '#4B5563',
-                            confirmButtonText: 'Ya, hapus!',
-                            cancelButtonText: 'Batal'
+                            confirmButtonText: 'Yes, delete it!',
+                            cancelButtonText: 'Cancel'
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 this.performDelete([id], url);
@@ -48,14 +48,14 @@
                         if (this.selectedItems.length === 0) return;
                         
                         Swal.fire({
-                            title: 'Apakah Anda yakin?',
-                            text: `Anda akan menghapus ${this.selectedItems.length} pemesanan. Tindakan ini tidak dapat dibatalkan!`,
+                            title: 'Are you sure?',
+                            text: `You are about to delete ${this.selectedItems.length} bookings. This action cannot be undone!`,
                             icon: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#2563EB',
                             cancelButtonColor: '#4B5563',
-                            confirmButtonText: 'Ya, hapus mereka!',
-                            cancelButtonText: 'Batal'
+                            confirmButtonText: 'Yes, delete them!',
+                            cancelButtonText: 'Cancel'
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 const promises = this.selectedItems.map(id => {
@@ -73,13 +73,13 @@
                                     if (failed.length === 0) {
                                         this.items = this.items.filter(item => !this.selectedItems.includes(item.id));
                                         this.selectedItems = [];
-                                        Swal.fire('Terhapus!', 'Pemesanan terpilih telah dihapus.', 'success');
+                                        Swal.fire('Deleted!', 'Selected bookings have been deleted.', 'success');
                                     } else {
-                                        Swal.fire('Gagal!', `${failed.length} item gagal dihapus.`, 'error');
+                                        Swal.fire('Failed!', `${failed.length} items failed to delete.`, 'error');
                                     }
                                 }).catch(err => {
                                     console.error(err);
-                                    Swal.fire('Gagal!', 'Terjadi kesalahan saat penghapusan massal.', 'error');
+                                    Swal.fire('Failed!', 'An error occurred during bulk deletion.', 'error');
                                 });
                             }
                         })
@@ -96,44 +96,44 @@
                         .then(data => {
                             if (data.success) {
                                 this.items = this.items.filter(item => item.id !== ids[0]);
-                                Swal.fire('Terhapus!', data.message, 'success');
+                                Swal.fire('Deleted!', data.message, 'success');
                             } else {
-                                Swal.fire('Gagal!', 'Gagal menghapus item.', 'error');
+                                Swal.fire('Failed!', 'Failed to delete item.', 'error');
                             }
                         })
                         .catch(err => {
                              console.error(err);
-                             Swal.fire('Gagal!', 'Terjadi kesalahan.', 'error');
+                             Swal.fire('Failed!', 'Something went wrong.', 'error');
                         });
                     }
                  }"
             >
                 <div class="mb-4">
-                    <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali ke Dashboard</a>
+                    <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Back to Dashboard</a>
                 </div>
 
                 <div class="mb-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-bold">Kelola Pemesanan</h2>
+                        <h2 class="text-2xl font-bold">Manage Bookings</h2>
                     </div>
                 
                     <!-- Toolbar -->
                     <div class="w-full" x-data="{ showFilters: false }">
                         <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-2">
-                             <input type="text" x-model="filters.search" @keydown.enter="fetchData(1)" placeholder="Cari pemesanan..." class="grow border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 h-[42px]">
+                             <input type="text" x-model="filters.search" @keydown.enter="fetchData(1)" placeholder="Search bookings..." class="grow border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 h-[42px]">
                              
                              <button type="button" @click="showFilters = !showFilters" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 flex items-center justify-center border border-transparent h-[42px] whitespace-nowrap transition-colors">
-                                <span>Urutkan & Filter</span>
+                                <span>Sort & Filter</span>
                                 <svg x-show="!showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 <svg x-show="showFilters" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
                             </button>
                             
-                            <button type="button" @click="fetchData(1)" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 border border-transparent h-[42px] font-medium transition-colors">Cari</button>
+                            <button type="button" @click="fetchData(1)" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 border border-transparent h-[42px] font-medium transition-colors">Search</button>
 
                             <!-- Actions Dropdown -->
                             <div class="relative" x-data="{ open: false }" @click.outside="open = false" x-show="canManageBookings">
                                 <button type="button" @click="open = !open" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 flex items-center h-[42px] transition-colors shadow-sm font-medium">
-                                    Aksi
+                                    Actions
                                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </button>
                                 <div x-show="open" x-cloak class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200">
@@ -150,7 +150,7 @@
                                             :disabled="selectedItems.length === 0"
                                             :class="{'text-gray-400 cursor-not-allowed': selectedItems.length === 0, 'text-red-700 hover:bg-red-50': selectedItems.length > 0}"
                                             class="block px-4 py-2 text-sm w-full text-left">
-                                        Hapus
+                                        Delete
                                     </button>
                                 </div>
                             </div>
@@ -164,7 +164,7 @@
 
                             @can('manage-bookings')
                             <a href="{{ route('admin.bookings.create') }}" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 border border-transparent flex items-center justify-center h-[42px] whitespace-nowrap font-medium transition-colors ml-auto">
-                                Tambah Pemesanan
+                                Add Booking
                             </a>
                             @endcan
                         </div>
@@ -172,19 +172,19 @@
                         <div x-show="showFilters" x-collapse x-cloak class="overflow-hidden">
                             <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-md shadow-inner mb-6 mt-4 border border-gray-200">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Urutkan Berdasarkan</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
                                     <select x-model="filters.sort_by" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
-                                        <option value="created_at">Tanggal Dibuat</option>
-                                        <option value="booking_date">Tanggal Pemesanan</option>
-                                        <option value="travel_date">Tanggal Perjalanan</option>
-                                        <option value="total_amount">Jumlah</option>
+                                        <option value="created_at">Date Created</option>
+                                        <option value="booking_date">Booking Date</option>
+                                        <option value="travel_date">Travel Date</option>
+                                        <option value="total_amount">Amount</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Urutan</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Order</label>
                                     <select x-model="filters.sort_order" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
-                                        <option value="asc">Menaik (Ascending)</option>
-                                        <option value="desc">Menurun (Descending)</option>
+                                        <option value="asc">Ascending</option>
+                                        <option value="desc">Descending</option>
                                     </select>
                                 </div>
                             </div>
@@ -211,17 +211,17 @@
                                         <span x-show="filters.sort_by === 'id'" class="ml-1" x-text="filters.sort_order === 'asc' ? '↑' : '↓'"></span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penumpang</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rute</th> 
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Passenger</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Route</th> 
                                 <th @click="sortBy('travel_date')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer group hover:bg-gray-100">
                                     <div class="flex items-center">
-                                        Tanggal Perjalanan
+                                        Travel Date
                                         <span x-show="filters.sort_by === 'travel_date'" class="ml-1" x-text="filters.sort_order === 'asc' ? '↑' : '↓'"></span>
                                     </div>
                                 </th>
                                 <th @click="sortBy('total_amount')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer group hover:bg-gray-100">
                                     <div class="flex items-center">
-                                        Jumlah
+                                        Amount
                                         <span x-show="filters.sort_by === 'total_amount'" class="ml-1" x-text="filters.sort_order === 'asc' ? '↑' : '↓'"></span>
                                     </div>
                                 </th>
@@ -259,7 +259,7 @@
                                 </tr>
                             </template>
                             <tr x-show="items.length === 0 && !loading">
-                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">Tidak ada pemesanan ditemukan.</td>
+                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">No bookings found.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -268,7 +268,7 @@
                 <!-- Pagination -->
                 <div class="mt-4 flex justify-between items-center" x-show="pagination.total > 0">
                     <div class="text-sm text-gray-700">
-                        Menampilkan <span x-text="pagination.from"></span> sampai <span x-text="pagination.to"></span> dari <span x-text="pagination.total"></span> hasil
+                        Showing <span x-text="pagination.from"></span> to <span x-text="pagination.to"></span> of <span x-text="pagination.total"></span> results
                     </div>
                     <div class="flex space-x-2">
                     <div class="flex space-x-1">
@@ -277,7 +277,7 @@
                             :disabled="pagination.current_page <= 1"
                             :class="{'opacity-50 cursor-not-allowed': pagination.current_page <= 1}"
                             class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            Sebelumnya
+                            Previous
                         </button>
 
                         <template x-for="page in getPages()">
@@ -299,7 +299,7 @@
                             :disabled="pagination.current_page >= pagination.last_page"
                             :class="{'opacity-50 cursor-not-allowed': pagination.current_page >= pagination.last_page}"
                             class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            Selanjutnya
+                            Next
                         </button>
                     </div>
                 </div>

@@ -6,8 +6,8 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">Edit Rute: {{ $route->id }}</h2>
-                    <a href="{{ route('admin.routes') }}" class="text-gray-600 hover:text-gray-900">Kembali ke Daftar</a>
+                    <h2 class="text-2xl font-bold">Edit Route: {{ $route->id }}</h2>
+                    <a href="{{ route('admin.routes') }}" class="text-gray-600 hover:text-gray-900">Back to List</a>
                 </div>
 
                 @if ($errors->any())
@@ -26,14 +26,14 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="source" class="block text-sm font-medium text-gray-700">Kota Asal</label>
-                            <input type="text" name="source" id="source" value="{{ old('source', $route->source) }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="contoh: Jakarta">
+                            <label for="source" class="block text-sm font-medium text-gray-700">Origin City</label>
+                            <input type="text" name="source" id="source" value="{{ old('source', $route->source) }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" placeholder="e.g. Jakarta">
                         </div>
 
                         <div>
-                            <label for="destination_code" class="block text-sm font-medium text-gray-700">Tujuan</label>
+                            <label for="destination_code" class="block text-sm font-medium text-gray-700">Destination</label>
                             <select name="destination_code" id="destination_code" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
-                                <option value="">Pilih Tujuan</option>
+                                <option value="">Select Destination</option>
                                 @foreach($destinations as $destination)
                                     <option value="{{ $destination->code }}" {{ old('destination_code', $route->destination_code) == $destination->code ? 'selected' : '' }}>
                                         {{ $destination->city_name }} ({{ $destination->code }})
@@ -45,19 +45,19 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="distance" class="block text-sm font-medium text-gray-700">Jarak (km)</label>
+                            <label for="distance" class="block text-sm font-medium text-gray-700">Distance (km)</label>
                             <input type="number" name="distance" id="distance" value="{{ old('distance', $route->distance) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
 
                         <div>
-                            <label for="estimated_duration" class="block text-sm font-medium text-gray-700">Estimasi Durasi (menit)</label>
+                            <label for="estimated_duration" class="block text-sm font-medium text-gray-700">Estimated Duration (minutes)</label>
                             <input type="number" name="estimated_duration" id="estimated_duration" value="{{ old('estimated_duration', $route->estimated_duration) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2">
                         </div>
                     </div>
 
                     <div class="flex justify-end pt-4">
                         <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Perbarui Rute
+                            Update Route
                         </button>
                     </div>
                 </form>
