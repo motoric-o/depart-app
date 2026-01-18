@@ -11,15 +11,15 @@
         <!-- Logo/Header Section -->
         <div class="text-center mb-10">
             <h1 class="text-3xl font-bold mb-2" style="color: #0085CD;">{{ config('app.name') }}</h1>
-            <p class="text-gray-600">Reset password Anda</p>
+            <p class="text-gray-600">Reset your password</p>
         </div>
 
         <!-- Forgot Password Card -->
         <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100">
-            <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Lupa Password?</h2>
+            <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Forgot Password?</h2>
             
             <p class="text-gray-600 text-sm text-center mb-6">
-                Masukkan email Anda dan kami akan mengirimkan link untuk mereset password.
+                Enter your email address and we will send you a link to reset your password.
             </p>
             
             @if ($errors->any())
@@ -65,7 +65,7 @@
                             value="{{ old('email') }}" 
                             required 
                             autofocus
-                            placeholder="nama@example.com"
+                            placeholder="name@example.com"
                             class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition duration-150"
                             style="--tw-ring-color: #0085CD;"
                         >
@@ -78,14 +78,14 @@
                     class="w-full text-white font-medium py-2.5 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-150 shadow-sm hover:shadow-md"
                     style="background-color: #0085CD; --tw-ring-color: #0085CD;"
                 >
-                    Kirim Link Reset Password
+                    Send Password Reset Link
                 </button>
             </form>
 
             <!-- Back to Login Link -->
             <div class="mt-6 text-center pt-6 border-t border-gray-200">
                 <a href="{{ route('login') }}" class="font-medium transition duration-150 text-sm" style="color: #0085CD;">
-                    ← Kembali ke halaman login
+                    ← Back to login page
                 </a>
             </div>
         </div>

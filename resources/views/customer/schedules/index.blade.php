@@ -12,13 +12,13 @@
                 
                 <!-- From -->
                 <div class="flex-1 w-full">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Dari</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">From</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </div>
                         <select name="from" x-model="filters.from" id="searchFrom" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 text-base">
-                            <option value="">Semua Lokasi</option>
+                            <option value="">All Locations</option>
                             @foreach($destinations as $destination)
                                 <option value="{{ $destination->code }}">
                                     {{ $destination->city_name }} ({{ $destination->code }})
@@ -30,20 +30,20 @@
 
                 <!-- Swap Button -->
                 <div class="hidden md:flex items-center justify-center mb-1">
-                    <button type="button" @click="swapLocations" class="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors" title="Tukar Lokasi">
+                    <button type="button" @click="swapLocations" class="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors" title="Swap Locations">
                         <svg class="w-6 h-6 transform transition-transform duration-300" :class="{'rotate-180': isSwapped}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
                     </button>
                 </div>
 
                 <!-- To -->
                 <div class="flex-1 w-full">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Ke</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </div>
                         <select name="to" x-model="filters.to" id="searchTo" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 text-base">
-                            <option value="">Semua Tujuan</option>
+                            <option value="">All Destinations</option>
                             @foreach($destinations as $destination)
                                 <option value="{{ $destination->code }}">
                                     {{ $destination->city_name }} ({{ $destination->code }})
@@ -55,7 +55,7 @@
 
                 <!-- Date -->
                 <div class="flex-1 w-full">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -67,7 +67,7 @@
                 <!-- Button -->
                 <div class="w-full md:w-auto">
                     <button type="submit" class="w-full md:w-auto bg-blue-600 border border-transparent rounded-md shadow-sm py-2 px-8 inline-flex justify-center items-center text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Cari
+                        Search
                     </button>
                 </div>
             </form>
@@ -77,7 +77,7 @@
         <div class="lg:hidden mb-4 relative z-30" x-data="{ open: false }">
             <button type="button" @click="open = !open" class="w-full bg-white border border-gray-200 text-blue-600 font-bold py-3 px-4 rounded-lg shadow-sm flex items-center justify-center gap-2 hover:bg-gray-50">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-                Filter Pencarian
+                Search Filter
             </button>
             <div x-show="open" x-collapse class="mt-4">
                  <!-- Mobile Filter Content could go here, or simple toggle visibility of the sidebar below -->
@@ -98,7 +98,7 @@
                     <form @submit.prevent="fetchResults">
                         <!-- Bus Class Filter -->
                         <div class="mb-6">
-                            <h4 class="text-sm font-medium text-gray-700 mb-3">Kelas Bus</h4>
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">Bus Class</h4>
                             <div class="space-y-2">
                                 @foreach($busTypes as $type)
                                     <div class="flex items-center">
@@ -117,7 +117,7 @@
 
                         <!-- Price Range Filter -->
                         <div class="mb-6">
-                            <h4 class="text-sm font-medium text-gray-700 mb-3">Rentang Harga</h4>
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">Price Range</h4>
                             <div class="space-y-4">
                                 <div>
                                     <label for="min_price" class="text-xs text-gray-500">Minimum</label>
@@ -130,7 +130,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <label for="max_price" class="text-xs text-gray-500">Maksimum</label>
+                                    <label for="max_price" class="text-xs text-gray-500">Maximum</label>
                                     <div class="relative rounded-md shadow-sm">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span class="text-gray-500 sm:text-sm">Rp</span>
@@ -143,7 +143,7 @@
                             <!-- Apply Button -->
                             <div class="mt-6">
                                 <button type="submit" class="w-full bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                    Terapkan Filter
+                                    Apply Filter
                                 </button>
                             </div>
                         </div>
@@ -157,10 +157,10 @@
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-semibold text-gray-800">
-                        <span x-text="schedules.length === 0 ? 'Tidak ditemukan jadwal' : 'Tersedia ' + schedules.length + ' Jadwal Perjalanan'"></span>
+                        <span x-text="schedules.length === 0 ? 'No schedules found' : 'Available ' + schedules.length + ' Trip Schedules'"></span>
                     </h3>
                     <div class="text-sm text-gray-500">
-                        Tanggal: <span class="font-medium text-gray-700" x-text="formatDateHeader(filters.date)"></span>
+                        Date: <span class="font-medium text-gray-700" x-text="formatDateHeader(filters.date)"></span>
                     </div>
                 </div>
 
@@ -176,9 +176,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Maaf, tidak ada jadwal ditemukan</h3>
-                    <p class="text-gray-500 max-w-md mx-auto">Coba ubah filter pencarian Anda atau pilih tanggal lain untuk melihat jadwal yang tersedia.</p>
-                    <button @click="resetFilters" class="inline-block mt-6 text-blue-600 hover:text-blue-800 font-medium">Reset Pencarian</button>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Sorry, no schedules found</h3>
+                    <p class="text-gray-500 max-w-md mx-auto">Try changing your search filters or choose another date to see available schedules.</p>
+                    <button @click="resetFilters" class="inline-block mt-6 text-blue-600 hover:text-blue-800 font-medium">Reset Search</button>
                 </div>
 
                 <!-- List -->
@@ -237,17 +237,17 @@
 
                                 <!-- Right: Price & CTA -->
                                 <div class="bg-gray-50 p-6 md:w-64 border-l border-gray-100 flex flex-col justify-center items-center md:items-end">
-                                    <div class="text-xs text-gray-500 mb-1">Harga per kursi</div>
+                                    <div class="text-xs text-gray-500 mb-1">Price per seat</div>
                                     <div class="text-2xl font-bold text-blue-600 mb-4" x-text="'Rp ' + schedule.formatted_price"></div>
                                     
                                     <div class="text-sm font-medium mb-4" 
                                          :class="schedule.available_seats > 5 ? 'text-green-600' : 'text-red-500'"
-                                         x-text="schedule.available_seats + ' Kursi Sisa'">
+                                         x-text="schedule.available_seats + ' Seats Left'">
                                     </div>
 
                                     <a :href="'/booking/create?schedule_id=' + schedule.id + '&date=' + filters.date" 
                                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors duration-200 text-center block">
-                                        Pilih
+                                        Select
                                     </a>
                                 </div>
                             </div>
@@ -308,7 +308,7 @@
                     
                 } catch (e) {
                     console.error('Fetch error:', e);
-                    alert('Gagal memuat jadwal. Silakan coba lagi.');
+                    alert('Failed to load schedules. Please try again.');
                 } finally {
                     this.loading = false;
                     // Close mobile filters if open
@@ -339,9 +339,9 @@
             },
 
             formatDateHeader(dateStr) {
-                if(!dateStr) return 'Semua';
+                if(!dateStr) return 'All';
                 const date = new Date(dateStr);
-                return date.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             },
 
             async toggleBookmark(schedule) {
@@ -369,7 +369,7 @@
                     console.error(e);
                     // Revert UI if failed
                     schedule.is_bookmarked = !schedule.is_bookmarked;
-                    alert('Gagal mengubah status bookmark. Silakan coba lagi.');
+                    alert('Failed to toggle bookmark. Please try again.');
                 }
             }
         }

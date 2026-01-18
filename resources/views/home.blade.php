@@ -11,10 +11,10 @@
     <div class="relative max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8 flex flex-col items-center text-center font-roboto">
         <div class="bg-black bg-opacity-60 p-10 rounded-2xl backdrop-blur-sm max-w-4xl">
             <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl mb-6 shadow-sm">
-                Partner Perjalanan Bus Terpercaya
+                Trusted Bus Travel Partner
             </h1>
             <p class="mt-6 text-xl text-gray-100 max-w-3xl mx-auto">
-                Pesan tiket bus antar kota dan provinsi dengan mudah, aman, dan tanpa biaya tambahan. Nikmati perjalanan nyaman dengan armada terbaik kami.
+                Book intercity and interprovincial bus tickets easily, safely, and without extra fees. Enjoy a comfortable journey with our best fleets.
             </p>
         </div>
     </div>
@@ -29,17 +29,17 @@
                   openFrom: false, 
                   openTo: false, 
                   dests: {{ json_encode($destinations) }}, 
-                  getFromLabel() { let d = this.dests.find(x => x.code == this.from); return d ? d.city_name + ' (' + d.code + ')' : 'Semua Lokasi'; },
-                  getToLabel() { let d = this.dests.find(x => x.code == this.to); return d ? d.city_name + ' (' + d.code + ')' : 'Semua Tujuan'; }
+                  getFromLabel() { let d = this.dests.find(x => x.code == this.from); return d ? d.city_name + ' (' + d.code + ')' : 'All Locations'; },
+                  getToLabel() { let d = this.dests.find(x => x.code == this.to); return d ? d.city_name + ' (' + d.code + ')' : 'All Destinations'; }
               }">
             <div class="mb-6 border-b border-gray-100 pb-4">
-                <h2 class="text-2xl font-bold text-gray-800">Cari Jadwal & Pesan Tiket</h2>
-                <p class="text-gray-500 mt-1">Temukan perjalanan bus terbaik antar kota dengan harga resmi.</p>
+                <h2 class="text-2xl font-bold text-gray-800">Search Schedules & Book Tickets</h2>
+                <p class="text-gray-500 mt-1">Find the best bus trips between cities at official prices.</p>
             </div>
             <div class="flex flex-col md:flex-row gap-6 md:items-end">
                 <!-- From -->
                 <div class="flex-1 w-full relative" @click.outside="openFrom = false">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Dari</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">From</label>
                     <input type="hidden" name="from" x-model="from">
                     
                     <button type="button" @click="openFrom = !openFrom" class="w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-base shadow-sm h-[42px] flex items-center justify-between">
@@ -51,7 +51,7 @@
 
                     <div x-show="openFrom" x-transition.opacity x-cloak class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
                          <div @click="from = ''; openFrom = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">
-                            <span class="font-normal block truncate">Semua Lokasi</span>
+                            <span class="font-normal block truncate">All Locations</span>
                         </div>
                         <template x-for="dest in dests" :key="dest.code">
                             <div @click="from = dest.code; openFrom = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">
@@ -63,14 +63,14 @@
 
                 <!-- Swap Button -->
                 <div class="hidden md:flex items-center justify-center mb-1">
-                    <button type="button" @click="let t = from; from = to; to = t;" class="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors transform active:rotate-180 duration-300" title="Tukar Lokasi">
+                    <button type="button" @click="let t = from; from = to; to = t;" class="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors transform active:rotate-180 duration-300" title="Swap Locations">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
                     </button>
                 </div>
 
                 <!-- To -->
                 <div class="flex-1 w-full relative" @click.outside="openTo = false">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Ke</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
                     <input type="hidden" name="to" x-model="to">
                     
                     <button type="button" @click="openTo = !openTo" class="w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-base shadow-sm h-[42px] flex items-center justify-between">
@@ -82,7 +82,7 @@
 
                     <div x-show="openTo" x-transition.opacity x-cloak class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
                          <div @click="to = ''; openTo = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">
-                            <span class="font-normal block truncate">Semua Tujuan</span>
+                            <span class="font-normal block truncate">All Destinations</span>
                         </div>
                         <template x-for="dest in dests" :key="dest.code">
                             <div @click="to = dest.code; openTo = false" class="text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100">
@@ -94,7 +94,7 @@
 
                 <!-- Date -->
                 <div class="flex-1 w-full">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -107,7 +107,7 @@
                 <div class="w-full md:w-auto">
                     <button type="submit" class="w-full md:w-auto bg-blue-600 border border-transparent rounded-md shadow-sm py-2 px-8 inline-flex justify-center items-center text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        Cari Bus
+                        Search Bus
                     </button>
                 </div>
             </div>
@@ -115,15 +115,15 @@
             <div class="mt-6 flex items-center text-sm text-gray-500">
                 <span class="mr-4 flex items-center">
                     <svg class="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    Jaminan Harga Resmi
+                    Official Price Guarantee
                 </span>
                 <span class="mr-4 flex items-center">
                     <svg class="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    Pasti Dapat Kursi
+                    Data Seat Guaranteed
                 </span>
                 <span class="flex items-center">
                     <svg class="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    Reschedule Mudah
+                    Easy Reschedule
                 </span>
             </div>
         </form>
@@ -136,22 +136,22 @@
             <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Harga Terbaik</h3>
-            <p class="text-gray-600">Dapatkan harga tiket termurah dengan berbagai promo menarik setiap harinya.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Best Prices</h3>
+            <p class="text-gray-600">Get the cheapest ticket prices with various attractive promos every day.</p>
         </div>
         <div class="p-6">
             <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Transaksi Aman</h3>
-            <p class="text-gray-600">Sistem pembayaran yang aman dan terpercaya dengan berbagai metode pembayaran.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Secure Transactions</h3>
+            <p class="text-gray-600">Safe and trusted payment system with various payment methods.</p>
         </div>
         <div class="p-6">
             <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Layanan 24/7</h3>
-            <p class="text-gray-600">Tim customer service kami siap membantu perjalanan Anda kapanpun dibutuhkan.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">24/7 Service</h3>
+            <p class="text-gray-600">Our customer service team is ready to help your journey whenever needed.</p>
         </div>
     </div>
 </div>
@@ -159,15 +159,15 @@
 <!-- Popular Destinations -->
 <div class="bg-gray-50 py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-3xl font-extrabold text-gray-900 mb-8 text-center">Rute Populer</h2>
+        <h2 class="text-3xl font-extrabold text-gray-900 mb-8 text-center">Popular Routes</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Card 1 -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
                 <img src="https://images.unsplash.com/photo-1611638281871-1063d3e76e1f?q=80&w=2033&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Jakarta - Bandung" class="w-full h-48 object-cover">
                 <div class="p-4">
                     <h3 class="font-bold text-lg mb-1">Jakarta - Bandung</h3>
-                    <p class="text-sm text-gray-500 mb-3">Mulai dari Rp 85.000</p>
-                    <a href="#" class="text-blue-600 font-semibold text-sm hover:underline">Lihat Jadwal →</a>
+                    <p class="text-sm text-gray-500 mb-3">Starts from Rp 85.000</p>
+                    <a href="#" class="text-blue-600 font-semibold text-sm hover:underline">See Schedule →</a>
                 </div>
             </div>
             <!-- Card 2 -->
@@ -175,8 +175,8 @@
                 <img src="https://images.unsplash.com/photo-1721879223016-96dbd4952ffd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bWFsYW5nfGVufDB8fDB8fHww" alt="Surabaya - Malang" class="w-full h-48 object-cover">
                 <div class="p-4">
                     <h3 class="font-bold text-lg mb-1">Surabaya - Malang</h3>
-                    <p class="text-sm text-gray-500 mb-3">Mulai dari Rp 45.000</p>
-                    <a href="#" class="text-blue-600 font-semibold text-sm hover:underline">Lihat Jadwal →</a>
+                    <p class="text-sm text-gray-500 mb-3">Starts from Rp 45.000</p>
+                    <a href="#" class="text-blue-600 font-semibold text-sm hover:underline">See Schedule →</a>
                 </div>
             </div>
             <!-- Card 3 -->
@@ -184,8 +184,8 @@
                 <img src="https://images.unsplash.com/photo-1652100591395-6d512bfaf5bb?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8c2VtYXJhbmd8ZW58MHx8MHx8fDA%3D" alt="Yogyakarta - Semarang" class="w-full h-48 object-cover">
                 <div class="p-4">
                     <h3 class="font-bold text-lg mb-1">Yogyakarta - Semarang</h3>
-                    <p class="text-sm text-gray-500 mb-3">Mulai dari Rp 60.000</p>
-                    <a href="#" class="text-blue-600 font-semibold text-sm hover:underline">Lihat Jadwal →</a>
+                    <p class="text-sm text-gray-500 mb-3">Starts from Rp 60.000</p>
+                    <a href="#" class="text-blue-600 font-semibold text-sm hover:underline">See Schedule →</a>
                 </div>
             </div>
             <!-- Card 4 -->
@@ -193,8 +193,8 @@
                 <img src="https://plus.unsplash.com/premium_photo-1690959214934-802fdf410b3e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8c3VyYWJheWF8ZW58MHx8MHx8fDA%3D" alt="Bali - Surabaya" class="w-full h-48 object-cover">
                 <div class="p-4">
                     <h3 class="font-bold text-lg mb-1">Bali - Surabaya</h3>
-                    <p class="text-sm text-gray-500 mb-3">Mulai dari Rp 250.000</p>
-                    <a href="#" class="text-blue-600 font-semibold text-sm hover:underline">Lihat Jadwal →</a>
+                    <p class="text-sm text-gray-500 mb-3">Starts from Rp 250.000</p>
+                    <a href="#" class="text-blue-600 font-semibold text-sm hover:underline">See Schedule →</a>
                 </div>
             </div>
         </div>
@@ -202,7 +202,7 @@
 </div>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <h2 class="text-3xl font-extrabold text-gray-900 mb-12 text-center">Apa Kata Penumpang</h2>
+    <h2 class="text-3xl font-extrabold text-gray-900 mb-12 text-center">What Passengers Say</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
         <!-- Testimonial 1 -->
         <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:-translate-y-1 transition duration-300">
@@ -219,7 +219,7 @@
                     </div>
                 </div>
             </div>
-            <p class="text-gray-600 italic">"Sangat praktis pesan tiket di sini. Tidak perlu antri di terminal, harga juga transparan tanpa biaya tersembunyi. Sangat direkomendasikan!"</p>
+            <p class="text-gray-600 italic">"Booking tickets here is very practical. No need to queue at the terminal, the price is also transparent without hidden fees. Highly recommended!"</p>
         </div>
 
         <!-- Testimonial 2 -->
@@ -237,7 +237,7 @@
                     </div>
                 </div>
             </div>
-            <p class="text-gray-600 italic">"Reschedule jadwal sangat mudah. CS-nya juga ramah dan fast respon. Pengalaman perjalanan jadi lebih tenang."</p>
+            <p class="text-gray-600 italic">"Rescheduling is very easy. The CS is also friendly and fast response. The travel experience becomes calmer."</p>
         </div>
 
         <!-- Testimonial 3 -->
@@ -255,7 +255,7 @@
                     </div>
                 </div>
             </div>
-            <p class="text-gray-600 italic">"Banyak pilihan PO bus dan rute. Harganya bersaing banget dibanding aplikasi lain. Top markotop!"</p>
+            <p class="text-gray-600 italic">"Many choices of Bus Operators and routes. The prices are very competitive compared to other applications. Top notch!"</p>
         </div>
     </div>
 </div>
@@ -263,7 +263,7 @@
 <!-- Trusted Partners Section -->
 <div class="bg-gray-50 py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-3xl font-extrabold text-gray-900 mb-8 text-center">Mitra Resmi Kami</h2>
+        <h2 class="text-3xl font-extrabold text-gray-900 mb-8 text-center">Our Official Partners</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center opacity-70 grayscale hover:grayscale-0 transition duration-500">
              <div class="flex justify-center items-center h-16 bg-white rounded-lg shadow-sm hover:shadow-md transition"><span class="text-lg font-bold text-gray-400">Pahala Kencana</span></div>
              <div class="flex justify-center items-center h-16 bg-white rounded-lg shadow-sm hover:shadow-md transition"><span class="text-lg font-bold text-gray-400">Lorena</span></div>
@@ -277,23 +277,23 @@
 
 <!-- FAQ Section -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <h2 class="text-3xl font-extrabold text-gray-900 mb-12 text-center">Pertanyaan Umum</h2>
+    <h2 class="text-3xl font-extrabold text-gray-900 mb-12 text-center">Frequently Asked Questions</h2>
     <div class="bg-white rounded-lg shadow-sm border border-gray-100 divide-y divide-gray-200">
         <div class="p-6">
-            <h3 class="text-lg font-medium text-gray-900">Bagaimana cara memesan tiket?</h3>
-            <p class="mt-2 text-gray-600">Pilih rute keberangkatan, tujuan, dan tanggal perjalanan. Kemudian pilih kursi yang tersedia dan lakukan pembayaran.</p>
+            <h3 class="text-lg font-medium text-gray-900">How to book a ticket?</h3>
+            <p class="mt-2 text-gray-600">Choose departure route, destination, and travel date. Then select available seats and make payment.</p>
         </div>
         <div class="p-6">
-            <h3 class="text-lg font-medium text-gray-900">Apakah bisa refund tiket?</h3>
-            <p class="mt-2 text-gray-600">Ya, Anda dapat mengajukan refund maksimal 24 jam sebelum keberangkatan dengan potongan biaya administrasi sebesar 25%.</p>
+            <h3 class="text-lg font-medium text-gray-900">Can I refund the ticket?</h3>
+            <p class="mt-2 text-gray-600">Yes, you can request a refund up to 24 hours before departure with a 25% administration fee deduction.</p>
         </div>
         <div class="p-6">
-            <h3 class="text-lg font-medium text-gray-900">Metode pembayaran apa saja yang tersedia?</h3>
-            <p class="mt-2 text-gray-600">Kami menerima pembayaran via Transfer Bank, E-Wallet (OVO, Dana, GoPay), dan Minimarket (Indomaret/Alfamart).</p>
+            <h3 class="text-lg font-medium text-gray-900">What payment methods are available?</h3>
+            <p class="mt-2 text-gray-600">We accept payments via Bank Transfer, E-Wallet (OVO, Dana, GoPay), and Minimarket (Indomaret/Alfamart).</p>
         </div>
         <div class="p-6">
-            <h3 class="text-lg font-medium text-gray-900">Apakah harus cetak tiket?</h3>
-            <p class="mt-2 text-gray-600">Tidak perlu. Anda cukup menunjukkan E-Ticket yang dikirimkan ke email atau aplikasi saat boarding.</p>
+            <h3 class="text-lg font-medium text-gray-900">Do I need to print the ticket?</h3>
+            <p class="mt-2 text-gray-600">No need. You just need to show the E-Ticket sent to email or application when boarding.</p>
         </div>
     </div>
 </div>
@@ -301,11 +301,11 @@
 <!-- Newsletter Section -->
 <div class="bg-blue-600 py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-        <h2 class="text-3xl font-extrabold mb-4">Dapatkan Diskon Spesial!</h2>
-        <p class="text-lg mb-8 text-blue-100">Berlangganan newsletter kami untuk info promo dan rute terbaru.</p>
+        <h2 class="text-3xl font-extrabold mb-4">Get Special Discounts!</h2>
+        <p class="text-lg mb-8 text-blue-100">Subscribe to our newsletter for the latest promo and route info.</p>
         <div class="max-w-md mx-auto flex flex-col sm:flex-row gap-2">
-            <input type="email" placeholder="Masukkan email Anda" class="w-full flex-1 px-4 py-3 rounded-md text-gray-900 bg-white border-2 border-transparent outline-none placeholder-gray-500 transition-all">
-            <button class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-md transition duration-200 shadow-md">Langganan</button>
+            <input type="email" placeholder="Enter your email" class="w-full flex-1 px-4 py-3 rounded-md text-gray-900 bg-white border-2 border-transparent outline-none placeholder-gray-500 transition-all">
+            <button class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-md transition duration-200 shadow-md">Subscribe</button>
         </div>
     </div>
 </div>

@@ -8,7 +8,7 @@
             <a href="{{ url('/') }}" class="p-2 bg-white rounded-full shadow-sm text-gray-500 hover:text-gray-700 transition border border-gray-200">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             </a>
-            <h1 class="text-2xl font-bold text-gray-900">Daftar Pesanan</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Booking History</h1>
         </div>
 
         @if($bookings->isEmpty())
@@ -17,10 +17,10 @@
                 <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6">
                     <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada pesanan</h3>
-                <p class="text-gray-500 text-center max-w-sm mb-6">Nikmati kemudahan pemesanan tiket bus antarkota dengan harga terbaik.</p>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No bookings yet</h3>
+                <p class="text-gray-500 text-center max-w-sm mb-6">Enjoy the convenience of booking intercity bus tickets at the best prices.</p>
                 <a href="{{ url('/') }}" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
-                    Cari Tiket Sekarang
+                    Search Tickets Now
                 </a>
             </div>
         @else
@@ -33,11 +33,11 @@
                             <div class="flex justify-between items-start mb-4">
                                 <div class="space-y-2">
                                     <div>
-                                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">ID Pemesanan</span>
+                                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Booking ID</span>
                                         <p class="text-sm font-mono font-bold text-gray-900">{{ $booking->id }}</p>
                                     </div>
                                     <div>
-                                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">ID Jadwal</span>
+                                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Schedule ID</span>
                                         <p class="text-sm font-mono font-bold text-gray-900">{{ $booking->schedule->id }}</p>
                                     </div>
                                 </div>
@@ -63,7 +63,7 @@
                                     <!-- Bookmark Button -->
                                     <button onclick="toggleHistoryBookmark(this, '{{ $booking->id }}', '{{ addslashes('App\Models\Booking') }}')" 
                                             class="p-1 px-2 rounded-lg border border-gray-200 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors {{ $booking->isBookmarkedBy(Auth::user()) ? 'text-red-500' : '' }}" 
-                                            title="Simpan ke dalam bookmark">
+                                            title="Save to bookmarks">
                                         <svg class="w-5 h-5" fill="{{ $booking->isBookmarkedBy(Auth::user()) ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                                         </svg>
@@ -104,17 +104,17 @@
                             <!-- Bottom Row: Price and Action -->
                             <div class="flex justify-between items-center pt-4 border-t border-gray-100">
                                 <div>
-                                    <p class="text-xs text-gray-500">Total Harga</p>
+                                    <p class="text-xs text-gray-500">Total Price</p>
                                     <p class="text-lg font-bold text-orange-500">Rp {{ number_format($booking->total_amount, 0, ',', '.') }}</p>
                                 </div>
 
                                 @if($booking->status === \App\Models\Booking::STATUS_PENDING)
                                     <a href="{{ route('booking.payment', $booking->id) }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
-                                        Lanjut Bayar
+                                        Proceed to Payment
                                     </a>
                                 @elseif($booking->status === \App\Models\Booking::STATUS_BOOKED)
                                     <a href="{{ route('booking.ticket', $booking->id) }}" class="px-4 py-2 border border-blue-600 text-blue-600 hover:bg-blue-50 text-sm font-medium rounded-lg transition-colors">
-                                        Lihat E-Tiket
+                                        View E-Ticket
                                     </a>
                                 @endif
                             </div>
@@ -158,7 +158,7 @@
             // Revert on failure
             button.classList.toggle('text-red-500');
             svg.setAttribute('fill', isBookmarked ? 'currentColor' : 'none');
-            alert('Gagal mengubah bookmark.');
+            alert('Failed to toggle bookmark.');
         }
     }
 </script>

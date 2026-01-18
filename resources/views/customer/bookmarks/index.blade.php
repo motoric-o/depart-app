@@ -9,20 +9,20 @@
             <a href="{{ url('/') }}" class="p-2 bg-white rounded-full shadow-sm text-gray-500 hover:text-gray-700 transition border border-gray-200">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             </a>
-            <h1 class="text-2xl font-bold text-gray-900">Favorit</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Bookmarks</h1>
             </div>
             <div class="flex space-x-2">
                 <a href="{{ route('bookmarks.index') }}" 
                    class="px-4 py-2 rounded-full text-sm font-medium transition-colors {{ !request('filter') ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200' }}">
-                    Semua
+                    All
                 </a>
                 <a href="{{ route('bookmarks.index', ['filter' => 'schedule']) }}" 
                    class="px-4 py-2 rounded-full text-sm font-medium transition-colors {{ request('filter') === 'schedule' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200' }}">
-                    Jadwal
+                    Schedules
                 </a>
                 <a href="{{ route('bookmarks.index', ['filter' => 'booking']) }}" 
                    class="px-4 py-2 rounded-full text-sm font-medium transition-colors {{ request('filter') === 'booking' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200' }}">
-                    Tiket
+                    Bookings
                 </a>
             </div>
         </div>
@@ -34,9 +34,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
                     </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada item disimpan</h3>
-                <p class="text-gray-500 max-w-md mx-auto">Tandai jadwal atau riwayat pemesanan Anda untuk akses cepat di sini.</p>
-                <a href="{{ route('schedules.index') }}" class="inline-block mt-6 text-blue-600 hover:text-blue-800 font-medium">Cari Jadwal Perjalanan</a>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No items saved</h3>
+                <p class="text-gray-500 max-w-md mx-auto">Bookmark your schedules or booking history for quick access here.</p>
+                <a href="{{ route('schedules.index') }}" class="inline-block mt-6 text-blue-600 hover:text-blue-800 font-medium">Search Trip Schedules</a>
             </div>
         @else
             <div class="grid gap-6">
@@ -45,7 +45,7 @@
                         <div>
                             @if($bookmark->bookmarkable_type === 'App\Models\Schedule')
                                 <div class="flex items-center gap-2 mb-1">
-                                    <span class="px-2 py-1 rounded text-xs font-bold bg-green-100 text-green-800">Jadwal</span>
+                                    <span class="px-2 py-1 rounded text-xs font-bold bg-green-100 text-green-800">Schedule</span>
                                     <span class="text-sm text-gray-500">
                                         {{ \Carbon\Carbon::parse($bookmark->bookmarkable->departure_time)->translatedFormat('d F Y, H:i') }}
                                     </span>
@@ -59,11 +59,11 @@
                                     {{ $bookmark->bookmarkable->bus->bus_name ?? 'Bus' }} - Rp {{ number_format($bookmark->bookmarkable->price_per_seat, 0, ',', '.') }}
                                 </div>
                                 <div class="mt-3">
-                                    <a href="{{ route('booking.create', ['schedule_id' => $bookmark->bookmarkable->id]) }}" class="text-blue-600 hover:text-blue-800 font-medium text-sm">Pesan Sekarang &rarr;</a>
+                                    <a href="{{ route('booking.create', ['schedule_id' => $bookmark->bookmarkable->id]) }}" class="text-blue-600 hover:text-blue-800 font-medium text-sm">Book Now &rarr;</a>
                                 </div>
                             @elseif($bookmark->bookmarkable_type === 'App\Models\Booking')
                                 <div class="flex items-center gap-2 mb-1">
-                                    <span class="px-2 py-1 rounded text-xs font-bold bg-blue-100 text-blue-800">Pesanan</span>
+                                    <span class="px-2 py-1 rounded text-xs font-bold bg-blue-100 text-blue-800">Booking</span>
                                     <span class="text-sm text-gray-500">ID: {{ $bookmark->bookmarkable->id }}</span>
                                 </div>
                                 <div class="text-lg font-bold text-gray-900">
@@ -75,7 +75,7 @@
                                     Status: {{ $bookmark->bookmarkable->status }}
                                 </div>
                                 <div class="mt-3">
-                                    <a href="{{ route('booking.ticket', $bookmark->bookmarkable->id) }}" class="text-blue-600 hover:text-blue-800 font-medium text-sm">Lihat Tiket &rarr;</a>
+                                    <a href="{{ route('booking.ticket', $bookmark->bookmarkable->id) }}" class="text-blue-600 hover:text-blue-800 font-medium text-sm">View Ticket &rarr;</a>
                                 </div>
                             @endif
                         </div>
@@ -83,7 +83,7 @@
                         <!-- Remove Bookmark Button -->
                         <button onclick="toggleBookmark(this, '{{ $bookmark->bookmarkable_id }}', '{{ addslashes($bookmark->bookmarkable_type) }}')" 
                                 class="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors" 
-                                title="Hapus dari simpanan">
+                                title="Remove from bookmarks">
                             <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
                                 <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
                             </svg>
@@ -129,7 +129,7 @@
                         // Revert styling
                         container.style.opacity = '1';
                         container.style.pointerEvents = 'auto';
-                        alert('Gagal menghapus bookmark.');
+                        alert('Failed to remove bookmark.');
                     }
                 }
             </script>

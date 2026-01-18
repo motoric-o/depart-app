@@ -10,24 +10,24 @@
                 <a href="javascript:history.back()" class="mr-4 p-2 bg-white rounded-full shadow-sm text-gray-500 hover:text-gray-700 transition border border-gray-200">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 </a>
-                <h1 class="text-2xl font-bold text-gray-900">Pembayaran</h1>
+                <h1 class="text-2xl font-bold text-gray-900">Payment</h1>
             </div>
             
             <div class="flex items-center justify-center">
                 <div class="flex items-start w-full max-w-3xl">
                     <div class="flex flex-col items-center">
                         <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style="background-color: #16a34a; color: white;">1</div>
-                        <span class="text-sm font-bold text-green-700 mt-2">Isi Data</span>
+                        <span class="text-sm font-bold text-green-700 mt-2">Details</span>
                     </div>
                     <div class="flex-1 mx-4 rounded mt-3.5" style="height: 4px; background-color: #16a34a;"></div>
                     <div class="flex flex-col items-center">
                         <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">2</div>
-                        <span class="text-sm font-medium text-blue-600 mt-2">Bayar</span>
+                        <span class="text-sm font-medium text-blue-600 mt-2">Payment</span>
                     </div>
                     <div class="flex-1 mx-4 rounded mt-3.5" style="height: 4px; background-color: #e5e7eb;"></div>
                     <div class="flex flex-col items-center">
                         <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold text-sm">3</div>
-                        <span class="text-sm font-medium text-gray-500 mt-2">Selesai</span>
+                        <span class="text-sm font-medium text-gray-500 mt-2">Finish</span>
                     </div>
                 </div>
             </div>
@@ -42,18 +42,18 @@
                             <div class="bg-green-50 rounded-xl shadow-sm border border-green-200 overflow-hidden flex flex-col h-full">
                                 <div class="bg-green-100 px-6 py-4 border-b border-green-200 flex justify-between items-center shrink-0">
                                     <div>
-                                        <h3 class="font-bold text-green-800">Tagihan #{{ $loop->iteration }}</h3>
-                                        <p class="text-xs text-green-600 mt-1">Kursi: {{ $transaction->tickets->pluck('seat_number')->implode(', ') }}</p>
+                                        <h3 class="font-bold text-green-800">Bill #{{ $loop->iteration }}</h3>
+                                        <p class="text-xs text-green-600 mt-1">Seat: {{ $transaction->tickets->pluck('seat_number')->implode(', ') }}</p>
                                     </div>
-                                    <span class="px-2 py-1 bg-green-200 text-green-800 text-xs font-bold rounded uppercase">Lunas</span>
+                                    <span class="px-2 py-1 bg-green-200 text-green-800 text-xs font-bold rounded uppercase">Paid</span>
                                 </div>
                                 
                                 <div class="flex-1 flex flex-col items-center justify-center p-6 text-center">
                                     <div class="bg-white p-3 rounded-full shadow-sm mb-4">
                                         <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     </div>
-                                    <h4 class="text-lg font-bold text-green-900 mb-1">Pembayaran Berhasil</h4>
-                                    <p class="text-sm text-green-700 mb-4">Terima kasih atas pembayaran Anda.</p>
+                                    <h4 class="text-lg font-bold text-green-900 mb-1">Payment Successful</h4>
+                                    <p class="text-sm text-green-700 mb-4">Thank you for your payment.</p>
                                     <p class="text-2xl font-bold text-gray-900">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</p>
                                 </div>
 
@@ -69,8 +69,8 @@
                             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow">
                                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center shrink-0">
                                     <div>
-                                        <h3 class="font-bold text-gray-700">Tagihan #{{ $loop->iteration }}</h3>
-                                        <p class="text-xs text-gray-500 mt-1">Kursi: {{ $transaction->tickets->pluck('seat_number')->implode(', ') }}</p>
+                                        <h3 class="font-bold text-gray-700">Bill #{{ $loop->iteration }}</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Seat: {{ $transaction->tickets->pluck('seat_number')->implode(', ') }}</p>
                                     </div>
                                     <span class="text-orange-600 font-bold">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</span>
                                 </div>
@@ -95,7 +95,7 @@
                                                 <p class="text-lg font-mono font-bold text-gray-900 tracking-wider">{{ $vaNumber }}</p>
                                                 <button onclick="copyToClipboard('{{ $vaNumber }}')" class="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center mt-1">
                                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                                                    Salin
+                                                    Copy
                                                 </button>
                                             </div>
                                         </div>
@@ -103,14 +103,14 @@
                                         <div class="space-y-4">
                                             <div class="bg-blue-50 p-3 rounded-lg flex items-start">
                                                 <svg class="w-4 h-4 text-blue-600 mt-0.5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                                <p class="text-xs text-blue-800 leading-relaxed">Bayar sebelum <span class="font-bold">{{ \Carbon\Carbon::parse($booking->created_at)->addHours(24)->timezone('Asia/Jakarta')->format('d M Y, H:i') }}</span>.</p>
+                                                <p class="text-xs text-blue-800 leading-relaxed">Pay before <span class="font-bold">{{ \Carbon\Carbon::parse($booking->created_at)->addHours(24)->timezone('Asia/Jakarta')->format('d M Y, H:i') }}</span>.</p>
                                             </div>
                                             
                                             <div class="text-xs text-gray-600">
                                                 <ol class="list-decimal list-inside space-y-1 pl-1">
                                                     <li>Menu <strong>m-Transfer > BCA Virtual Account</strong>.</li>
-                                                    <li>Masukkan nomor VA.</li>
-                                                    <li>Masukkan PIN.</li>
+                                                    <li>Enter VA number.</li>
+                                                    <li>Enter PIN.</li>
                                                 </ol>
                                             </div>
                                         </div>
@@ -137,7 +137,7 @@
                                         <input type="hidden" name="payment_method" id="payment_method-{{ $transaction->id }}" value="Transfer">
                                         <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg shadow-sm transition duration-200 text-sm flex justify-center items-center">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                            Sudah Bayar
+                                            I Have Paid
                                         </button>
                                     </form>
                                  </div>
@@ -150,7 +150,7 @@
             <div class="lg:w-1/3">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-8">
                     <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-bold text-gray-900">Rincian Pesanan</h3>
+                        <h3 class="text-lg font-bold text-gray-900">Booking Details</h3>
                     </div>
                     
                     <div class="p-6">
@@ -181,7 +181,7 @@
                         <!-- Price Breakdown -->
                         <div class="border-t border-gray-100 pt-4 space-y-2">
                              <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Tiket (x{{ $booking->tickets->count() }})</span>
+                                <span class="text-gray-600">Tickets (x{{ $booking->tickets->count() }})</span>
                                 <span class="font-medium text-gray-900">Rp {{ number_format($booking->total_amount, 0, ',', '.') }}</span>
                             </div>
                             <!-- Add taxes or fees here if applicable -->

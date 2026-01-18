@@ -11,7 +11,7 @@
         <!-- Logo/Header Section -->
         <div class="text-center mb-10">
             <h1 class="text-3xl font-bold mb-2" style="color: #0085CD;">{{ config('app.name') }}</h1>
-            <p class="text-gray-600">Buat password baru</p>
+            <p class="text-gray-600">Create new password</p>
         </div>
 
         <!-- Reset Password Card -->
@@ -66,7 +66,7 @@
                 <!-- Password Field -->
                 <div>
                     <label for="password" class="block text-gray-700 text-sm font-medium mb-2">
-                        Password Baru
+                        New Password
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -79,18 +79,18 @@
                             id="password" 
                             name="password" 
                             required
-                            placeholder="Minimal 8 karakter"
+                            placeholder="Minimum 8 characters"
                             class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition duration-150"
                             style="--tw-ring-color: #0085CD;"
                         >
                     </div>
-                    <p class="mt-1 text-xs text-gray-500">Minimal 8 karakter</p>
+                    <p class="mt-1 text-xs text-gray-500">Minimum 8 characters</p>
                 </div>
 
                 <!-- Confirm Password Field -->
                 <div>
                     <label for="password_confirmation" class="block text-gray-700 text-sm font-medium mb-2">
-                        Konfirmasi Password Baru
+                        Confirm New Password
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -103,7 +103,7 @@
                             id="password_confirmation" 
                             name="password_confirmation" 
                             required
-                            placeholder="Masukkan ulang password baru"
+                            placeholder="Re-enter new password"
                             class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition duration-150"
                             style="--tw-ring-color: #0085CD;"
                         >
@@ -123,7 +123,7 @@
             <!-- Back to Login Link -->
             <div class="mt-6 text-center pt-6 border-t border-gray-200">
                 <a href="{{ route('login') }}" class="font-medium transition duration-150 text-sm" style="color: #0085CD;">
-                    ← Kembali ke halaman login
+                    ← Back to login page
                 </a>
             </div>
         </div>

@@ -11,12 +11,12 @@
         <!-- Logo/Header Section -->
         <div class="text-center mb-10">
             <h1 class="text-3xl font-bold mb-2" style="color: #0085CD;">{{ config('app.name') }}</h1>
-            <p class="text-gray-600">Selamat datang kembali</p>
+            <p class="text-gray-600">Welcome back</p>
         </div>
 
         <!-- Login Card -->
         <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100">
-            <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Masuk ke Akun</h2>
+            <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Login to Account</h2>
             
             @if ($errors->any())
                 <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6" role="alert">
@@ -36,7 +36,7 @@
                 <!-- Email Field -->
                 <div>
                     <label for="email" class="block text-gray-700 text-sm font-medium mb-2">
-                        Alamat Email
+                        Email Address
                     </label>
                     <input 
                         type="email" 
@@ -45,7 +45,7 @@
                         value="{{ old('email') }}" 
                         required 
                         autofocus
-                        placeholder="nama@example.com"
+                        placeholder="name@example.com"
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition duration-150"
                         style="--tw-ring-color: #0085CD;"
                     >
@@ -61,7 +61,7 @@
                         id="password" 
                         name="password" 
                         required
-                        placeholder="Masukkan password"
+                        placeholder="Enter password"
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition duration-150"
                         style="--tw-ring-color: #0085CD;"
                     >
@@ -76,10 +76,10 @@
                             class="w-4 h-4 rounded border-gray-300 cursor-pointer"
                             style="accent-color: #0085CD;"
                         >
-                        <span class="ml-2 text-sm text-gray-600">Ingat saya</span>
+                        <span class="ml-2 text-sm text-gray-600">Remember me</span>
                     </label>
                     <a href="{{ route('password.request') }}" class="text-sm font-medium transition duration-150" style="color: #0085CD;">
-                        Lupa password?
+                        Forgot password?
                     </a>
                 </div>
 
@@ -89,16 +89,16 @@
                     class="w-full text-white font-medium py-2.5 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-150 shadow-sm hover:shadow-md"
                     style="background-color: #0085CD; --tw-ring-color: #0085CD;"
                 >
-                    Masuk
+                    Login
                 </button>
             </form>
 
             <!-- Sign Up Link -->
             <div class="mt-6 text-center pt-6 border-t border-gray-200">
                 <p class="text-gray-600 text-sm">
-                    Belum punya akun? 
+                    Don't have an account? 
                     <a href="{{ route('signup') }}" class="font-medium transition duration-150" style="color: #0085CD;">
-                        Daftar Sekarang
+                        Sign Up Now
                     </a>
                 </p>
             </div>

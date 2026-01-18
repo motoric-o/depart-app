@@ -10,16 +10,16 @@
                 </svg>
             </div>
             
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">Pembayaran Berhasil!</h2>
-            <p class="text-gray-600 mb-8">Terima kasih, pembayaran Anda telah kami terima. E-Tiket telah diterbitkan.</p>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
+            <p class="text-gray-600 mb-8">Thank you, we have received your payment. E-Ticket has been issued.</p>
 
             <div class="space-y-4">
                 <a href="{{ route('booking.ticket', $booking->id) }}" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Lihat E-Tiket Saya
+                    View My E-Ticket
                 </a>
                 
                 <a href="{{ url('/') }}" class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Kembali ke Beranda
+                    Back to Home
                 </a>
             </div>
         </div>

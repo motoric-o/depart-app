@@ -11,12 +11,12 @@
         <!-- Logo/Header Section -->
         <div class="text-center mb-10">
             <h1 class="text-3xl font-bold mb-2" style="color: #0085CD;">{{ config('app.name') }}</h1>
-            <p class="text-gray-600">Buat akun baru</p>
+            <p class="text-gray-600">Create new account</p>
         </div>
 
         <!-- Signup Card -->
         <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100">
-            <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Buat Akun</h2>
+            <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Create Account</h2>
             
             @if ($errors->any())
                 <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6" role="alert">
@@ -42,7 +42,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="first_name" class="block text-gray-700 text-sm font-medium mb-2">
-                            Nama Depan
+                            First Name
                         </label>
                         <input 
                             type="text" 
@@ -57,7 +57,7 @@
                     </div>
                     <div>
                         <label for="last_name" class="block text-gray-700 text-sm font-medium mb-2">
-                            Nama Belakang
+                            Last Name
                         </label>
                         <input 
                             type="text" 
@@ -89,7 +89,7 @@
                             name="email" 
                             value="{{ old('email') }}" 
                             required
-                            placeholder="nama@example.com"
+                            placeholder="name@example.com"
                             class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition duration-150"
                             style="--tw-ring-color: #0085CD;"
                         >
@@ -99,7 +99,7 @@
                 <!-- Phone Field -->
                 <div>
                     <label for="phone" class="block text-gray-700 text-sm font-medium mb-2">
-                        Nomor Telepon <span class="text-gray-400 text-xs">(opsional)</span>
+                        Phone Number <span class="text-gray-400 text-xs">(optional)</span>
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -122,7 +122,7 @@
                 <!-- Birthdate Field -->
                 <div>
                     <label for="birthdate" class="block text-gray-700 text-sm font-medium mb-2">
-                        Tanggal Lahir
+                        Date of Birth
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -158,18 +158,18 @@
                             id="password" 
                             name="password" 
                             required
-                            placeholder="Minimal 8 karakter"
+                            placeholder="Minimum 8 characters"
                             class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition duration-150"
                             style="--tw-ring-color: #0085CD;"
                         >
                     </div>
-                    <p class="mt-1 text-xs text-gray-500">Minimal 8 karakter</p>
+                    <p class="mt-1 text-xs text-gray-500">Minimum 8 characters</p>
                 </div>
 
                 <!-- Confirm Password Field -->
                 <div>
                     <label for="password_confirmation" class="block text-gray-700 text-sm font-medium mb-2">
-                        Konfirmasi Password
+                        Confirm Password
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -182,7 +182,7 @@
                             id="password_confirmation" 
                             name="password_confirmation" 
                             required
-                            placeholder="Masukkan ulang password"
+                            placeholder="Re-enter password"
                             class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition duration-150"
                             style="--tw-ring-color: #0085CD;"
                         >
@@ -195,16 +195,16 @@
                     class="w-full text-white font-medium py-2.5 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-150 shadow-sm hover:shadow-md"
                     style="background-color: #0085CD; --tw-ring-color: #0085CD;"
                 >
-                    Daftar
+                    Sign Up
                 </button>
             </form>
 
             <!-- Login Link -->
             <div class="mt-6 text-center pt-6 border-t border-gray-200">
                 <p class="text-gray-600 text-sm">
-                    Sudah punya akun? 
+                    Already have an account? 
                     <a href="{{ route('login') }}" class="font-medium transition duration-150" style="color: #0085CD;">
-                        Masuk
+                        Login
                     </a>
                 </p>
             </div>
