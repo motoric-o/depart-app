@@ -972,9 +972,9 @@ class AdminController extends Controller
 
         // 4. Top Performing Routes
         // Ordered by Total Revenue
-        $topRoutes = \App\Models\RouteStat::orderByDesc('total_revenue')
-            ->take(5)
-            ->get();
+        // 4. Top Performing Routes
+        // Ordered by Total Revenue
+        $topRoutes = \App\Models\Route::getTopPerformingRoutes(5, 'total_revenue');
             
         // 5. Recent Transactions (For context)
         $recentTransactions = \App\Models\Transaction::with(['account', 'booking'])

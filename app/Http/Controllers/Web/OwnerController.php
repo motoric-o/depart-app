@@ -19,9 +19,8 @@ class OwnerController extends Controller
         $dashboardStats = $statsResult[0];
 
         // Use the new View Model to get optimized stats
-        $routeStats = \App\Models\RouteStat::orderByDesc('total_bookings')
-            ->take(5)
-            ->get();
+        // Use the new View Model to get optimized stats
+        $routeStats = \App\Models\Route::getTopPerformingRoutes(5, 'total_bookings');
 
         $totalExpenses = \App\Models\Expense::sum('amount');
         // Calculate Net Profit
