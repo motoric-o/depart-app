@@ -19,6 +19,7 @@ class DriverController extends Controller
         // Upcoming Schedules
         $upcomingSchedules = Schedule::where('driver_id', $driverId)
             ->where('departure_time', '>=', now())
+            ->where('remarks', '!=', 'Cancelled')
             ->orderBy('departure_time', 'asc')
             ->take(5)
             ->get();
@@ -28,6 +29,7 @@ class DriverController extends Controller
         
         // Active/Today's Trips (Checking departure time vs now approx)
         $todaysTrips = Schedule::where('driver_id', $driverId)
+            ->where('remarks', '!=', 'Cancelled')
             ->whereDate('departure_time', $today)
             ->get();
 
