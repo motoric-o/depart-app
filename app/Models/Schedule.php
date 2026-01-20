@@ -66,6 +66,12 @@ class Schedule extends Model
         return $this->belongsTo(Account::class, 'driver_id');
     }
 
+    public function scheduleDetails()
+    {
+        return $this->hasMany(ScheduleDetail::class);
+    }
+
+
     public function bookings()
     {
         return $this->hasMany(Booking::class);

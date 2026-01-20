@@ -69,23 +69,36 @@
                                         </td>
                                         <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Rp {{ number_format($expense->amount, 0, ',', '.') }}</td>
                                         <td class="px-4 py-2 whitespace-nowrap text-sm">
+                                            @php
+                                                $statusMap = [
+                                                    'Menunggu' => 'Pending',
+                                                    'Dalam Proses' => 'In Process',
+                                                    'Menunggu Konfirmasi' => 'Pending Confirmation',
+                                                    'Dibayar' => 'Paid',
+                                                    'Masalah Pembayaran' => 'Payment Issue',
+                                                    'Ditolak' => 'Rejected',
+                                                    'Dibatalkan' => 'Canceled',
+                                                    'Gagal' => 'Failed'
+                                                ];
+                                                $displayStatus = $statusMap[$expense->status] ?? $expense->status;
+                                            @endphp
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                @if($expense->status == 'Paid') bg-green-100 text-green-800
-                                                @elseif($expense->status == 'In Process') bg-blue-100 text-blue-800
-                                                @elseif($expense->status == 'Pending Confirmation') bg-orange-100 text-orange-800
-                                                @elseif(in_array($expense->status, ['Rejected', 'Canceled', 'Failed', 'Payment Issue'])) bg-red-100 text-red-800
+                                                @if($displayStatus == 'Paid') bg-green-100 text-green-800
+                                                @elseif($displayStatus == 'In Process') bg-blue-100 text-blue-800
+                                                @elseif($displayStatus == 'Pending Confirmation') bg-orange-100 text-orange-800
+                                                @elseif(in_array($displayStatus, ['Rejected', 'Canceled', 'Failed', 'Payment Issue'])) bg-red-100 text-red-800
                                                 @else bg-yellow-100 text-yellow-800 @endif">
-                                                {{ $expense->status }}
+                                                {{ $displayStatus }}
                                             </span>
                                         </td>
                                         <td class="px-4 py-2 whitespace-nowrap text-sm font-medium">
-                                            @if($expense->status == 'Pending Confirmation')
+                                            @if($displayStatus == 'Pending Confirmation')
                                                 <form action="{{ route('driver.expenses.confirm', $expense->id) }}" method="POST" class="inline-block mr-2">
                                                     @csrf
                                                     <button type="submit" class="bg-green-600 text-white hover:bg-green-700 font-bold rounded px-4 py-2 text-xs">Finish</button>
                                                 </form>
                                                 <button @click="showIssueModal = true; selectedExpenseId = '{{ $expense->id }}'" class="bg-red-600 text-white hover:bg-red-700 font-bold rounded px-4 py-2 text-xs">Funds not received?</button>
-                                            @elseif($expense->status == 'Paid')
+                                            @elseif($displayStatus == 'Paid')
                                                 <button @click="showIssueModal = true; selectedExpenseId = '{{ $expense->id }}'" class="bg-red-600 text-white hover:bg-red-700 font-bold rounded px-4 py-2 text-xs">Funds not received?</button>
                                             @endif
                                         </td>

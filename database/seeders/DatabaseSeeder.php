@@ -37,16 +37,30 @@ class DatabaseSeeder extends Seeder
         // 4. Create Users
         $custType = AccountType::where('name', 'Customer')->first();
 
-        // Create Admins using Factory States
-        Account::factory()->superAdmin()->create();
-        Account::factory()->financialAdmin()->create();
-        Account::factory()->schedulingAdmin()->create();
-        Account::factory()->operationsAdmin()->create();
+        // Create Admins using Factory States if not exists
+        if (!Account::where('email', 'superadmin@dpdepari.com')->exists()) {
+            Account::factory()->superAdmin()->create();
+        }
+        if (!Account::where('email', 'finance@dpdepari.com')->exists()) {
+            Account::factory()->financialAdmin()->create();
+        }
+        if (!Account::where('email', 'scheduler@dpdepari.com')->exists()) {
+            Account::factory()->schedulingAdmin()->create();
+        }
+        if (!Account::where('email', 'ops@dpdepari.com')->exists()) {
+            Account::factory()->operationsAdmin()->create();
+        }
 
         // Create Manual Account (Rico)
-        Account::factory()->rico()->create();
-        Account::factory()->jojo()->create();
-        Account::factory()->jason()->create();
+        if (!Account::where('email', 'rico.dharmawan@example.com')->exists()) {
+            Account::factory()->rico()->create();
+        }
+        if (!Account::where('email', 'jonathan.vw@example.com')->exists()) {
+            Account::factory()->jojo()->create();
+        }
+        if (!Account::where('email', 'jason@example.com')->exists()) {
+            Account::factory()->jason()->create();
+        }
 
         // Create Customers
         Account::factory(5)->create([
@@ -57,6 +71,10 @@ class DatabaseSeeder extends Seeder
 
         // Create Drivers
         $driverType = AccountType::where('name', 'Driver')->first();
+        // Check if we already have some drivers, if so, maybe skip creation or create less?
+        // For simplicity, just create more or assume random email doesn't collide often, 
+        // BUT factories use faker->unique()->safeEmail(), which resets on each run but DB persists.
+        // It's safer to just create them. 
         Account::factory(3)->create([
             'account_type_id' => $driverType->id,
             'first_name' => 'Driver', // Will append sequence by factory usually or random
@@ -175,16 +193,25 @@ class DatabaseSeeder extends Seeder
                     'status' => 'Valid' // Matches 'Valid' logic for Paid tickets
                 ]);
 
+                // Refetch Ticket to get ID (Trigger Generated)
+                $ticket = Ticket::where('booking_id', $booking->id)
+                                ->where('seat_number', $seatLabel)
+                                ->first();
+
                 // 4. Create ScheduleDetail (For Driver App)
                 if ($ticket) {
-                    \App\Models\ScheduleDetail::create([
-                        'schedule_id' => $schedule->id,
-                        'sequence' => $i,
-                        'ticket_id' => $ticket->id,
-                        'seat_number' => $seatLabel, 
-                        'attendance_status' => 'Pending',
-                        'remarks' => null
-                    ]);
+                    \App\Models\ScheduleDetail::updateOrCreate(
+                        [
+                            'schedule_id' => $schedule->id,
+                            'sequence' => $i,
+                        ],
+                        [
+                            'ticket_id' => $ticket->id,
+                            'seat_number' => $seatLabel, 
+                            'attendance_status' => 'Pending',
+                            'remarks' => null
+                        ]
+                    );
                 }
             }
         }

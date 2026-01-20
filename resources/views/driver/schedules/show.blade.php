@@ -60,15 +60,16 @@
                                 @foreach($scheduleDetails as $detail)
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {{ $detail->ticket->id }}
+                                            {{ $detail->ticket?->id ?? '-' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
                                             {{ $detail->seat_number }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $detail->ticket->passenger_name }}<br>
-                                            <span class="text-xs">{{ optional($detail->ticket->booking->account)->phone ?? '-' }}</span>
+                                            {{ $detail->ticket?->passenger_name ?? 'Vsitor' }}<br>
+                                            <span class="text-xs">{{ $detail->ticket?->booking?->account?->phone ?? '-' }}</span>
                                         </td>
+
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                                             <span id="status-{{ $detail->id }}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $detail->attendance_status === 'Present' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
                                                 {{ $detail->attendance_status === 'Present' ? 'Present' : 'Pending' }}

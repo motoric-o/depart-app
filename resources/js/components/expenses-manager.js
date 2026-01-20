@@ -66,8 +66,10 @@ export default function expensesManager(config) {
         },
 
         statusClass(status) {
-            // 'Paid', 'In Process', 'Pending Confirmation', 'Rejected', 'Canceled', 'Failed', 'Payment Issue', 'Pending'
-            switch (status) {
+            // Normalize status to English for styling
+            const englishStatus = this.statusLabel(status);
+            
+            switch (englishStatus) {
                 case 'Paid': return 'bg-green-100 text-green-800';
                 case 'In Process': return 'bg-blue-100 text-blue-800';
                 case 'Pending Confirmation': return 'bg-orange-100 text-orange-800';
@@ -76,20 +78,34 @@ export default function expensesManager(config) {
                 case 'Failed':
                 case 'Payment Issue':
                     return 'bg-red-100 text-red-800';
-                default: return 'bg-yellow-100 text-yellow-800';
+                case 'Pending': 
+                    return 'bg-yellow-100 text-yellow-800';
+                default: 
+                    return 'bg-gray-100 text-gray-800';
             }
         },
 
         statusLabel(status) {
             const labels = {
-                'Pending': 'Menunggu',
-                'In Process': 'Diproses',
-                'Pending Confirmation': 'Menunggu Konfirmasi',
-                'Paid': 'Dibayar',
-                'Payment Issue': 'Masalah Pembayaran',
-                'Rejected': 'Ditolak',
-                'Canceled': 'Dibatalkan',
-                'Failed': 'Gagal'
+                // Indonesian -> English
+                'Menunggu': 'Pending',
+                'Dalam Proses': 'In Process',
+                'Diproses': 'In Process',
+                'Menunggu Konfirmasi': 'Pending Confirmation',
+                'Dibayar': 'Paid',
+                'Masalah Pembayaran': 'Payment Issue',
+                'Ditolak': 'Rejected',
+                'Dibatalkan': 'Canceled',
+                'Gagal': 'Failed',
+                // Keep English -> English just in case
+                'Pending': 'Pending',
+                'In Process': 'In Process', 
+                'Pending Confirmation': 'Pending Confirmation',
+                'Paid': 'Paid',
+                'Payment Issue': 'Payment Issue', 
+                'Rejected': 'Rejected',
+                'Canceled': 'Canceled',
+                'Failed': 'Failed'
             };
             return labels[status] || status;
         },
