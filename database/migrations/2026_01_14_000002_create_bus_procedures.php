@@ -47,6 +47,21 @@ return new class extends Migration
             END;
             $$;
         ");
+
+        /* Add Trigger for Schedule Remarks */
+        DB::unprepared("
+             CREATE OR REPLACE FUNCTION update_schedule_remarks_on_bus_delete() RETURNS TRIGGER AS $$
+             BEGIN
+                 UPDATE schedules SET remarks = 'Pending Bus Assignment' WHERE bus_id = OLD.id;
+                 RETURN OLD;
+             END;
+             $$ LANGUAGE plpgsql;
+
+             DROP TRIGGER IF EXISTS trg_update_schedule_remarks_on_bus_delete ON buses;
+             CREATE TRIGGER trg_update_schedule_remarks_on_bus_delete
+             BEFORE DELETE ON buses
+             FOR EACH ROW EXECUTE FUNCTION update_schedule_remarks_on_bus_delete();
+        ");
     }
 
     /**
@@ -55,6 +70,9 @@ return new class extends Migration
     public function down()
     {
         DB::unprepared("
+            DROP TRIGGER IF EXISTS trg_update_schedule_remarks_on_bus_delete ON buses;
+            DROP FUNCTION IF EXISTS update_schedule_remarks_on_bus_delete();
+            DROP PROCEDURE IF EXISTS sp_delete_bus(TEXT);
             DROP PROCEDURE IF EXISTS sp_manage_bus(TEXT, TEXT, TEXT, TEXT, INT, INT, INT, TEXT);
         ");
     }

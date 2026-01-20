@@ -121,6 +121,45 @@ return new class extends Migration
             END;
             $$;
         ");
+
+        /* Add Trigger for Schedule Auto-Updates (Manual Nulling) */
+        DB::unprepared("
+             CREATE OR REPLACE FUNCTION sp_auto_update_schedule_remarks() RETURNS TRIGGER AS $$
+             BEGIN
+                 -- If Bus is unassigned (Manual Update)
+                 IF NEW.bus_id IS NULL AND (OLD.bus_id IS NOT NULL OR TG_OP = 'INSERT') THEN
+                     NEW.remarks := 'Pending Bus Assignment';
+                 END IF;
+
+                 -- If Route is unassigned (Manual Update)
+                 IF NEW.route_id IS NULL AND (OLD.route_id IS NOT NULL OR TG_OP = 'INSERT') THEN
+                     NEW.remarks := 'Cancelled';
+                     
+                     -- Try to snapshot old route info if available
+                     IF TG_OP = 'UPDATE' AND OLD.route_id IS NOT NULL THEN
+                         -- Only attempt lookup if not already populated (e.g. by deletion trigger)
+                         IF NEW.route_source IS NULL OR NEW.route_destination IS NULL THEN
+                             BEGIN
+                                 SELECT r.source, d.city_name INTO NEW.route_source, NEW.route_destination
+                                 FROM routes r
+                                 JOIN destinations d ON r.destination_code = d.code
+                                 WHERE r.id = OLD.route_id;
+                             EXCEPTION WHEN OTHERS THEN
+                                 -- Ignore
+                             END;
+                         END IF;
+                     END IF;
+                 END IF;
+                 
+                 RETURN NEW;
+             END;
+             $$ LANGUAGE plpgsql;
+
+             DROP TRIGGER IF EXISTS trg_auto_update_schedule_remarks ON schedules;
+             CREATE TRIGGER trg_auto_update_schedule_remarks
+             BEFORE INSERT OR UPDATE ON schedules
+             FOR EACH ROW EXECUTE FUNCTION sp_auto_update_schedule_remarks();
+        ");
     }
 
     /**
@@ -129,6 +168,8 @@ return new class extends Migration
     public function down()
     {
         DB::unprepared("
+            DROP TRIGGER IF EXISTS trg_auto_update_schedule_remarks ON schedules;
+            DROP FUNCTION IF EXISTS sp_auto_update_schedule_remarks();
             DROP FUNCTION IF EXISTS sp_search_trips(TEXT, TEXT, DATE, DECIMAL, DECIMAL);
             DROP PROCEDURE IF EXISTS sp_update_schedule_remarks(TEXT, TEXT);
             DROP PROCEDURE IF EXISTS sp_create_schedule(TEXT, TEXT, TIMESTAMP, TIMESTAMP, DECIMAL, INT);

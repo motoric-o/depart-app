@@ -46,6 +46,22 @@ return new class extends Migration
                 DELETE FROM routes WHERE id = p_id;
             END;
             $$;
+
+            CREATE OR REPLACE FUNCTION update_schedule_remarks_on_route_delete() RETURNS TRIGGER AS $$
+            BEGIN
+                UPDATE schedules 
+                SET remarks = 'Cancelled',
+                    route_source = OLD.source,
+                    route_destination = (SELECT city_name FROM destinations WHERE code = OLD.destination_code)
+                WHERE route_id = OLD.id;
+                RETURN OLD;
+            END;
+            $$ LANGUAGE plpgsql;
+
+            DROP TRIGGER IF EXISTS trg_update_schedule_remarks_on_route_delete ON routes;
+            CREATE TRIGGER trg_update_schedule_remarks_on_route_delete
+            BEFORE DELETE ON routes
+            FOR EACH ROW EXECUTE FUNCTION update_schedule_remarks_on_route_delete();
         ");
     }
 
@@ -55,6 +71,9 @@ return new class extends Migration
     public function down()
     {
         DB::unprepared("
+            DROP TRIGGER IF EXISTS trg_update_schedule_remarks_on_route_delete ON routes;
+            DROP FUNCTION IF EXISTS update_schedule_remarks_on_route_delete();
+            DROP PROCEDURE IF EXISTS sp_delete_route(TEXT);
             DROP PROCEDURE IF EXISTS sp_manage_route(TEXT, TEXT, TEXT, TEXT, INT, INT);
         ");
     }
