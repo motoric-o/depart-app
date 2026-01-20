@@ -656,10 +656,26 @@ class AdminController extends Controller
             $customerRoleId = \App\Models\AccountType::where('name', 'Customer')->value('id');
             $defaultPassword = \Illuminate\Support\Facades\Hash::make('password');
 
-            \Illuminate\Support\Facades\DB::transaction(function () use ($request, $seatsArray, $passengersArray, $customerRoleId, $defaultPassword) {
+            // Fix Input for Old SP (which only updates first_name)
+            // If account exists and has a last name, we must ensure we don't append it again 
+            // by passing the Full Name into first_name.
+            $email = trim($request->customer_email);
+            $nameToSend = trim($request->customer_name ?? '');
+            
+            $existingAccount = \App\Models\Account::where('email', $email)->first();
+            if ($existingAccount && !empty($existingAccount->last_name)) {
+                 // Check if input ends with Last Name (case insensitive)
+                 $lastName = $existingAccount->last_name;
+                 if (preg_match('/' . preg_quote($lastName, '/') . '$/i', $nameToSend)) {
+                     // Strip it and trim
+                     $nameToSend = trim(preg_replace('/' . preg_quote($lastName, '/') . '$/i', '', $nameToSend));
+                 }
+            }
+
+            \Illuminate\Support\Facades\DB::transaction(function () use ($request, $nameToSend, $email, $seatsArray, $passengersArray, $customerRoleId, $defaultPassword) {
                 \Illuminate\Support\Facades\DB::statement("CALL sp_create_booking_admin(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-                    $request->customer_name ?? '', 
-                    trim($request->customer_email), 
+                    $nameToSend, 
+                    $email, 
                     $request->schedule_id,
                     $request->date ?? now(),
                     $seatsArray, 

@@ -40,10 +40,7 @@
                                            @keydown.enter.prevent="checkEmail"
                                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2" 
                                            placeholder="email@contoh.com" required>
-                    <!-- 1. Customer Selection -->
-                    <div class="mb-6 border-b pb-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">1. Customer Data</h3>
-                                </div>
+
                                 <p x-show="emailCheckStatus === 'checking'" class="text-xs text-gray-500 mt-1">Checking...</p>
                                 <p x-show="emailCheckStatus === 'found'" class="text-xs text-green-600 mt-1">Customer found!</p>
                                 <p x-show="emailCheckStatus === 'not_found'" class="text-xs text-blue-600 mt-1">New email. Please fill in name.</p>
